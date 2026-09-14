@@ -1,0 +1,26 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <IsPackable>false</IsPackable>
+    <OutputType>Exe</OutputType>
+    <!-- xUnit v3 runs on Microsoft.Testing.Platform; the .NET 10 SDK requires opting in explicitly. -->
+    <TestingPlatformDotnetTestSupport>true</TestingPlatformDotnetTestSupport>
+    <UseMicrosoftTestingPlatformRunner>true</UseMicrosoftTestingPlatformRunner>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="xunit.v3" />
+    <PackageReference Include="Shouldly" />
+    <PackageReference Include="NSubstitute" />
+    <PackageReference Include="Testcontainers.PostgreSql" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\Stigsmith.Checklists\Stigsmith.Checklists.csproj" />
+    <ProjectReference Include="..\..\src\Stigsmith.Rules\Stigsmith.Rules.csproj" />
+    <ProjectReference Include="..\..\src\Stigsmith.Generation\Stigsmith.Generation.csproj" />
+    <ProjectReference Include="..\..\src\Stigsmith.Validation\Stigsmith.Validation.csproj" />
+    <ProjectReference Include="..\..\src\Stigsmith.Api\Stigsmith.Api.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <Using Include="Xunit" />
+    <Using Include="Shouldly" />
+  </ItemGroup>
+</Project>

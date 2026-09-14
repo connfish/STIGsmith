@@ -1,0 +1,13 @@
+<Project Sdk="Aspire.AppHost.Sdk/13.5.3">
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <AspireUseCliBundle>true</AspireUseCliBundle>
+    <UserSecretsId>stigsmith-apphost</UserSecretsId>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="Aspire.Hosting.PostgreSQL" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Stigsmith.Api\Stigsmith.Api.csproj" />
+  </ItemGroup>
+</Project>

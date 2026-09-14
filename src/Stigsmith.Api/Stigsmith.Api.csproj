@@ -1,0 +1,16 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+  <ItemGroup>
+    <ProjectReference Include="..\Stigsmith.Checklists\Stigsmith.Checklists.csproj" />
+    <ProjectReference Include="..\Stigsmith.Rules\Stigsmith.Rules.csproj" />
+    <ProjectReference Include="..\Stigsmith.Generation\Stigsmith.Generation.csproj" />
+    <ProjectReference Include="..\Stigsmith.Validation\Stigsmith.Validation.csproj" />
+    <ProjectReference Include="..\Stigsmith.ServiceDefaults\Stigsmith.ServiceDefaults.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="Microsoft.AspNetCore.OpenApi" />
+    <PackageReference Include="Scalar.AspNetCore" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Design" />
+    <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" />
+  </ItemGroup>
+</Project>
