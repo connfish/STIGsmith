@@ -6,6 +6,9 @@ using Stigsmith.Api.Persistence;
 using Stigsmith.Api.Generation;
 using Stigsmith.Generation.Conventions;
 using Stigsmith.Generation.Providers;
+using Stigsmith.Validation;
+using Stigsmith.Validation.Docker;
+using ApiValidation = Stigsmith.Api.Validation;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -40,6 +43,18 @@ builder.Services.AddHttpClient<IRemediationProvider, OllamaRemediationProvider>(
 
 builder.Services.AddSingleton<GenerationQueue>();
 builder.Services.AddHostedService<GenerationWorker>();
+
+// Validation. The sandbox is a real Docker container: generated Ansible is worthless until it has been linted,
+// applied, re-scanned, and proven idempotent, and there is no way to prove that without running it.
+builder.Services.Configure<ValidationOptions>(
+    builder.Configuration.GetSection(ValidationOptions.SectionName));
+builder.Services.AddSingleton<IValidationSandbox>(sp => new DockerValidationSandbox(
+    sp.GetRequiredService<IOptions<ValidationOptions>>().Value,
+    sp.GetRequiredService<ILogger<DockerValidationSandbox>>()));
+
+builder.Services.AddSingleton<ApiValidation.ValidationQueue>();
+builder.Services.AddHostedService<ApiValidation.ValidationWorker>();
+
 builder.Services.AddSignalR();
 
 var app = builder.Build();
@@ -56,6 +71,7 @@ app.UseStatusCodePages();
 app.MapChecklistEndpoints();
 app.MapConventionEndpoints();
 app.MapGenerationEndpoints();
+app.MapValidationEndpoints();
 app.MapHub<GenerationHub>("/hubs/generation");
 
 app.Run();

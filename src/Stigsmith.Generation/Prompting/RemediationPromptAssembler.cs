@@ -168,6 +168,56 @@ public static class RemediationPromptAssembler
     }
 
     /// <summary>
+    /// Builds the one repair prompt, given the tool output that rejected the previous attempt.
+    /// </summary>
+    /// <remarks>
+    /// The error goes in verbatim and uncommented. A summarised error loses the line number and the rule id that
+    /// ansible-lint actually complained about, which is the only part that tells the model what to change. The
+    /// previous attempt goes in too, so this is an edit rather than a fresh guess — a regenerated-from-scratch
+    /// answer tends to make a different mistake instead of fixing this one.
+    /// </remarks>
+    public static RemediationPrompt AssembleRepair(
+        RemediationRequest request, string previousYaml, string failedStage, string errorOutput)
+    {
+        var original = Assemble(request);
+
+        var user = new StringBuilder(original.User);
+        user.AppendLine();
+        user.AppendLine();
+        user.AppendLine("## Your previous attempt failed");
+        user.AppendLine($"It was rejected at the {failedStage} stage. This is what you produced:");
+        user.AppendLine();
+        user.AppendLine("```yaml");
+        user.AppendLine(previousYaml.Trim());
+        user.AppendLine("```");
+        user.AppendLine();
+        user.AppendLine("This is the tool output, verbatim:");
+        user.AppendLine();
+        user.AppendLine("```");
+        user.AppendLine(Truncate(errorOutput.Trim(), 4000));
+        user.AppendLine("```");
+        user.AppendLine();
+        user.AppendLine("## Output");
+        user.Append(
+            "Fix the specific problem the output names and return the corrected tasks. Change as little as possible: "
+            + "edit the previous attempt rather than starting again. YAML only, no fence, no commentary. If the fix "
+            + $"genuinely cannot be expressed as idempotent Ansible, say so with `{CannotAutomateMarker}` instead.");
+
+        return new RemediationPrompt(original.System, user.ToString());
+    }
+
+    /// <summary>
+    /// Keeps the head and tail of long tool output. An ansible failure puts the useful line at the end and the task
+    /// context at the start, so cutting only the tail would throw away the error itself.
+    /// </summary>
+    private static string Truncate(string text, int max)
+    {
+        if (text.Length <= max) return text;
+        var half = max / 2;
+        return text[..half] + "\n\n... (output truncated) ...\n\n" + text[^half..];
+    }
+
+    /// <summary>
     /// Normalizes line endings and collapses runs of blank lines. DISA text arrives with inconsistent
     /// spacing, and three blank lines between paragraphs is prompt budget spent on nothing.
     /// </summary>

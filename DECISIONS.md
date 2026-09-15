@@ -467,3 +467,131 @@ Ansible. `Generates_against_a_live_ollama` skips without a reachable Ollama, and
 
 **Rejected:** asserting anything about generated Ansible quality against the scripted provider. That would be
 testing the fake, and it would read like evidence the tool works when it is not.
+
+---
+
+## M6 — Validation sandbox
+
+### The loop stops at the first failure, and each attempt gets a fresh container
+
+Lint → syntax check → (check mode, for high-risk) → apply → re-scan → apply again. In order, because a playbook that
+does not lint cannot usefully be applied and one that did not apply cannot be re-scanned.
+
+**Each attempt starts a new container.** Reusing one would mean the repaired playbook's first apply runs against a
+host the previous attempt already modified — which is exactly the state that makes a non-idempotent playbook look
+idempotent. The one place a second apply deliberately happens in the *same* container is the idempotency stage, which
+is the point of it.
+
+### The exit code is not trusted
+
+`ansible-playbook` exits 0 for a run in which every task was skipped. That is the single most likely way generated
+remediation silently does nothing — a `when` guard referencing an undefined variable skips rather than fails — so the
+PLAY RECAP is parsed and the loop asserts on `ok > 0`, not on the exit code.
+
+That is also why a vars file is written into the container. Generated tasks are asked to match the operator's
+conventions, which means they reference the operator's variables including the per-rule toggle. With no role present
+to supply them, every task would skip and the loop would blame the generated Ansible for a missing defaults file.
+
+### Two verification strategies, and the evidence says which ran
+
+Step 3 is what makes the rest mean anything: lint and a clean apply prove the YAML ran, not that the finding is fixed.
+
+1. **oscap** — a real `oscap xccdf eval --rule` against an installed datastream. Primary, and what the milestone asks
+   for.
+2. **check content** — DISA's own verification command, extracted from the rule and run as a shell test. Used when
+   oscap has no definition for the rule, which covers both the synthetic fixtures and the many real STIG rules whose
+   manual benchmark carries a command but no OVAL.
+
+`ValidationEvidence.VerifiedBy` records which one produced the verdict, because an ISSO needs to know: a real scan and
+a shell test are not worth the same. A rule that neither can verify does **not** pass — it applied cleanly and proved
+nothing, and saying "the playbook ran" while implying "the rule is fixed" is the failure this guards against.
+
+### The verifier refuses to run a mutating command
+
+A verification step that remediates would make the re-scan pass by its own action and produce evidence of something
+that never happened. That is the most dangerous possible bug in this loop, so anything mutating is refused and the
+rule reports as unverifiable instead.
+
+**This was wrong at first in an instructive way.** The initial filter listed bare binary names, so it refused
+`fips-mode-setup --check` and `firewall-cmd --list-all` — both read-only — and reported "cannot verify" for rules that
+are perfectly verifiable. It now judges the *invocation*: only binaries that mutate however they are called are matched
+by name, and the rest are matched on the mutating sub-command or flag. Caught by the end-to-end run reporting
+`unknown -> unknown` for `RHEL-08-010020`, not by a unit test, which is worth remembering.
+
+### A container is not a host, and that bounds what this proves
+
+Remediation that sets a kernel parameter, enables a systemd unit, or rewrites the bootloader **cannot apply in an
+unprivileged container.** The loop reports that honestly as a failed apply rather than a pass, which is the right
+outcome — better needs-human-review than a false pass — but it means:
+
+- the sandbox is a good validator for **file, package, and config-content** remediation;
+- it is a poor validator for **kernel, boot, and service** rules, which will fail for reasons that say nothing about
+  the generated Ansible.
+
+`Privileged` exists and is off by default. Turning it on widens what applies at the cost of giving an untrusted
+generated playbook real capabilities against the host kernel — the operator's decision, not a default. An honest
+improvement here would be a real VM (libvirt, or a Vagrant box) rather than a container; the `IValidationSandbox`
+interface is the seam for it.
+
+### Exactly one repair attempt
+
+The error output goes back **verbatim and untruncated at the ends** — a summarised error loses the line number and the
+rule id ansible-lint complained about, which is the only part that says what to change. The previous attempt goes in
+too, so the model edits rather than guesses again: regenerating from scratch tends to make a different mistake instead
+of fixing this one.
+
+Failing again is not retried. A model that cannot fix its own output given the error twice will not manage it on a
+third go, and `needs-human-review` is a more useful answer than a third round of the same mistake. `MaxRepairAttempts`
+can be set to 0 to disable repair; raising it is deliberately not supported.
+
+**Both attempts are stored as separate `ValidationRunRecord` rows.** The first attempt's error is the reason the repair
+happened, and hiding it would leave a reviewer unable to see what the model got wrong.
+
+### The report gives four numbers, not a percentage
+
+"31 of 45 passed" invites reading the other 14 as broken. In practice most are rules a container cannot validate or
+rules that need a human, and those are different problems with different owners. `PassedAfterRepair` is reported
+separately because it is the model's self-correction rate, and `VerifiedByOscap` because it says how many passes rest
+on a real scan.
+
+Generations with no usable YAML are **absent** from the report rather than counted as failures. Nothing was validated,
+so there is nothing to report; the queue response lists them as skipped with the reason.
+
+### Where the seams are, and why there is no mock container
+
+`IValidationSandbox` exists so the loop's decision logic — which stage failed, whether to repair, when to ask a human,
+what evidence to keep — can be tested exhaustively on a machine with no container runtime. `ScriptedSandbox` is not a
+stub returning canned strings: it tracks whether remediation has been applied, so the verifier legitimately fails
+before and passes after, and the second apply legitimately reports no change. A fake that always said "pass" would
+test nothing.
+
+There is **no mock of `DockerValidationSandbox`**. A mocked container that never applies a playbook would report
+success about nothing, which is worse than no test.
+
+### What is verified, and what is emphatically not
+
+**Verified here** (218 passing tests): the loop's behaviour on every failure path — lint, syntax, failed apply, apply
+that skipped everything, re-scan that still fails, non-idempotent playbook, high-risk rule failing check mode,
+unverifiable rule, no container runtime; the repair path in all three outcomes (repaired and passed, repaired and
+failed, model returned nothing); PLAY RECAP and ansible-lint output parsing; check-command extraction including the
+mutation filter in both directions; playbook and vars assembly; the end-to-end run over 14 rules with evidence; the
+deliberately-broken rule landing in needs-human-review; and the endpoints, worker, evidence persistence, and report
+against real PostgreSQL.
+
+**Not verified anywhere yet: `DockerValidationSandbox` has never been executed.** No Docker on this machine.
+`DockerSandboxTests` covers it — container lifecycle, file injection, exec with both streams, the full loop against a
+real container, and a real non-idempotent playbook being caught — and every one of those tests skipped. The CI
+`container-tests` job builds the validation image and runs them, so the first real signal will come from CI. **Until
+that job has gone green, treat the Docker path as unrun code.** This is the largest caveat in the repository.
+
+**Also unverified:** whether a real model's Ansible survives the loop. That needs both Docker and Ollama.
+
+### Rejected
+
+- **Running lint and syntax-check on the host.** Would need ansible on every machine running Stigsmith, and would lint
+  against a different ansible version than the one that applies the playbook. Both run inside the sandbox instead, so
+  there is one dependency (a container runtime) rather than three.
+- **Pulling the validation image on demand.** Target environments are air-gapped; a pull would hang rather than fail
+  fast. The image is built once from a committed Dockerfile and the loop reports its absence.
+- **Letting the fallback image substitute silently.** It has neither ansible-lint nor oscap, so stages would fail for
+  reasons that look like bad generated YAML. It logs a warning naming the build command.

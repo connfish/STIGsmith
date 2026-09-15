@@ -32,6 +32,7 @@ jobs:
           name: test-results
           path: ./artifacts/test
 
+  # Everything that needs a container runtime: the PostgreSQL-backed API tests, and the validation sandbox.
   container-tests:
     runs-on: ubuntu-latest
     steps:
@@ -41,7 +42,49 @@ jobs:
         with:
           dotnet-version: '10.0.x'
 
-      - name: Test (with Docker available)
+      # The validation loop needs ansible-lint and oscap inside the container, so the image has to exist before the
+      # tests run. Without it DockerSandboxTests skip with an explanation, and the Docker path -- which has never been
+      # executed on the machine this was written on -- stays unverified. Building it here is the point of this job.
+      - name: Build the validation image
+        run: docker build -t stigsmith/validation:el8 docker/validation
+
+      - name: Test (with Docker and the validation image available)
         env:
           STIGSMITH_ENABLE_CONTAINER_TESTS: '1'
-        run: dotnet test -c Release
+        run: dotnet test -c Release --report-trx --results-directory ./artifacts/container-test
+
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: container-test-results
+          path: ./artifacts/container-test
+
+  # The generation path against a real local model. Separate because it needs a model pulled, which is slow and large,
+  # and because a model server being down should not fail the build for everything else.
+  ollama-tests:
+    runs-on: ubuntu-latest
+    continue-on-error: true
+    services:
+      ollama:
+        image: ollama/ollama:latest
+        ports:
+          - 11434:11434
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-dotnet@v5
+        with:
+          dotnet-version: '10.0.x'
+
+      - name: Pull the model
+        run: |
+          for i in $(seq 1 30); do
+            curl -sf http://localhost:11434/api/tags >/dev/null && break
+            sleep 2
+          done
+          curl -sf http://localhost:11434/api/pull -d '{"model":"qwen2.5-coder:7b"}' || true
+
+      - name: Test the live generation path
+        env:
+          STIGSMITH_OLLAMA_URL: http://localhost:11434
+        run: dotnet test -c Release --filter-method '*OllamaProviderTests*'

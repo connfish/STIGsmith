@@ -59,11 +59,42 @@ and makes no outbound network calls.
 the validation sandbox, .NET Aspire for local orchestration, xUnit v3 + Shouldly + NSubstitute +
 Testcontainers for tests.
 
+## The validation loop
+
+For each generated remediation, in order:
+
+1. `ansible-lint` and `ansible-playbook --syntax-check`
+2. for a high-risk rule, `--check` first, so an operator can dry-run it before it touches a host
+3. apply in a **disposable AlmaLinux 8 container**
+4. **re-run the scan** and confirm the finding flipped to pass
+5. apply a second time and require **zero changed tasks**
+
+On failure, the tool output goes back to the model verbatim for **exactly one** repair attempt. Failing again marks the
+rule `needs-human-review` rather than being retried — a model that cannot fix its own output given the error twice will
+not manage it on a third go.
+
+Every run stores the whole evidence bundle: lint output, apply output, before/after scan status, idempotency result, the
+playbook as applied, and **which verifier produced the verdict** — a real `oscap` scan or DISA's own check command run as
+a shell test. Those are not worth the same, so the report says which.
+
+Two things worth knowing about the numbers:
+
+- **A container is not a host.** Remediation that sets a kernel parameter, enables a systemd unit, or rewrites the
+  bootloader cannot apply in an unprivileged container. The loop reports that as a failed apply rather than a pass,
+  which is correct, but it means the sandbox validates file, package, and config-content rules well and kernel, boot,
+  and service rules poorly.
+- **A rule that cannot be verified does not pass.** Applying cleanly proves the YAML ran, not that the finding is fixed.
+
 ## Running it
 
 ```bash
+# Build the validation image once. Nothing validates until this exists, and it is built rather than pulled at run
+# time because target environments are air-gapped.
+docker build -t stigsmith/validation:el8 docker/validation
+
 # Aspire: API + Postgres + Ollama
 dotnet run --project src/Stigsmith.AppHost
+ollama pull qwen2.5-coder:7b
 
 # or, without the Aspire CLI / on an air-gapped host
 docker compose up
@@ -71,6 +102,9 @@ docker compose up
 # tests
 dotnet test
 ```
+
+Point `Stigsmith:Generation:ConventionRole:Path` at your own Ansible role to get your own conventions. Nothing about it
+is committed here (constraint 5); `examples/example-role/` is a small synthetic role for the tests.
 
 `dotnet test` passes on a clean clone with no Docker, no Ollama, and no Ansible installed: suites
 that need those probe for them and skip. Set `STIGSMITH_ENABLE_CONTAINER_TESTS=1` on a machine that
@@ -84,7 +118,9 @@ has a container runtime to run them for real.
 | `Stigsmith.Rules` | Automatability classification and high-risk tagging |
 | `Stigsmith.Generation` | Convention retrieval, prompt assembly, `IRemediationProvider` |
 | `Stigsmith.Validation` | The lint → apply → re-scan → idempotency loop and its evidence |
+| `docker/validation/` | The container image the loop applies remediation in |
 | `Stigsmith.Api` | Minimal API endpoints, persistence, job queues, SignalR hubs |
 
-`DECISIONS.md` records what was decided and what was rejected. `PROGRESS.md` is the current state of
-the work, written to be picked up cold.
+`DECISIONS.md` records what was decided and what was rejected, including the mistakes worth remembering.
+`PROGRESS.md` is the current state of the work, written to be picked up cold — **including a list of what has not been
+verified and why**, which is the section to read before trusting any of this.

@@ -6,6 +6,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Stigsmith.Api.Persistence;
 using Stigsmith.Generation.Providers;
+using Stigsmith.Validation;
 using Testcontainers.PostgreSql;
 
 namespace Stigsmith.Tests.Support;
@@ -29,6 +30,9 @@ public sealed class ApiFixture : IAsyncLifetime
 
     /// <summary>The scripted model behind the API, for inspecting the prompts it was sent.</summary>
     public ScriptedRemediationProvider Provider { get; } = new();
+
+    /// <summary>The scripted container behind the API, for steering which validation stage fails.</summary>
+    public ScriptedSandbox Sandbox { get; } = new();
 
     public static void SkipIfUnavailable() =>
         Assert.SkipUnless(TestEnvironment.HasDocker,
@@ -58,6 +62,12 @@ public sealed class ApiFixture : IAsyncLifetime
                 services.RemoveAll<IRemediationProvider>();
                 services.AddSingleton<ScriptedRemediationProvider>(Provider);
                 services.AddSingleton<IRemediationProvider>(sp => sp.GetRequiredService<ScriptedRemediationProvider>());
+
+                // Same reasoning for the container: the validation endpoints, the worker, the evidence persistence and
+                // the report are all testable without Docker, and would otherwise be untestable anywhere without it.
+                // DockerValidationSandbox itself is covered only by DockerSandboxTests, which skip here.
+                services.RemoveAll<IValidationSandbox>();
+                services.AddSingleton<IValidationSandbox>(Sandbox);
             });
         });
 
