@@ -42,6 +42,7 @@ public sealed class ApiFixture : IAsyncLifetime
         _factory = new WebApplicationFactory<Program>().WithWebHostBuilder(builder =>
         {
             builder.UseSetting("ConnectionStrings:stigsmithdb", connection);
+            builder.UseSetting("Stigsmith:Generation:ConventionRole:Path", TestEnvironment.ExampleRolePath);
             builder.UseEnvironment("Development");
         });
 

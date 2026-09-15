@@ -1,0 +1,27 @@
+---
+# Per-rule toggles. House convention: stigsmith_rhel8_rule_<vuln number>, default true, so an
+# operator disables individual rules rather than opting into them one at a time.
+stigsmith_rhel8_rule_230240: true
+stigsmith_rhel8_rule_230244: true
+stigsmith_rhel8_rule_230269: true
+stigsmith_rhel8_rule_230271: true
+stigsmith_rhel8_rule_230286: true
+stigsmith_rhel8_rule_230296: true
+stigsmith_rhel8_rule_230301: true
+stigsmith_rhel8_rule_230332: true
+stigsmith_rhel8_rule_230352: true
+stigsmith_rhel8_rule_230380: true
+stigsmith_rhel8_rule_230423: true
+stigsmith_rhel8_rule_230486: true
+stigsmith_rhel8_rule_230494: true
+stigsmith_rhel8_rule_230512: true
+stigsmith_rhel8_rule_230535: true
+stigsmith_rhel8_rule_230550: true
+
+# Tunable values. House convention: stigsmith_rhel8_<setting>, never a bare name.
+stigsmith_rhel8_sshd_config_path: /etc/ssh/sshd_config
+stigsmith_rhel8_client_alive_count_max: 1
+stigsmith_rhel8_faillock_deny: 3
+stigsmith_rhel8_password_minlen: 15
+stigsmith_rhel8_gui_idle_delay: 900
+stigsmith_rhel8_selinux_type: targeted

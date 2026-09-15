@@ -1,0 +1,15 @@
+---
+- name: Include CAT I tasks
+  ansible.builtin.import_tasks: cat1.yml
+  tags:
+    - CAT1
+
+- name: Include CAT II tasks
+  ansible.builtin.import_tasks: cat2.yml
+  tags:
+    - CAT2
+
+- name: Include CAT III tasks
+  ansible.builtin.import_tasks: cat3.yml
+  tags:
+    - CAT3

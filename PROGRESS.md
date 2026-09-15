@@ -1,8 +1,8 @@
 # Progress
 
-**Current milestone:** M3 complete. Starting M4.
+**Current milestone:** M4 complete. Starting M5.
 
-`dotnet test` → **94 passed, 11 skipped, 0 failed.** The skips are the API integration tests, which need
+`dotnet test` → **120 passed, 15 skipped, 0 failed.** The skips are the API integration tests, which need
 a container runtime this machine does not have. See "Environment gaps" below.
 
 ## Done
@@ -71,9 +71,30 @@ inconsistency in the key, but a key adjusted alongside the thing it grades is pa
 held-out set (`RuleClassifierTests`, 32 cases written from the policy, touching no catalog rule) is the
 stronger evidence. If you want better, have someone else key a fresh sample.
 
+### M4 — Convention retrieval ✅
+
+- `AnsibleRoleIndexer` reads a role from a **runtime-configured path** (`ConventionRoleOptions`,
+  `Stigsmith:Generation:ConventionRole:Path`) and extracts per-task name, module, variables, notified
+  handlers, `when` guards, tags, and derived rule ids. Constraint 5: nothing is vendored.
+- Each task's **raw YAML is sliced from the file**, so the few-shot example keeps the operator's own
+  formatting rather than a re-serialized version of it.
+- `RoleConventions.Infer` extracts the house style — variable prefix, per-rule toggle template, handler
+  names, module spelling, tag scheme — and renders it for the prompt.
+- `RoleIndex.Retrieve` is **BM25** with an exact same-rule shortcut. The justification and the honest
+  limitation are both in `DECISIONS.md`.
+- `examples/example-role/` is a 21-task synthetic role (16 tasks + 5 handlers) with deliberately
+  distinctive conventions, so tests can tell whether retrieval transferred them.
+- API: `GET /api/conventions`, `POST /api/conventions/reindex`,
+  `GET /api/conventions/examples/{findingId}`.
+
+Relevance is asserted on **known pairs across five subsystems** (sshd, sysctl, packages, pwquality,
+auditd): for a rule the role does not implement, the top neighbour must come from the right family. Ranks
+2–3 do drift on a 21-task role — that is lexical retrieval's known weakness and it is documented rather
+than tuned away.
+
 ## Stubbed / not started
 
-- M4 retrieval, M5 generation, M6 validation loop.
+- M5 generation, M6 validation loop.
 - Job queues (`Channels` + `IHostedService`) and SignalR hubs. Not needed until M5.
 - The `examples/example-role/` synthetic Ansible role is an empty directory skeleton; M4 fills it.
 - M7 UI. Bonus only; not started, and will not be unless M6 lands solidly.

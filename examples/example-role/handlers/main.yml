@@ -1,0 +1,23 @@
+---
+# House convention: lowercase, verb first, no punctuation. Referenced verbatim by notify.
+- name: restart sshd
+  ansible.builtin.systemd_service:
+    name: sshd
+    state: restarted
+
+- name: reload sysctl
+  ansible.builtin.command: sysctl --system
+  changed_when: false
+
+- name: restart auditd
+  # auditd refuses a plain systemctl restart on RHEL 8; service is the documented path.
+  ansible.builtin.command: service auditd restart
+  changed_when: false
+
+- name: update dconf
+  ansible.builtin.command: dconf update
+  changed_when: false
+
+- name: rebuild grub config
+  ansible.builtin.command: grub2-mkconfig -o /boot/grub2/grub.cfg
+  changed_when: false

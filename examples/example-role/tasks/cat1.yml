@@ -1,0 +1,59 @@
+---
+- name: "RHEL-08-010370 | PATCH | RHEL 8 must verify the signature of packages from a repository"
+  ansible.builtin.lineinfile:
+    path: /etc/dnf/dnf.conf
+    regexp: '^gpgcheck'
+    line: gpgcheck=1
+    state: present
+    create: false
+  when:
+    - stigsmith_rhel8_rule_230269
+  tags:
+    - RHEL-08-010370
+    - V-230269
+    - CAT1
+    - high
+    - packages
+
+- name: "RHEL-08-010500 | PATCH | The RHEL 8 SSH daemon must perform strict mode checking"
+  ansible.builtin.lineinfile:
+    path: "{{ stigsmith_rhel8_sshd_config_path }}"
+    regexp: '^(?i)\s*StrictModes'
+    line: StrictModes yes
+    validate: /usr/sbin/sshd -t -f %s
+  notify: restart sshd
+  when:
+    - stigsmith_rhel8_rule_230286
+  tags:
+    - RHEL-08-010500
+    - V-230286
+    - CAT1
+    - high
+    - sshd
+
+- name: "RHEL-08-040000 | PATCH | RHEL 8 must not have the telnet-server package installed"
+  ansible.builtin.dnf:
+    name: telnet-server
+    state: absent
+  when:
+    - stigsmith_rhel8_rule_230494
+  tags:
+    - RHEL-08-040000
+    - V-230494
+    - CAT1
+    - high
+    - packages
+
+- name: "RHEL-08-010800 | PATCH | RHEL 8 must enable the SELinux targeted policy"
+  ansible.builtin.lineinfile:
+    path: /etc/selinux/config
+    regexp: '^SELINUXTYPE='
+    line: "SELINUXTYPE={{ stigsmith_rhel8_selinux_type }}"
+  when:
+    - stigsmith_rhel8_rule_230550
+  tags:
+    - RHEL-08-010800
+    - V-230550
+    - CAT1
+    - high
+    - selinux

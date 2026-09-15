@@ -272,3 +272,98 @@ The milestone allows one over the needs-review bucket. Not built: the heuristic 
 regardless, it is at 100% agreement on this fixture, and a second pass would need its own evaluation
 harness to be worth trusting. Recorded as a genuine option rather than a gap — the place for it is a
 second stage over `NeedsReview` only, never overriding `Manual`.
+
+---
+
+## M4 — Convention retrieval
+
+### BM25, not embeddings
+
+The milestone allows either and asks for a justification. Lexical, for four reasons:
+
+1. **The strongest signal is an exact identifier match.** Roles label tasks with the STIG version id or
+   the V- number, which is exactly what lexical search is best at and exactly what embeddings blur.
+2. **No model is needed at index time.** Constraint 4's target environments are air-gapped. An index that
+   cannot be built until a model is warm is an index that fails at the worst moment.
+3. **It is explainable.** "Retrieved because the task name shares `sshd_config` and `lineinfile`" is
+   something an operator can check. A cosine distance is not, and this is a tool whose output an ISSO has
+   to accept.
+4. **The corpus is a role.** Hundreds of tasks. Nothing here needs approximate nearest neighbours.
+
+**The trade is real and is not hidden.** BM25 misses a task that solves the same problem in different
+words — a task named "harden the SSH daemon" against a rule phrased "must not permit direct logons". On
+the 21-task example role this shows up as ranks 2 and 3 drifting into other subsystems once the one or two
+genuinely related tasks are exhausted: an SSH rule's third neighbour is a package task, ranked on
+incidental shared vocabulary (`/etc/`, `root`, `mode`). Embeddings via the local model are the upgrade
+path, and `Retrieve` is the only thing that would change.
+
+`ConventionRetrievalTests` asserts the top hit's subsystem across five families and that result sets
+differ, rather than pinning all three positions. Asserting positions 2 and 3 would mean tuning K1, B, and
+the field weights until this one synthetic role passed, which is fitting noise.
+
+### Same-rule matches bypass scoring entirely
+
+If the role already implements the rule, that implementation is returned first with an infinite score,
+whatever BM25 thinks. The model's job then becomes matching an existing task rather than inventing one,
+which is the whole premise of the project — this is translation, not generation.
+
+Matching is via `RuleIdentifiers`, so a task tagged `V-230296` matches a rule whose version id is
+`RHEL-08-010550` and vice versa.
+
+### Raw YAML is sliced from the file, never re-serialized
+
+What makes retrieval worth doing is that the example carries the operator's formatting — quoting style,
+key order, how `when` is written. A round trip through a YAML emitter normalizes all of that away and
+would teach the model Stigsmith's conventions instead of the operator's.
+
+Slicing is by **line span between consecutive task start marks**, not by each node's `End` mark. The first
+implementation used `End.Index` and produced empty strings for every task — YamlDotNet does not populate
+it usefully for block mappings. Line spans also naturally include the leading `- ` marker and the role's
+indentation, so the result is a complete task that can be copied.
+
+### Conventions are stated in the prompt, not just demonstrated
+
+`RoleConventions.Infer` extracts the variable prefix, the per-rule toggle pattern, handler names, module
+spelling, and the tag scheme. Examples alone leave the model to infer the pattern, and it infers wrong on
+exactly the things only visible across many tasks. Naming them costs a few lines of prompt.
+
+Two bugs worth recording, because both produced a plausible-looking wrong answer rather than a failure:
+
+- **The prefix search was capped at the shortest variable's length.** With a loop variable named
+  `audit_tool` in the role, the search stopped at ten characters and reported `stigsmith_` where the
+  convention is `stigsmith_rhel8_`. A prefix has to be shared by most variables, not be a prefix of all of
+  them, so every candidate is now tried as a seed.
+- **A majority threshold finds a subset convention.** 16 of the example role's 23 variables are per-rule
+  toggles, so the majority prefix is `stigsmith_rhel8_rule_` — real, but not the namespace. The threshold
+  is 0.8, which admits only `stigsmith_rhel8_`, and the toggle pattern is reported separately. Those two
+  facts together are what a prompt needs; either alone is misleading.
+
+### Indexing is best-effort
+
+One unparseable task file is logged and skipped, not fatal. An operator whose role has a single
+Jinja-templated task file should not silently lose convention retrieval for the other two hundred tasks.
+`RoleIndex.SkippedFiles` carries what was dropped and `GET /api/conventions` reports it, so "best-effort"
+does not mean "quiet".
+
+Likewise a missing or unconfigured role path yields an empty index with an `UnavailableReason` rather than
+an exception. Convention retrieval is an enhancement to generation, not a prerequisite for it.
+
+### The module is whichever key is not a task keyword
+
+An Ansible task is an open map, so no fixed type can model it — hence YamlDotNet's representation model
+rather than deserialization. Where several keys are non-keywords, one containing a dot wins, so a role
+using `ansible.builtin.copy` alongside a task keyword this indexer has not heard of is still read
+correctly. `import_tasks` / `include_tasks` entries are indexed as nothing: they are plumbing, not
+examples of how the role configures anything.
+
+### `GET /api/conventions/examples/{findingId}` exists for trust, not for the UI
+
+It shows exactly which existing tasks the model will imitate for a given finding, before an operator
+trusts anything generated from them. Note what the handler builds: a `RuleContent`, so there is no host
+metadata reachable at that point even by accident.
+
+### The index does not watch the filesystem
+
+A convention role is a git checkout an operator will pull. `POST /api/conventions/reindex` is explicit
+rather than automatic — a file watcher re-indexing mid-generation would change the examples underneath a
+running job for no benefit.

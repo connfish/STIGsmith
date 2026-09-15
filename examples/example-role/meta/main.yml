@@ -1,0 +1,12 @@
+---
+galaxy_info:
+  role_name: example_role
+  author: synthetic
+  description: Synthetic RHEL 8 hardening role used only by Stigsmith's tests.
+  license: MIT
+  min_ansible_version: "2.15"
+  platforms:
+    - name: EL
+      versions:
+        - "8"
+dependencies: []

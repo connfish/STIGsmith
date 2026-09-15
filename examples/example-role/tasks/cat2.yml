@@ -1,0 +1,185 @@
+---
+- name: "RHEL-08-010171 | PATCH | RHEL 8 must have the policycoreutils package installed"
+  ansible.builtin.dnf:
+    name: policycoreutils
+    state: present
+  when:
+    - stigsmith_rhel8_rule_230240
+  tags:
+    - RHEL-08-010171
+    - V-230240
+    - CAT2
+    - medium
+    - selinux
+
+- name: "RHEL-08-010200 | PATCH | RHEL 8 SSH connections must terminate after a period of inactivity"
+  ansible.builtin.lineinfile:
+    path: "{{ stigsmith_rhel8_sshd_config_path }}"
+    regexp: '^(?i)\s*ClientAliveCountMax'
+    line: "ClientAliveCountMax {{ stigsmith_rhel8_client_alive_count_max }}"
+    validate: /usr/sbin/sshd -t -f %s
+  notify: restart sshd
+  when:
+    - stigsmith_rhel8_rule_230244
+  tags:
+    - RHEL-08-010200
+    - V-230244
+    - CAT2
+    - medium
+    - sshd
+
+- name: "RHEL-08-010550 | PATCH | RHEL 8 must not permit direct logons to root via SSH"
+  ansible.builtin.lineinfile:
+    path: "{{ stigsmith_rhel8_sshd_config_path }}"
+    regexp: '^(?i)\s*PermitRootLogin'
+    line: PermitRootLogin no
+    validate: /usr/sbin/sshd -t -f %s
+  notify: restart sshd
+  when:
+    - stigsmith_rhel8_rule_230296
+  tags:
+    - RHEL-08-010550
+    - V-230296
+    - CAT2
+    - medium
+    - sshd
+
+- name: "RHEL-08-010372 | PATCH | RHEL 8 must enforce DAC on symlinks"
+  ansible.posix.sysctl:
+    name: fs.protected_symlinks
+    value: "1"
+    sysctl_file: /etc/sysctl.d/99-stigsmith.conf
+    state: present
+    reload: false
+  notify: reload sysctl
+  when:
+    - stigsmith_rhel8_rule_230271
+  tags:
+    - RHEL-08-010372
+    - V-230271
+    - CAT2
+    - medium
+    - kernel
+
+- name: "RHEL-08-040286 | PATCH | RHEL 8 must use reverse path filtering on all IPv4 interfaces"
+  ansible.posix.sysctl:
+    name: net.ipv4.conf.all.rp_filter
+    value: "1"
+    sysctl_file: /etc/sysctl.d/99-stigsmith.conf
+    state: present
+    reload: false
+  notify: reload sysctl
+  when:
+    - stigsmith_rhel8_rule_230535
+  tags:
+    - RHEL-08-040286
+    - V-230535
+    - CAT2
+    - medium
+    - network
+
+- name: "RHEL-08-020010 | PATCH | RHEL 8 must lock an account after three failed logon attempts"
+  ansible.builtin.lineinfile:
+    path: /etc/security/faillock.conf
+    regexp: '^\s*deny\s*='
+    line: "deny = {{ stigsmith_rhel8_faillock_deny }}"
+    create: true
+    owner: root
+    group: root
+    mode: "0644"
+  when:
+    - stigsmith_rhel8_rule_230332
+  tags:
+    - RHEL-08-020010
+    - V-230332
+    - CAT2
+    - medium
+    - pam
+
+- name: "RHEL-08-020300 | PATCH | RHEL 8 must enforce a minimum 15-character password length"
+  ansible.builtin.lineinfile:
+    path: /etc/security/pwquality.conf
+    regexp: '^\s*minlen\s*='
+    line: "minlen = {{ stigsmith_rhel8_password_minlen }}"
+    create: true
+    owner: root
+    group: root
+    mode: "0644"
+  when:
+    - stigsmith_rhel8_rule_230380
+  tags:
+    - RHEL-08-020300
+    - V-230380
+    - CAT2
+    - medium
+    - pam
+
+- name: "RHEL-08-040100 | PATCH | A firewall must be installed on RHEL 8"
+  ansible.builtin.dnf:
+    name: firewalld
+    state: present
+  when:
+    - stigsmith_rhel8_rule_230512
+  tags:
+    - RHEL-08-040100
+    - V-230512
+    - CAT2
+    - medium
+    - firewall
+
+- name: "RHEL-08-010561 | PATCH | The rsyslog service must be running in RHEL 8"
+  ansible.builtin.systemd_service:
+    name: rsyslog
+    enabled: true
+    state: started
+  when:
+    - stigsmith_rhel8_rule_230301
+  tags:
+    - RHEL-08-010561
+    - V-230301
+    - CAT2
+    - medium
+    - services
+
+- name: "RHEL-08-030170 | PATCH | Modifications to /etc/sudoers must generate an audit record"
+  ansible.builtin.lineinfile:
+    path: /etc/audit/rules.d/stigsmith.rules
+    line: -w /etc/sudoers -p wa -k identity
+    state: present
+    create: true
+    owner: root
+    group: root
+    mode: "0640"
+  notify: restart auditd
+  when:
+    - stigsmith_rhel8_rule_230423
+  tags:
+    - RHEL-08-030170
+    - V-230423
+    - CAT2
+    - medium
+    - auditd
+
+- name: "RHEL-08-030620 | PATCH | RHEL 8 audit tools must have a mode of 0755 or less permissive"
+  ansible.builtin.file:
+    path: "{{ audit_tool }}"
+    mode: "0755"
+    owner: root
+    group: root
+  loop:
+    - /sbin/auditctl
+    - /sbin/aureport
+    - /sbin/ausearch
+    - /sbin/autrace
+    - /sbin/auditd
+    - /sbin/augenrules
+  loop_control:
+    loop_var: audit_tool
+  when:
+    - stigsmith_rhel8_rule_230486
+  tags:
+    - RHEL-08-030620
+    - V-230486
+    - CAT2
+    - medium
+    - auditd

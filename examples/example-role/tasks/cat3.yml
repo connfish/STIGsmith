@@ -1,0 +1,21 @@
+---
+- name: "RHEL-08-020060 | PATCH | RHEL 8 must lock graphical sessions after 15 minutes of inactivity"
+  ansible.builtin.blockinfile:
+    path: /etc/dconf/db/local.d/00-screensaver
+    create: true
+    owner: root
+    group: root
+    mode: "0644"
+    marker: "# {mark} STIGSMITH MANAGED BLOCK RHEL-08-020060"
+    block: |
+      [org/gnome/desktop/session]
+      idle-delay=uint32 {{ stigsmith_rhel8_gui_idle_delay }}
+  notify: update dconf
+  when:
+    - stigsmith_rhel8_rule_230352
+  tags:
+    - RHEL-08-020060
+    - V-230352
+    - CAT3
+    - low
+    - gui
