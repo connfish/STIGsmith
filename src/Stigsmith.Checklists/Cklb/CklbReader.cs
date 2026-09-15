@@ -1,6 +1,5 @@
 using System.Text.Json;
 using System.Text.Json.Nodes;
-using Stigsmith.Checklists.Ckl;
 using Stigsmith.Checklists.Model;
 
 namespace Stigsmith.Checklists.Cklb;
@@ -114,7 +113,7 @@ public static class CklbReader
             FalsePositives = Str(r, "false_positives"),
             FalseNegatives = Str(r, "false_negatives"),
         },
-        Status = StatusCodes.FromCklb(Str(r, "status")),
+        Status = FindingStatusCodes.FromCklb(Str(r, "status")),
         FindingDetails = Str(r, "finding_details"),
         Comments = Str(r, "comments"),
         SeverityOverride = Str(r["overrides"] as JsonObject, "severity"),

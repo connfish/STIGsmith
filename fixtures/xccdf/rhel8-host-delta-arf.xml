@@ -1,0 +1,1115 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<arf:asset-report-collection xmlns:ai="http://scap.nist.gov/schema/asset-identification/1.1" xmlns:arf="http://scap.nist.gov/schema/asset-reporting-format/1.1" xmlns:core="http://scap.nist.gov/schema/reporting-core/1.1" xmlns:xccdf="http://checklists.nist.gov/xccdf/1.2">
+  <arf:report-requests>
+    <arf:report-request id="collection1">
+      <core:content>
+        <xccdf:Benchmark id="xccdf_mil.disa.stig_benchmark_RHEL_8_STIG">
+          <xccdf:status date="2099-07-24">accepted</xccdf:status>
+          <xccdf:title>Red Hat Enterprise Linux 8 Security Technical Implementation Guide</xccdf:title>
+          <xccdf:description>This STIG provides guidance for RHEL 8.</xccdf:description>
+          <xccdf:version time="2099-07-24T00:00:00">1</xccdf:version>
+          <xccdf:Group id="xccdf_mil.disa.stig_group_V-230221">
+            <xccdf:title>V-230221</xccdf:title>
+            <xccdf:Rule id="xccdf_mil.disa.stig_rule_SV-230221r1130221_rule" severity="high" weight="10.0">
+              <xccdf:version>RHEL-08-010000</xccdf:version>
+              <xccdf:title>RHEL 8 must be a vendor-supported release.</xccdf:title>
+              <xccdf:description>&lt;VulnDiscussion&gt;An operating system release is considered supported if the vendor continues to provide security patches.&lt;/VulnDiscussion&gt;&lt;FalsePositives&gt;&lt;/FalsePositives&gt;&lt;FalseNegatives&gt;&lt;/FalseNegatives&gt;&lt;Documentable&gt;false&lt;/Documentable&gt;&lt;Mitigations&gt;&lt;/Mitigations&gt;&lt;SeverityOverrideGuidance&gt;&lt;/SeverityOverrideGuidance&gt;&lt;PotentialImpacts&gt;&lt;/PotentialImpacts&gt;&lt;ThirdPartyTools&gt;&lt;/ThirdPartyTools&gt;&lt;MitigationControl&gt;&lt;/MitigationControl&gt;&lt;Responsibility&gt;&lt;/Responsibility&gt;&lt;IAControls&gt;&lt;/IAControls&gt;</xccdf:description>
+              <xccdf:ident system="http://cyber.mil/cci">CCI-000821</xccdf:ident>
+              <xccdf:fixtext fixref="F-230221r1_fix">Upgrade to a supported version of RHEL 8.</xccdf:fixtext>
+              <xccdf:check system="C-230221r1_chk">
+                <xccdf:check-content>Verify the version of the operating system is vendor supported.
+
+Check the version with the following command:
+
+$ cat /etc/redhat-release
+
+If the release is not supported by the vendor, this is a finding.</xccdf:check-content>
+              </xccdf:check>
+            </xccdf:Rule>
+          </xccdf:Group>
+          <xccdf:Group id="xccdf_mil.disa.stig_group_V-230222">
+            <xccdf:title>V-230222</xccdf:title>
+            <xccdf:Rule id="xccdf_mil.disa.stig_rule_SV-230222r1130222_rule" severity="medium" weight="10.0">
+              <xccdf:version>RHEL-08-010010</xccdf:version>
+              <xccdf:title>RHEL 8 vendor packaged system security patches and updates must be installed and up to date.</xccdf:title>
+              <xccdf:description>&lt;VulnDiscussion&gt;Timely patching is critical for maintaining the operational availability and integrity of a system.&lt;/VulnDiscussion&gt;&lt;FalsePositives&gt;&lt;/FalsePositives&gt;&lt;FalseNegatives&gt;&lt;/FalseNegatives&gt;&lt;Documentable&gt;false&lt;/Documentable&gt;&lt;Mitigations&gt;&lt;/Mitigations&gt;&lt;SeverityOverrideGuidance&gt;&lt;/SeverityOverrideGuidance&gt;&lt;PotentialImpacts&gt;&lt;/PotentialImpacts&gt;&lt;ThirdPartyTools&gt;&lt;/ThirdPartyTools&gt;&lt;MitigationControl&gt;&lt;/MitigationControl&gt;&lt;Responsibility&gt;&lt;/Responsibility&gt;&lt;IAControls&gt;&lt;/IAControls&gt;</xccdf:description>
+              <xccdf:ident system="http://cyber.mil/cci">CCI-000822</xccdf:ident>
+              <xccdf:fixtext fixref="F-230222r1_fix">Install the operating system patches or updated packages available from the vendor.</xccdf:fixtext>
+              <xccdf:check system="C-230222r1_chk">
+                <xccdf:check-content>Verify the operating system security patches are up to date with the following command:
+
+$ sudo yum history list | more
+
+If the system is not being patched per the organizational patch schedule, this is a finding.</xccdf:check-content>
+              </xccdf:check>
+            </xccdf:Rule>
+          </xccdf:Group>
+          <xccdf:Group id="xccdf_mil.disa.stig_group_V-230223">
+            <xccdf:title>V-230223</xccdf:title>
+            <xccdf:Rule id="xccdf_mil.disa.stig_rule_SV-230223r1130223_rule" severity="high" weight="10.0">
+              <xccdf:version>RHEL-08-010020</xccdf:version>
+              <xccdf:title>RHEL 8 must implement NIST FIPS-validated cryptography for the following: to provision digital signatures, to generate cryptographic hashes, and to protect data.</xccdf:title>
+              <xccdf:description>&lt;VulnDiscussion&gt;Use of weak or untested encryption algorithms undermines the purposes of using encryption to protect data.&lt;/VulnDiscussion&gt;&lt;FalsePositives&gt;&lt;/FalsePositives&gt;&lt;FalseNegatives&gt;&lt;/FalseNegatives&gt;&lt;Documentable&gt;false&lt;/Documentable&gt;&lt;Mitigations&gt;&lt;/Mitigations&gt;&lt;SeverityOverrideGuidance&gt;&lt;/SeverityOverrideGuidance&gt;&lt;PotentialImpacts&gt;&lt;/PotentialImpacts&gt;&lt;ThirdPartyTools&gt;&lt;/ThirdPartyTools&gt;&lt;MitigationControl&gt;&lt;/MitigationControl&gt;&lt;Responsibility&gt;&lt;/Responsibility&gt;&lt;IAControls&gt;&lt;/IAControls&gt;</xccdf:description>
+              <xccdf:ident system="http://cyber.mil/cci">CCI-000823</xccdf:ident>
+              <xccdf:ident system="http://cyber.mil/cci">CCI-000366</xccdf:ident>
+              <xccdf:fixtext fixref="F-230223r1_fix">Configure the operating system to implement FIPS mode with the following command:
+
+$ sudo fips-mode-setup --enable
+
+Reboot the system for the change to take effect.</xccdf:fixtext>
+              <xccdf:check system="C-230223r1_chk">
+                <xccdf:check-content>Verify the operating system implements FIPS mode with the following command:
+
+$ sudo fips-mode-setup --check
+FIPS mode is enabled.
+
+If FIPS mode is not enabled, this is a finding.</xccdf:check-content>
+              </xccdf:check>
+            </xccdf:Rule>
+          </xccdf:Group>
+          <xccdf:Group id="xccdf_mil.disa.stig_group_V-230224">
+            <xccdf:title>V-230224</xccdf:title>
+            <xccdf:Rule id="xccdf_mil.disa.stig_rule_SV-230224r1130224_rule" severity="medium" weight="10.0">
+              <xccdf:version>RHEL-08-010030</xccdf:version>
+              <xccdf:title>All RHEL 8 local disk partitions must implement cryptographic mechanisms to prevent unauthorized disclosure or modification of all information that requires at rest protection.</xccdf:title>
+              <xccdf:description>&lt;VulnDiscussion&gt;Operating systems handling data requiring data at rest protections must employ cryptographic mechanisms to prevent unauthorized disclosure and modification of the information at rest.&lt;/VulnDiscussion&gt;&lt;FalsePositives&gt;&lt;/FalsePositives&gt;&lt;FalseNegatives&gt;&lt;/FalseNegatives&gt;&lt;Documentable&gt;false&lt;/Documentable&gt;&lt;Mitigations&gt;&lt;/Mitigations&gt;&lt;SeverityOverrideGuidance&gt;&lt;/SeverityOverrideGuidance&gt;&lt;PotentialImpacts&gt;&lt;/PotentialImpacts&gt;&lt;ThirdPartyTools&gt;&lt;/ThirdPartyTools&gt;&lt;MitigationControl&gt;&lt;/MitigationControl&gt;&lt;Responsibility&gt;&lt;/Responsibility&gt;&lt;IAControls&gt;&lt;/IAControls&gt;</xccdf:description>
+              <xccdf:ident system="http://cyber.mil/cci">CCI-000824</xccdf:ident>
+              <xccdf:fixtext fixref="F-230224r1_fix">Configure RHEL 8 to prevent unauthorized modification of all information at rest by using disk encryption.
+
+Encrypting a partition in an already installed system is more difficult, because existing partitions will need to be resized and changed. To encrypt an entire partition, dedicate a partition for encryption in the partition layout.</xccdf:fixtext>
+              <xccdf:check system="C-230224r1_chk">
+                <xccdf:check-content>Verify RHEL 8 prevents unauthorized disclosure or modification of all information requiring at rest protection by using disk encryption.
+
+If there is a documented and approved reason for not having data-at-rest encryption, this requirement is Not Applicable.
+
+Determine the partition layout with the following command:
+
+$ sudo blkid
+
+If partitions containing information requiring at rest protection are not encrypted, this is a finding.</xccdf:check-content>
+              </xccdf:check>
+            </xccdf:Rule>
+          </xccdf:Group>
+          <xccdf:Group id="xccdf_mil.disa.stig_group_V-230225">
+            <xccdf:title>V-230225</xccdf:title>
+            <xccdf:Rule id="xccdf_mil.disa.stig_rule_SV-230225r1130225_rule" severity="medium" weight="10.0">
+              <xccdf:version>RHEL-08-010040</xccdf:version>
+              <xccdf:title>RHEL 8 must display the Standard Mandatory DoD Notice and Consent Banner before granting local or remote access to the system via a ssh logon.</xccdf:title>
+              <xccdf:description>&lt;VulnDiscussion&gt;Display of a standardized and approved use notification before granting access to the operating system ensures privacy and security notification verbiage used is consistent with applicable federal laws.&lt;/VulnDiscussion&gt;&lt;FalsePositives&gt;&lt;/FalsePositives&gt;&lt;FalseNegatives&gt;&lt;/FalseNegatives&gt;&lt;Documentable&gt;false&lt;/Documentable&gt;&lt;Mitigations&gt;&lt;/Mitigations&gt;&lt;SeverityOverrideGuidance&gt;&lt;/SeverityOverrideGuidance&gt;&lt;PotentialImpacts&gt;&lt;/PotentialImpacts&gt;&lt;ThirdPartyTools&gt;&lt;/ThirdPartyTools&gt;&lt;MitigationControl&gt;&lt;/MitigationControl&gt;&lt;Responsibility&gt;&lt;/Responsibility&gt;&lt;IAControls&gt;&lt;/IAControls&gt;</xccdf:description>
+              <xccdf:ident system="http://cyber.mil/cci">CCI-000825</xccdf:ident>
+              <xccdf:fixtext fixref="F-230225r1_fix">Configure RHEL 8 to display the Standard Mandatory DoD Notice and Consent Banner before granting access to the system via SSH.
+
+Edit the "/etc/ssh/sshd_config" file to uncomment the banner keyword and configure it to point to a file that will contain the logon banner:
+
+Banner /etc/issue
+
+The SSH service must be restarted for changes to take effect.</xccdf:fixtext>
+              <xccdf:check system="C-230225r1_chk">
+                <xccdf:check-content>Verify any publicly accessible connection to the operating system displays the Standard Mandatory DoD Notice and Consent Banner before granting access.
+
+Check for the location of the banner file being used with the following command:
+
+$ sudo grep -ir banner /etc/ssh/sshd_config
+banner /etc/issue
+
+If the line is commented out or missing, this is a finding.</xccdf:check-content>
+              </xccdf:check>
+            </xccdf:Rule>
+          </xccdf:Group>
+          <xccdf:Group id="xccdf_mil.disa.stig_group_V-230227">
+            <xccdf:title>V-230227</xccdf:title>
+            <xccdf:Rule id="xccdf_mil.disa.stig_rule_SV-230227r1130227_rule" severity="medium" weight="10.0">
+              <xccdf:version>RHEL-08-010060</xccdf:version>
+              <xccdf:title>RHEL 8 must display the Standard Mandatory DoD Notice and Consent Banner before granting local or remote access to the system via a graphical user logon.</xccdf:title>
+              <xccdf:description>&lt;VulnDiscussion&gt;The banner must be acknowledged by the user prior to allowing the user access to the operating system.&lt;/VulnDiscussion&gt;&lt;FalsePositives&gt;&lt;/FalsePositives&gt;&lt;FalseNegatives&gt;&lt;/FalseNegatives&gt;&lt;Documentable&gt;false&lt;/Documentable&gt;&lt;Mitigations&gt;&lt;/Mitigations&gt;&lt;SeverityOverrideGuidance&gt;&lt;/SeverityOverrideGuidance&gt;&lt;PotentialImpacts&gt;&lt;/PotentialImpacts&gt;&lt;ThirdPartyTools&gt;&lt;/ThirdPartyTools&gt;&lt;MitigationControl&gt;&lt;/MitigationControl&gt;&lt;Responsibility&gt;&lt;/Responsibility&gt;&lt;IAControls&gt;&lt;/IAControls&gt;</xccdf:description>
+              <xccdf:ident system="http://cyber.mil/cci">CCI-000827</xccdf:ident>
+              <xccdf:fixtext fixref="F-230227r1_fix">Configure the operating system to display the Standard Mandatory DoD Notice and Consent Banner before granting access to the system.
+
+Create a database to contain the system-wide graphical user logon settings (if it does not already exist) with the following command:
+
+$ sudo touch /etc/dconf/db/local.d/01-banner-message
+
+Add the following line to the [org/gnome/login-screen] section:
+
+banner-message-enable=true
+
+Run the following command to update the database:
+
+$ sudo dconf update</xccdf:fixtext>
+              <xccdf:check system="C-230227r1_chk">
+                <xccdf:check-content>Verify RHEL 8 displays the Standard Mandatory DoD Notice and Consent Banner before granting access to the operating system via a graphical user logon.
+
+Note: This requirement assumes the use of the RHEL 8 default graphical user interface, Gnome Shell. If the system does not have any graphical user interface installed, this requirement is Not Applicable.
+
+Check that the operating system displays the exact Standard Mandatory DoD Notice and Consent Banner text with the command:
+
+$ sudo grep banner-message-text /etc/dconf/db/local.d/*
+
+If the banner does not match the Standard Mandatory DoD Notice and Consent Banner exactly, this is a finding.</xccdf:check-content>
+              </xccdf:check>
+            </xccdf:Rule>
+          </xccdf:Group>
+          <xccdf:Group id="xccdf_mil.disa.stig_group_V-230229">
+            <xccdf:title>V-230229</xccdf:title>
+            <xccdf:Rule id="xccdf_mil.disa.stig_rule_SV-230229r1130229_rule" severity="medium" weight="10.0">
+              <xccdf:version>RHEL-08-010090</xccdf:version>
+              <xccdf:title>RHEL 8 must have the packages required for multifactor authentication installed.</xccdf:title>
+              <xccdf:description>&lt;VulnDiscussion&gt;Using an authentication device, such as a CAC or token that is separate from the information system, ensures that even if the information system is compromised, that compromise will not affect credentials stored on the authentication device.&lt;/VulnDiscussion&gt;&lt;FalsePositives&gt;&lt;/FalsePositives&gt;&lt;FalseNegatives&gt;&lt;/FalseNegatives&gt;&lt;Documentable&gt;false&lt;/Documentable&gt;&lt;Mitigations&gt;&lt;/Mitigations&gt;&lt;SeverityOverrideGuidance&gt;&lt;/SeverityOverrideGuidance&gt;&lt;PotentialImpacts&gt;&lt;/PotentialImpacts&gt;&lt;ThirdPartyTools&gt;&lt;/ThirdPartyTools&gt;&lt;MitigationControl&gt;&lt;/MitigationControl&gt;&lt;Responsibility&gt;&lt;/Responsibility&gt;&lt;IAControls&gt;&lt;/IAControls&gt;</xccdf:description>
+              <xccdf:ident system="http://cyber.mil/cci">CCI-000829</xccdf:ident>
+              <xccdf:ident system="http://cyber.mil/cci">CCI-000366</xccdf:ident>
+              <xccdf:fixtext fixref="F-230229r1_fix">Configure the operating system to implement multifactor authentication by installing the required package with the following command:
+
+$ sudo yum install openssl-pkcs11</xccdf:fixtext>
+              <xccdf:check system="C-230229r1_chk">
+                <xccdf:check-content>Verify the operating system has the packages required for multifactor authentication installed with the following command:
+
+$ sudo yum list installed openssl-pkcs11
+
+If the "openssl-pkcs11" package is not installed, this is a finding.</xccdf:check-content>
+              </xccdf:check>
+            </xccdf:Rule>
+          </xccdf:Group>
+          <xccdf:Group id="xccdf_mil.disa.stig_group_V-230230">
+            <xccdf:title>V-230230</xccdf:title>
+            <xccdf:Rule id="xccdf_mil.disa.stig_rule_SV-230230r1130230_rule" severity="medium" weight="10.0">
+              <xccdf:version>RHEL-08-010100</xccdf:version>
+              <xccdf:title>RHEL 8, for PKI-based authentication, must validate certificates by constructing a certification path (which includes status information) to an accepted trust anchor.</xccdf:title>
+              <xccdf:description>&lt;VulnDiscussion&gt;Without path validation, an informed trust decision by the relying party cannot be made when presented with any certificate not already explicitly trusted.&lt;/VulnDiscussion&gt;&lt;FalsePositives&gt;&lt;/FalsePositives&gt;&lt;FalseNegatives&gt;&lt;/FalseNegatives&gt;&lt;Documentable&gt;false&lt;/Documentable&gt;&lt;Mitigations&gt;&lt;/Mitigations&gt;&lt;SeverityOverrideGuidance&gt;&lt;/SeverityOverrideGuidance&gt;&lt;PotentialImpacts&gt;&lt;/PotentialImpacts&gt;&lt;ThirdPartyTools&gt;&lt;/ThirdPartyTools&gt;&lt;MitigationControl&gt;&lt;/MitigationControl&gt;&lt;Responsibility&gt;&lt;/Responsibility&gt;&lt;IAControls&gt;&lt;/IAControls&gt;</xccdf:description>
+              <xccdf:ident system="http://cyber.mil/cci">CCI-000830</xccdf:ident>
+              <xccdf:fixtext fixref="F-230230r1_fix">Configure RHEL 8, for PKI-based authentication, to validate certificates by constructing a certification path to an accepted trust anchor.
+
+Obtain the DoD-approved certificate bundle and install it in "/etc/sssd/pki/sssd_auth_ca_db.pem".</xccdf:fixtext>
+              <xccdf:check system="C-230230r1_chk">
+                <xccdf:check-content>Verify RHEL 8 for PKI-based authentication has valid certificates by constructing a certification path to an accepted trust anchor.
+
+Check that the system has a valid DoD root CA installed with the following command:
+
+$ sudo openssl x509 -text -in /etc/sssd/pki/sssd_auth_ca_db.pem
+
+If the root ca file is not a DoD-approved trust anchor, this is a finding.</xccdf:check-content>
+              </xccdf:check>
+            </xccdf:Rule>
+          </xccdf:Group>
+          <xccdf:Group id="xccdf_mil.disa.stig_group_V-230231">
+            <xccdf:title>V-230231</xccdf:title>
+            <xccdf:Rule id="xccdf_mil.disa.stig_rule_SV-230231r1130231_rule" severity="medium" weight="10.0">
+              <xccdf:version>RHEL-08-010110</xccdf:version>
+              <xccdf:title>RHEL 8 must encrypt all stored passwords with a FIPS 140-2 approved cryptographic hashing algorithm.</xccdf:title>
+              <xccdf:description>&lt;VulnDiscussion&gt;Passwords need to be protected at all times, and encryption is the standard method for protecting passwords.&lt;/VulnDiscussion&gt;&lt;FalsePositives&gt;&lt;/FalsePositives&gt;&lt;FalseNegatives&gt;&lt;/FalseNegatives&gt;&lt;Documentable&gt;false&lt;/Documentable&gt;&lt;Mitigations&gt;&lt;/Mitigations&gt;&lt;SeverityOverrideGuidance&gt;&lt;/SeverityOverrideGuidance&gt;&lt;PotentialImpacts&gt;&lt;/PotentialImpacts&gt;&lt;ThirdPartyTools&gt;&lt;/ThirdPartyTools&gt;&lt;MitigationControl&gt;&lt;/MitigationControl&gt;&lt;Responsibility&gt;&lt;/Responsibility&gt;&lt;IAControls&gt;&lt;/IAControls&gt;</xccdf:description>
+              <xccdf:ident system="http://cyber.mil/cci">CCI-000831</xccdf:ident>
+              <xccdf:fixtext fixref="F-230231r1_fix">Configure RHEL 8 to encrypt all stored passwords with a strong cryptographic hash.
+
+Edit/modify the following line in the "/etc/libuser.conf" file in the [defaults] section and set "crypt_style" to "sha512":
+
+crypt_style = sha512</xccdf:fixtext>
+              <xccdf:check system="C-230231r1_chk">
+                <xccdf:check-content>Confirm that the interactive user account passwords are using a strong password hash with the following command:
+
+$ sudo grep -i crypt_style /etc/libuser.conf
+crypt_style = sha512
+
+If the "crypt_style" variable is not set to "sha512", is commented out, or does not exist, this is a finding.</xccdf:check-content>
+              </xccdf:check>
+            </xccdf:Rule>
+          </xccdf:Group>
+          <xccdf:Group id="xccdf_mil.disa.stig_group_V-230232">
+            <xccdf:title>V-230232</xccdf:title>
+            <xccdf:Rule id="xccdf_mil.disa.stig_rule_SV-230232r1130232_rule" severity="medium" weight="10.0">
+              <xccdf:version>RHEL-08-010120</xccdf:version>
+              <xccdf:title>RHEL 8 must employ FIPS 140-2 approved cryptographic hashing algorithms for all stored passwords.</xccdf:title>
+              <xccdf:description>&lt;VulnDiscussion&gt;The system must use a strong hashing algorithm to store the password.&lt;/VulnDiscussion&gt;&lt;FalsePositives&gt;&lt;/FalsePositives&gt;&lt;FalseNegatives&gt;&lt;/FalseNegatives&gt;&lt;Documentable&gt;false&lt;/Documentable&gt;&lt;Mitigations&gt;&lt;/Mitigations&gt;&lt;SeverityOverrideGuidance&gt;&lt;/SeverityOverrideGuidance&gt;&lt;PotentialImpacts&gt;&lt;/PotentialImpacts&gt;&lt;ThirdPartyTools&gt;&lt;/ThirdPartyTools&gt;&lt;MitigationControl&gt;&lt;/MitigationControl&gt;&lt;Responsibility&gt;&lt;/Responsibility&gt;&lt;IAControls&gt;&lt;/IAControls&gt;</xccdf:description>
+              <xccdf:ident system="http://cyber.mil/cci">CCI-000832</xccdf:ident>
+              <xccdf:ident system="http://cyber.mil/cci">CCI-000366</xccdf:ident>
+              <xccdf:fixtext fixref="F-230232r1_fix">Lock all interactive user accounts not using SHA-512 hashing until the passwords can be regenerated with SHA-512.</xccdf:fixtext>
+              <xccdf:check system="C-230232r1_chk">
+                <xccdf:check-content>Verify that the shadow password suite configuration is set to encrypt password with a FIPS 140-2 approved cryptographic hashing algorithm.
+
+Check the hashes of interactive user passwords with the following command:
+
+$ sudo cut -d: -f2 /etc/shadow
+$6$kcOnRq/5$NUEYPuyL.wghQwWssXRcLRFiiru7f5JPV6GaJhNC2aK5F3PZpE/BCCtwrxRc/AInKMNX3CdMw11m9STiql12f/
+
+If any interactive user password hash does not begin with "$6", this is a finding.</xccdf:check-content>
+              </xccdf:check>
+            </xccdf:Rule>
+          </xccdf:Group>
+          <xccdf:Group id="xccdf_mil.disa.stig_group_V-230234">
+            <xccdf:title>V-230234</xccdf:title>
+            <xccdf:Rule id="xccdf_mil.disa.stig_rule_SV-230234r1130234_rule" severity="high" weight="10.0">
+              <xccdf:version>RHEL-08-010140</xccdf:version>
+              <xccdf:title>RHEL 8 operating systems booted with United Extensible Firmware Interface (UEFI) must require authentication upon booting into single-user mode and maintenance.</xccdf:title>
+              <xccdf:description>&lt;VulnDiscussion&gt;If the system does not require valid authentication before it boots into single-user or maintenance mode, anyone who invokes single-user or maintenance mode is granted privileged access to all files on the system.&lt;/VulnDiscussion&gt;&lt;FalsePositives&gt;&lt;/FalsePositives&gt;&lt;FalseNegatives&gt;&lt;/FalseNegatives&gt;&lt;Documentable&gt;false&lt;/Documentable&gt;&lt;Mitigations&gt;&lt;/Mitigations&gt;&lt;SeverityOverrideGuidance&gt;&lt;/SeverityOverrideGuidance&gt;&lt;PotentialImpacts&gt;&lt;/PotentialImpacts&gt;&lt;ThirdPartyTools&gt;&lt;/ThirdPartyTools&gt;&lt;MitigationControl&gt;&lt;/MitigationControl&gt;&lt;Responsibility&gt;&lt;/Responsibility&gt;&lt;IAControls&gt;&lt;/IAControls&gt;</xccdf:description>
+              <xccdf:ident system="http://cyber.mil/cci">CCI-000834</xccdf:ident>
+              <xccdf:fixtext fixref="F-230234r1_fix">Configure the system to encrypt the boot password for root.
+
+Generate an encrypted grub2 password for root with the following command:
+
+$ sudo grub2-setpassword
+Enter password:
+Confirm password:</xccdf:fixtext>
+              <xccdf:check system="C-230234r1_chk">
+                <xccdf:check-content>For systems that use BIOS, this is Not Applicable.
+
+Verify that an encrypted root password is set with the following command:
+
+$ sudo grep -iw grub2_password /boot/efi/EFI/redhat/user.cfg
+GRUB2_PASSWORD=grub.pbkdf2.sha512.10000.C40F1BC6...
+
+If the root password does not begin with "grub.pbkdf2.sha512", this is a finding.</xccdf:check-content>
+              </xccdf:check>
+            </xccdf:Rule>
+          </xccdf:Group>
+          <xccdf:Group id="xccdf_mil.disa.stig_group_V-230237">
+            <xccdf:title>V-230237</xccdf:title>
+            <xccdf:Rule id="xccdf_mil.disa.stig_rule_SV-230237r1130237_rule" severity="medium" weight="10.0">
+              <xccdf:version>RHEL-08-010160</xccdf:version>
+              <xccdf:title>The RHEL 8 pam_unix.so module must be configured in the password-auth file to use a FIPS 140-2 approved cryptographic hashing algorithm for system authentication.</xccdf:title>
+              <xccdf:description>&lt;VulnDiscussion&gt;Unapproved mechanisms that are used for authentication to the cryptographic module are not verified and therefore cannot be relied upon to provide confidentiality or integrity.&lt;/VulnDiscussion&gt;&lt;FalsePositives&gt;&lt;/FalsePositives&gt;&lt;FalseNegatives&gt;&lt;/FalseNegatives&gt;&lt;Documentable&gt;false&lt;/Documentable&gt;&lt;Mitigations&gt;&lt;/Mitigations&gt;&lt;SeverityOverrideGuidance&gt;&lt;/SeverityOverrideGuidance&gt;&lt;PotentialImpacts&gt;&lt;/PotentialImpacts&gt;&lt;ThirdPartyTools&gt;&lt;/ThirdPartyTools&gt;&lt;MitigationControl&gt;&lt;/MitigationControl&gt;&lt;Responsibility&gt;&lt;/Responsibility&gt;&lt;IAControls&gt;&lt;/IAControls&gt;</xccdf:description>
+              <xccdf:ident system="http://cyber.mil/cci">CCI-000837</xccdf:ident>
+              <xccdf:fixtext fixref="F-230237r1_fix">Configure RHEL 8 to use a FIPS 140-2 approved cryptographic hashing algorithm for system authentication.
+
+Edit/modify the following line in the "/etc/pam.d/password-auth" file to include the sha512 option for pam_unix.so:
+
+password sufficient pam_unix.so sha512 shadow try_first_pass use_authtok</xccdf:fixtext>
+              <xccdf:check system="C-230237r1_chk">
+                <xccdf:check-content>Verify that pam_unix.so module is configured to use sha512 with the following command:
+
+$ sudo grep password /etc/pam.d/password-auth | grep pam_unix
+password sufficient pam_unix.so sha512 shadow try_first_pass use_authtok
+
+If "sha512" is missing, or is commented out, this is a finding.</xccdf:check-content>
+              </xccdf:check>
+            </xccdf:Rule>
+          </xccdf:Group>
+          <xccdf:Group id="xccdf_mil.disa.stig_group_V-230240">
+            <xccdf:title>V-230240</xccdf:title>
+            <xccdf:Rule id="xccdf_mil.disa.stig_rule_SV-230240r1130240_rule" severity="medium" weight="10.0">
+              <xccdf:version>RHEL-08-010171</xccdf:version>
+              <xccdf:title>RHEL 8 must have the policycoreutils package installed.</xccdf:title>
+              <xccdf:description>&lt;VulnDiscussion&gt;Policycoreutils contains the policy core utilities that are required for basic operation of an SELinux-enabled system.&lt;/VulnDiscussion&gt;&lt;FalsePositives&gt;&lt;/FalsePositives&gt;&lt;FalseNegatives&gt;&lt;/FalseNegatives&gt;&lt;Documentable&gt;false&lt;/Documentable&gt;&lt;Mitigations&gt;&lt;/Mitigations&gt;&lt;SeverityOverrideGuidance&gt;&lt;/SeverityOverrideGuidance&gt;&lt;PotentialImpacts&gt;&lt;/PotentialImpacts&gt;&lt;ThirdPartyTools&gt;&lt;/ThirdPartyTools&gt;&lt;MitigationControl&gt;&lt;/MitigationControl&gt;&lt;Responsibility&gt;&lt;/Responsibility&gt;&lt;IAControls&gt;&lt;/IAControls&gt;</xccdf:description>
+              <xccdf:ident system="http://cyber.mil/cci">CCI-000840</xccdf:ident>
+              <xccdf:fixtext fixref="F-230240r1_fix">Configure the operating system to have the policycoreutils package installed with the following command:
+
+$ sudo yum install policycoreutils</xccdf:fixtext>
+              <xccdf:check system="C-230240r1_chk">
+                <xccdf:check-content>Verify the operating system has the policycoreutils package installed with the following command:
+
+$ sudo yum list installed policycoreutils
+policycoreutils.x86_64       2.9-9.el8       @anaconda
+
+If the policycoreutils package is not installed, this is a finding.</xccdf:check-content>
+              </xccdf:check>
+            </xccdf:Rule>
+          </xccdf:Group>
+          <xccdf:Group id="xccdf_mil.disa.stig_group_V-230244">
+            <xccdf:title>V-230244</xccdf:title>
+            <xccdf:Rule id="xccdf_mil.disa.stig_rule_SV-230244r1130244_rule" severity="medium" weight="10.0">
+              <xccdf:version>RHEL-08-010200</xccdf:version>
+              <xccdf:title>RHEL 8 must be configured so that all network connections associated with SSH traffic are terminated after a period of inactivity.</xccdf:title>
+              <xccdf:description>&lt;VulnDiscussion&gt;Terminating an idle SSH session within a short time period reduces the window of opportunity for unauthorized personnel to take control of a management session.&lt;/VulnDiscussion&gt;&lt;FalsePositives&gt;&lt;/FalsePositives&gt;&lt;FalseNegatives&gt;&lt;/FalseNegatives&gt;&lt;Documentable&gt;false&lt;/Documentable&gt;&lt;Mitigations&gt;&lt;/Mitigations&gt;&lt;SeverityOverrideGuidance&gt;&lt;/SeverityOverrideGuidance&gt;&lt;PotentialImpacts&gt;&lt;/PotentialImpacts&gt;&lt;ThirdPartyTools&gt;&lt;/ThirdPartyTools&gt;&lt;MitigationControl&gt;&lt;/MitigationControl&gt;&lt;Responsibility&gt;&lt;/Responsibility&gt;&lt;IAControls&gt;&lt;/IAControls&gt;</xccdf:description>
+              <xccdf:ident system="http://cyber.mil/cci">CCI-000844</xccdf:ident>
+              <xccdf:ident system="http://cyber.mil/cci">CCI-000366</xccdf:ident>
+              <xccdf:fixtext fixref="F-230244r1_fix">Configure RHEL 8 so that all network connections associated with SSH traffic terminate after a period of inactivity.
+
+Add the following line to the "/etc/ssh/sshd_config" file:
+
+ClientAliveCountMax 1
+
+The SSH service must be restarted for changes to take effect.</xccdf:fixtext>
+              <xccdf:check system="C-230244r1_chk">
+                <xccdf:check-content>Verify that all network connections associated with SSH traffic automatically terminate after a period of inactivity with the following command:
+
+$ sudo grep -i clientalivecountmax /etc/ssh/sshd_config
+ClientAliveCountMax 1
+
+If "ClientAliveCountMax" does not exist, is not set to a value of "1", or is commented out, this is a finding.</xccdf:check-content>
+              </xccdf:check>
+            </xccdf:Rule>
+          </xccdf:Group>
+          <xccdf:Group id="xccdf_mil.disa.stig_group_V-230251">
+            <xccdf:title>V-230251</xccdf:title>
+            <xccdf:Rule id="xccdf_mil.disa.stig_rule_SV-230251r1130251_rule" severity="medium" weight="10.0">
+              <xccdf:version>RHEL-08-010290</xccdf:version>
+              <xccdf:title>The RHEL 8 SSH server must be configured to use only Message Authentication Codes (MACs) employing FIPS 140-2 validated cryptographic hash algorithms.</xccdf:title>
+              <xccdf:description>&lt;VulnDiscussion&gt;Without cryptographic integrity protections, information can be altered by unauthorized users without detection.&lt;/VulnDiscussion&gt;&lt;FalsePositives&gt;&lt;/FalsePositives&gt;&lt;FalseNegatives&gt;&lt;/FalseNegatives&gt;&lt;Documentable&gt;false&lt;/Documentable&gt;&lt;Mitigations&gt;&lt;/Mitigations&gt;&lt;SeverityOverrideGuidance&gt;&lt;/SeverityOverrideGuidance&gt;&lt;PotentialImpacts&gt;&lt;/PotentialImpacts&gt;&lt;ThirdPartyTools&gt;&lt;/ThirdPartyTools&gt;&lt;MitigationControl&gt;&lt;/MitigationControl&gt;&lt;Responsibility&gt;&lt;/Responsibility&gt;&lt;IAControls&gt;&lt;/IAControls&gt;</xccdf:description>
+              <xccdf:ident system="http://cyber.mil/cci">CCI-000851</xccdf:ident>
+              <xccdf:fixtext fixref="F-230251r1_fix">Configure the RHEL 8 SSH server to use only MACs employing FIPS 140-2-approved algorithms.
+
+Update the "/etc/crypto-policies/back-ends/openssh.config" file to include these MACs employing FIPS 140-2-approved algorithms:
+
+MACs hmac-sha2-512,hmac-sha2-256
+
+A reboot is required for the changes to take effect.</xccdf:fixtext>
+              <xccdf:check system="C-230251r1_chk">
+                <xccdf:check-content>Verify the SSH server is configured to use only MACs employing FIPS 140-2-approved algorithms with the following command:
+
+$ sudo grep -i macs /etc/crypto-policies/back-ends/openssh.config
+MACs hmac-sha2-512,hmac-sha2-256
+
+If the MACs entries in the "openssh.config" file have any hashes other than "hmac-sha2-512" and "hmac-sha2-256", the order differs from the example above, or they are missing or commented out, this is a finding.</xccdf:check-content>
+              </xccdf:check>
+            </xccdf:Rule>
+          </xccdf:Group>
+          <xccdf:Group id="xccdf_mil.disa.stig_group_V-230257">
+            <xccdf:title>V-230257</xccdf:title>
+            <xccdf:Rule id="xccdf_mil.disa.stig_rule_SV-230257r1130257_rule" severity="medium" weight="10.0">
+              <xccdf:version>RHEL-08-010300</xccdf:version>
+              <xccdf:title>RHEL 8 system commands must have mode 755 or less permissive.</xccdf:title>
+              <xccdf:description>&lt;VulnDiscussion&gt;If RHEL 8 were to allow any user to make changes to software libraries, then those changes might be implemented without undergoing the appropriate testing and approvals.&lt;/VulnDiscussion&gt;&lt;FalsePositives&gt;&lt;/FalsePositives&gt;&lt;FalseNegatives&gt;&lt;/FalseNegatives&gt;&lt;Documentable&gt;false&lt;/Documentable&gt;&lt;Mitigations&gt;&lt;/Mitigations&gt;&lt;SeverityOverrideGuidance&gt;&lt;/SeverityOverrideGuidance&gt;&lt;PotentialImpacts&gt;&lt;/PotentialImpacts&gt;&lt;ThirdPartyTools&gt;&lt;/ThirdPartyTools&gt;&lt;MitigationControl&gt;&lt;/MitigationControl&gt;&lt;Responsibility&gt;&lt;/Responsibility&gt;&lt;IAControls&gt;&lt;/IAControls&gt;</xccdf:description>
+              <xccdf:ident system="http://cyber.mil/cci">CCI-000857</xccdf:ident>
+              <xccdf:fixtext fixref="F-230257r1_fix">Configure the system commands to be protected from unauthorized access.
+
+Run the following command, replacing "[FILE]" with any system command with a mode more permissive than 755:
+
+$ sudo chmod 755 [FILE]</xccdf:fixtext>
+              <xccdf:check system="C-230257r1_chk">
+                <xccdf:check-content>Verify the system commands contained in the following directories have mode 755 or less permissive with the following command:
+
+$ sudo find -L /bin /sbin /usr/bin /usr/sbin /usr/local/bin /usr/local/sbin -perm /022 -type f -exec ls -l {} \;
+
+If any system commands are found to be group-writable or world-writable, this is a finding.</xccdf:check-content>
+              </xccdf:check>
+            </xccdf:Rule>
+          </xccdf:Group>
+          <xccdf:Group id="xccdf_mil.disa.stig_group_V-230262">
+            <xccdf:title>V-230262</xccdf:title>
+            <xccdf:Rule id="xccdf_mil.disa.stig_rule_SV-230262r1130262_rule" severity="medium" weight="10.0">
+              <xccdf:version>RHEL-08-010330</xccdf:version>
+              <xccdf:title>RHEL 8 library files must have mode 755 or less permissive.</xccdf:title>
+              <xccdf:description>&lt;VulnDiscussion&gt;If RHEL 8 were to allow any user to make changes to software libraries, then those changes might be implemented without undergoing the appropriate testing and approvals.&lt;/VulnDiscussion&gt;&lt;FalsePositives&gt;&lt;/FalsePositives&gt;&lt;FalseNegatives&gt;&lt;/FalseNegatives&gt;&lt;Documentable&gt;false&lt;/Documentable&gt;&lt;Mitigations&gt;&lt;/Mitigations&gt;&lt;SeverityOverrideGuidance&gt;&lt;/SeverityOverrideGuidance&gt;&lt;PotentialImpacts&gt;&lt;/PotentialImpacts&gt;&lt;ThirdPartyTools&gt;&lt;/ThirdPartyTools&gt;&lt;MitigationControl&gt;&lt;/MitigationControl&gt;&lt;Responsibility&gt;&lt;/Responsibility&gt;&lt;IAControls&gt;&lt;/IAControls&gt;</xccdf:description>
+              <xccdf:ident system="http://cyber.mil/cci">CCI-000862</xccdf:ident>
+              <xccdf:ident system="http://cyber.mil/cci">CCI-000366</xccdf:ident>
+              <xccdf:fixtext fixref="F-230262r1_fix">Configure the library files to be protected from unauthorized access. Run the following command, replacing "[FILE]" with any library file with a mode more permissive than 755:
+
+$ sudo chmod 755 [FILE]</xccdf:fixtext>
+              <xccdf:check system="C-230262r1_chk">
+                <xccdf:check-content>Verify the system-wide shared library files contained in the following directories have mode 755 or less permissive with the following command:
+
+$ sudo find -L /lib /lib64 /usr/lib /usr/lib64 -perm /022 -type f -exec ls -l {} \;
+
+If any system-wide shared library file is found to be group-writable or world-writable, this is a finding.</xccdf:check-content>
+              </xccdf:check>
+            </xccdf:Rule>
+          </xccdf:Group>
+          <xccdf:Group id="xccdf_mil.disa.stig_group_V-230265">
+            <xccdf:title>V-230265</xccdf:title>
+            <xccdf:Rule id="xccdf_mil.disa.stig_rule_SV-230265r1130265_rule" severity="medium" weight="10.0">
+              <xccdf:version>RHEL-08-010359</xccdf:version>
+              <xccdf:title>The RHEL 8 file integrity tool must be configured to verify Access Control Lists (ACLs).</xccdf:title>
+              <xccdf:description>&lt;VulnDiscussion&gt;ACLs can provide permissions beyond those permitted through the file mode and must be verified by the file integrity tools.&lt;/VulnDiscussion&gt;&lt;FalsePositives&gt;&lt;/FalsePositives&gt;&lt;FalseNegatives&gt;&lt;/FalseNegatives&gt;&lt;Documentable&gt;false&lt;/Documentable&gt;&lt;Mitigations&gt;&lt;/Mitigations&gt;&lt;SeverityOverrideGuidance&gt;&lt;/SeverityOverrideGuidance&gt;&lt;PotentialImpacts&gt;&lt;/PotentialImpacts&gt;&lt;ThirdPartyTools&gt;&lt;/ThirdPartyTools&gt;&lt;MitigationControl&gt;&lt;/MitigationControl&gt;&lt;Responsibility&gt;&lt;/Responsibility&gt;&lt;IAControls&gt;&lt;/IAControls&gt;</xccdf:description>
+              <xccdf:ident system="http://cyber.mil/cci">CCI-000865</xccdf:ident>
+              <xccdf:ident system="http://cyber.mil/cci">CCI-000366</xccdf:ident>
+              <xccdf:fixtext fixref="F-230265r1_fix">Configure the file integrity tool to check file and directory ACLs.
+
+If AIDE is installed, ensure the "acl" rule is present on all uncommented file and directory selection lists.</xccdf:fixtext>
+              <xccdf:check system="C-230265r1_chk">
+                <xccdf:check-content>Verify the file integrity tool is configured to verify ACLs.
+
+If AIDE is not installed, ask the System Administrator how file integrity checks are performed on the system.
+
+If there is no application installed to perform file integrity checks, this is a finding.
+
+Note: AIDE is highly configurable at install time. This requirement assumes the "aide.conf" file is under the "/etc" directory.
+
+Use the following command to determine if the file is in another location:
+
+$ sudo find / -name aide.conf
+
+Check the "aide.conf" file to determine if the "acl" rule has been added to the rule list being applied to the files and directories selection lists.
+
+If the "acl" rule is not being used on all selection lines in the "/etc/aide.conf" file, is commented out, or ACLs are not being checked by another file integrity tool, this is a finding.</xccdf:check-content>
+              </xccdf:check>
+            </xccdf:Rule>
+          </xccdf:Group>
+          <xccdf:Group id="xccdf_mil.disa.stig_group_V-230269">
+            <xccdf:title>V-230269</xccdf:title>
+            <xccdf:Rule id="xccdf_mil.disa.stig_rule_SV-230269r1130269_rule" severity="high" weight="10.0">
+              <xccdf:version>RHEL-08-010370</xccdf:version>
+              <xccdf:title>RHEL 8 must prevent the installation of software, patches, service packs, device drivers, or operating system components from a repository without verification they have been digitally signed using a certificate that is issued by a Certificate Authority (CA) that is recognized and approved by the organization.</xccdf:title>
+              <xccdf:description>&lt;VulnDiscussion&gt;Changes to any software components can have significant effects on the overall security of the operating system.&lt;/VulnDiscussion&gt;&lt;FalsePositives&gt;&lt;/FalsePositives&gt;&lt;FalseNegatives&gt;&lt;/FalseNegatives&gt;&lt;Documentable&gt;false&lt;/Documentable&gt;&lt;Mitigations&gt;&lt;/Mitigations&gt;&lt;SeverityOverrideGuidance&gt;&lt;/SeverityOverrideGuidance&gt;&lt;PotentialImpacts&gt;&lt;/PotentialImpacts&gt;&lt;ThirdPartyTools&gt;&lt;/ThirdPartyTools&gt;&lt;MitigationControl&gt;&lt;/MitigationControl&gt;&lt;Responsibility&gt;&lt;/Responsibility&gt;&lt;IAControls&gt;&lt;/IAControls&gt;</xccdf:description>
+              <xccdf:ident system="http://cyber.mil/cci">CCI-000869</xccdf:ident>
+              <xccdf:fixtext fixref="F-230269r1_fix">Configure the operating system to verify the signature of packages from a repository prior to install by setting the following option in the "/etc/dnf/dnf.conf" file:
+
+gpgcheck=1</xccdf:fixtext>
+              <xccdf:check system="C-230269r1_chk">
+                <xccdf:check-content>Verify the operating system prevents the installation of patches, service packs, device drivers, or operating system components from a repository without verification that they have been digitally signed using a certificate that is recognized and approved by the organization.
+
+Check that yum verifies the signature of packages from a repository prior to install with the following command:
+
+$ sudo grep gpgcheck /etc/dnf/dnf.conf
+gpgcheck=1
+
+If "gpgcheck" is not set to "1", or is missing, this is a finding.</xccdf:check-content>
+              </xccdf:check>
+            </xccdf:Rule>
+          </xccdf:Group>
+          <xccdf:Group id="xccdf_mil.disa.stig_group_V-230270">
+            <xccdf:title>V-230270</xccdf:title>
+            <xccdf:Rule id="xccdf_mil.disa.stig_rule_SV-230270r1130270_rule" severity="high" weight="10.0">
+              <xccdf:version>RHEL-08-010371</xccdf:version>
+              <xccdf:title>RHEL 8 must prevent the loading of a new kernel for later execution.</xccdf:title>
+              <xccdf:description>&lt;VulnDiscussion&gt;Changes to any software components can have significant effects on the overall security of the operating system.&lt;/VulnDiscussion&gt;&lt;FalsePositives&gt;&lt;/FalsePositives&gt;&lt;FalseNegatives&gt;&lt;/FalseNegatives&gt;&lt;Documentable&gt;false&lt;/Documentable&gt;&lt;Mitigations&gt;&lt;/Mitigations&gt;&lt;SeverityOverrideGuidance&gt;&lt;/SeverityOverrideGuidance&gt;&lt;PotentialImpacts&gt;&lt;/PotentialImpacts&gt;&lt;ThirdPartyTools&gt;&lt;/ThirdPartyTools&gt;&lt;MitigationControl&gt;&lt;/MitigationControl&gt;&lt;Responsibility&gt;&lt;/Responsibility&gt;&lt;IAControls&gt;&lt;/IAControls&gt;</xccdf:description>
+              <xccdf:ident system="http://cyber.mil/cci">CCI-000870</xccdf:ident>
+              <xccdf:fixtext fixref="F-230270r1_fix">Configure the operating system to disable kernel image loading.
+
+Add or edit the following line in a system configuration file in the "/etc/sysctl.d/" directory:
+
+kernel.kexec_load_disabled = 1
+
+Load settings from all system configuration files with the following command:
+
+$ sudo sysctl --system</xccdf:fixtext>
+              <xccdf:check system="C-230270r1_chk">
+                <xccdf:check-content>Verify the operating system is configured to disable kernel image loading.
+
+Check the status of the kernel.kexec_load_disabled kernel parameter with the following command:
+
+$ sudo sysctl kernel.kexec_load_disabled
+kernel.kexec_load_disabled = 1
+
+If "kernel.kexec_load_disabled" is not set to "1" or is missing, this is a finding.</xccdf:check-content>
+              </xccdf:check>
+            </xccdf:Rule>
+          </xccdf:Group>
+          <xccdf:Group id="xccdf_mil.disa.stig_group_V-230271">
+            <xccdf:title>V-230271</xccdf:title>
+            <xccdf:Rule id="xccdf_mil.disa.stig_rule_SV-230271r1130271_rule" severity="medium" weight="10.0">
+              <xccdf:version>RHEL-08-010372</xccdf:version>
+              <xccdf:title>RHEL 8 must enable kernel parameters to enforce discretionary access control on symlinks.</xccdf:title>
+              <xccdf:description>&lt;VulnDiscussion&gt;By enabling the fs.protected_symlinks kernel parameter, symbolic links are permitted to be followed only when outside a sticky world-writable directory.&lt;/VulnDiscussion&gt;&lt;FalsePositives&gt;&lt;/FalsePositives&gt;&lt;FalseNegatives&gt;&lt;/FalseNegatives&gt;&lt;Documentable&gt;false&lt;/Documentable&gt;&lt;Mitigations&gt;&lt;/Mitigations&gt;&lt;SeverityOverrideGuidance&gt;&lt;/SeverityOverrideGuidance&gt;&lt;PotentialImpacts&gt;&lt;/PotentialImpacts&gt;&lt;ThirdPartyTools&gt;&lt;/ThirdPartyTools&gt;&lt;MitigationControl&gt;&lt;/MitigationControl&gt;&lt;Responsibility&gt;&lt;/Responsibility&gt;&lt;IAControls&gt;&lt;/IAControls&gt;</xccdf:description>
+              <xccdf:ident system="http://cyber.mil/cci">CCI-000871</xccdf:ident>
+              <xccdf:ident system="http://cyber.mil/cci">CCI-000366</xccdf:ident>
+              <xccdf:fixtext fixref="F-230271r1_fix">Configure the operating system to enable DAC on symlinks with the following command:
+
+Add or edit the following line in a system configuration file in the "/etc/sysctl.d/" directory:
+
+fs.protected_symlinks = 1
+
+Load settings from all system configuration files with the following command:
+
+$ sudo sysctl --system</xccdf:fixtext>
+              <xccdf:check system="C-230271r1_chk">
+                <xccdf:check-content>Verify the operating system is configured to enable DAC on symlinks with the following command:
+
+$ sudo sysctl fs.protected_symlinks
+fs.protected_symlinks = 1
+
+If "fs.protected_symlinks" is not set to "1" or is missing, this is a finding.</xccdf:check-content>
+              </xccdf:check>
+            </xccdf:Rule>
+          </xccdf:Group>
+          <xccdf:Group id="xccdf_mil.disa.stig_group_V-230280">
+            <xccdf:title>V-230280</xccdf:title>
+            <xccdf:Rule id="xccdf_mil.disa.stig_rule_SV-230280r1130280_rule" severity="medium" weight="10.0">
+              <xccdf:version>RHEL-08-010440</xccdf:version>
+              <xccdf:title>YUM must remove all software components after updated versions have been installed on RHEL 8.</xccdf:title>
+              <xccdf:description>&lt;VulnDiscussion&gt;Previous versions of software components that are not removed from the information system after updates have been installed may be exploited by adversaries.&lt;/VulnDiscussion&gt;&lt;FalsePositives&gt;&lt;/FalsePositives&gt;&lt;FalseNegatives&gt;&lt;/FalseNegatives&gt;&lt;Documentable&gt;false&lt;/Documentable&gt;&lt;Mitigations&gt;&lt;/Mitigations&gt;&lt;SeverityOverrideGuidance&gt;&lt;/SeverityOverrideGuidance&gt;&lt;PotentialImpacts&gt;&lt;/PotentialImpacts&gt;&lt;ThirdPartyTools&gt;&lt;/ThirdPartyTools&gt;&lt;MitigationControl&gt;&lt;/MitigationControl&gt;&lt;Responsibility&gt;&lt;/Responsibility&gt;&lt;IAControls&gt;&lt;/IAControls&gt;</xccdf:description>
+              <xccdf:ident system="http://cyber.mil/cci">CCI-000880</xccdf:ident>
+              <xccdf:ident system="http://cyber.mil/cci">CCI-000366</xccdf:ident>
+              <xccdf:fixtext fixref="F-230280r1_fix">Configure the operating system to remove all software components after updated versions have been installed.
+
+Set the "clean_requirements_on_remove" option to "True" in the "/etc/dnf/dnf.conf" file:
+
+clean_requirements_on_remove=True</xccdf:fixtext>
+              <xccdf:check system="C-230280r1_chk">
+                <xccdf:check-content>Verify the operating system removes all software components after updated versions have been installed.
+
+Check if yum is configured to remove unneeded packages with the following command:
+
+$ sudo grep -i clean_requirements_on_remove /etc/dnf/dnf.conf
+clean_requirements_on_remove=True
+
+If "clean_requirements_on_remove" is not set to "True", "1", or "yes", or is commented out, this is a finding.</xccdf:check-content>
+              </xccdf:check>
+            </xccdf:Rule>
+          </xccdf:Group>
+          <xccdf:Group id="xccdf_mil.disa.stig_group_V-230283">
+            <xccdf:title>V-230283</xccdf:title>
+            <xccdf:Rule id="xccdf_mil.disa.stig_rule_SV-230283r1130283_rule" severity="medium" weight="10.0">
+              <xccdf:version>RHEL-08-010460</xccdf:version>
+              <xccdf:title>There must be no shosts.equiv files on the RHEL 8 operating system.</xccdf:title>
+              <xccdf:description>&lt;VulnDiscussion&gt;The shosts.equiv files are used to configure host-based authentication for the system via SSH. Host-based authentication is not sufficient for preventing unauthorized access to the system.&lt;/VulnDiscussion&gt;&lt;FalsePositives&gt;&lt;/FalsePositives&gt;&lt;FalseNegatives&gt;&lt;/FalseNegatives&gt;&lt;Documentable&gt;false&lt;/Documentable&gt;&lt;Mitigations&gt;&lt;/Mitigations&gt;&lt;SeverityOverrideGuidance&gt;&lt;/SeverityOverrideGuidance&gt;&lt;PotentialImpacts&gt;&lt;/PotentialImpacts&gt;&lt;ThirdPartyTools&gt;&lt;/ThirdPartyTools&gt;&lt;MitigationControl&gt;&lt;/MitigationControl&gt;&lt;Responsibility&gt;&lt;/Responsibility&gt;&lt;IAControls&gt;&lt;/IAControls&gt;</xccdf:description>
+              <xccdf:ident system="http://cyber.mil/cci">CCI-000883</xccdf:ident>
+              <xccdf:ident system="http://cyber.mil/cci">CCI-000366</xccdf:ident>
+              <xccdf:fixtext fixref="F-230283r1_fix">Remove any found "shosts.equiv" files from the system.
+
+$ sudo rm /etc/ssh/shosts.equiv</xccdf:fixtext>
+              <xccdf:check system="C-230283r1_chk">
+                <xccdf:check-content>Verify there are no "shosts.equiv" files on RHEL 8 with the following command:
+
+$ sudo find / -name shosts.equiv
+
+If a "shosts.equiv" file is found, this is a finding.</xccdf:check-content>
+              </xccdf:check>
+            </xccdf:Rule>
+          </xccdf:Group>
+          <xccdf:Group id="xccdf_mil.disa.stig_group_V-230286">
+            <xccdf:title>V-230286</xccdf:title>
+            <xccdf:Rule id="xccdf_mil.disa.stig_rule_SV-230286r1130286_rule" severity="high" weight="10.0">
+              <xccdf:version>RHEL-08-010500</xccdf:version>
+              <xccdf:title>The RHEL 8 SSH daemon must perform strict mode checking of home directory configuration files.</xccdf:title>
+              <xccdf:description>&lt;VulnDiscussion&gt;If other users have access to modify user-specific SSH configuration files, they may be able to log on to the system as another user.&lt;/VulnDiscussion&gt;&lt;FalsePositives&gt;&lt;/FalsePositives&gt;&lt;FalseNegatives&gt;&lt;/FalseNegatives&gt;&lt;Documentable&gt;false&lt;/Documentable&gt;&lt;Mitigations&gt;&lt;/Mitigations&gt;&lt;SeverityOverrideGuidance&gt;&lt;/SeverityOverrideGuidance&gt;&lt;PotentialImpacts&gt;&lt;/PotentialImpacts&gt;&lt;ThirdPartyTools&gt;&lt;/ThirdPartyTools&gt;&lt;MitigationControl&gt;&lt;/MitigationControl&gt;&lt;Responsibility&gt;&lt;/Responsibility&gt;&lt;IAControls&gt;&lt;/IAControls&gt;</xccdf:description>
+              <xccdf:ident system="http://cyber.mil/cci">CCI-000886</xccdf:ident>
+              <xccdf:ident system="http://cyber.mil/cci">CCI-000366</xccdf:ident>
+              <xccdf:fixtext fixref="F-230286r1_fix">Configure the SSH daemon to perform strict mode checking of home directory configuration files.
+
+Uncomment the "StrictModes" keyword in "/etc/ssh/sshd_config" and set the value to "yes":
+
+StrictModes yes
+
+The SSH service must be restarted for changes to take effect.</xccdf:fixtext>
+              <xccdf:check system="C-230286r1_chk">
+                <xccdf:check-content>Verify the SSH daemon performs strict mode checking of home directory configuration files with the following command:
+
+$ sudo grep -i strictmodes /etc/ssh/sshd_config
+StrictModes yes
+
+If "StrictModes" is set to "no", is missing, or the returned line is commented out, this is a finding.</xccdf:check-content>
+              </xccdf:check>
+            </xccdf:Rule>
+          </xccdf:Group>
+          <xccdf:Group id="xccdf_mil.disa.stig_group_V-230296">
+            <xccdf:title>V-230296</xccdf:title>
+            <xccdf:Rule id="xccdf_mil.disa.stig_rule_SV-230296r1130296_rule" severity="medium" weight="10.0">
+              <xccdf:version>RHEL-08-010550</xccdf:version>
+              <xccdf:title>RHEL 8 must not permit direct logons to the root account using remote access via SSH.</xccdf:title>
+              <xccdf:description>&lt;VulnDiscussion&gt;Even though the communications channel may be encrypted, an additional layer of security is gained by extending the policy of not logging on directly as root.&lt;/VulnDiscussion&gt;&lt;FalsePositives&gt;&lt;/FalsePositives&gt;&lt;FalseNegatives&gt;&lt;/FalseNegatives&gt;&lt;Documentable&gt;false&lt;/Documentable&gt;&lt;Mitigations&gt;&lt;/Mitigations&gt;&lt;SeverityOverrideGuidance&gt;&lt;/SeverityOverrideGuidance&gt;&lt;PotentialImpacts&gt;&lt;/PotentialImpacts&gt;&lt;ThirdPartyTools&gt;&lt;/ThirdPartyTools&gt;&lt;MitigationControl&gt;&lt;/MitigationControl&gt;&lt;Responsibility&gt;&lt;/Responsibility&gt;&lt;IAControls&gt;&lt;/IAControls&gt;</xccdf:description>
+              <xccdf:ident system="http://cyber.mil/cci">CCI-000896</xccdf:ident>
+              <xccdf:fixtext fixref="F-230296r1_fix">Configure RHEL 8 to stop users from logging on remotely as the "root" user via SSH.
+
+Edit the appropriate "/etc/ssh/sshd_config" file to uncomment or add the line for the "PermitRootLogin" keyword and set its value to "no":
+
+PermitRootLogin no
+
+The SSH service must be restarted for changes to take effect.</xccdf:fixtext>
+              <xccdf:check system="C-230296r1_chk">
+                <xccdf:check-content>Verify remote access using SSH prevents users from logging on directly as "root" with the following command:
+
+$ sudo grep -i permitrootlogin /etc/ssh/sshd_config
+PermitRootLogin no
+
+If the "PermitRootLogin" keyword is set to any value other than "no", is missing, or is commented out, this is a finding.</xccdf:check-content>
+              </xccdf:check>
+            </xccdf:Rule>
+          </xccdf:Group>
+          <xccdf:Group id="xccdf_mil.disa.stig_group_V-230301">
+            <xccdf:title>V-230301</xccdf:title>
+            <xccdf:Rule id="xccdf_mil.disa.stig_rule_SV-230301r1130301_rule" severity="medium" weight="10.0">
+              <xccdf:version>RHEL-08-010561</xccdf:version>
+              <xccdf:title>The rsyslog service must be running in RHEL 8.</xccdf:title>
+              <xccdf:description>&lt;VulnDiscussion&gt;Configuring RHEL 8 to implement organization-wide security implementation guides and security checklists ensures compliance with federal standards.&lt;/VulnDiscussion&gt;&lt;FalsePositives&gt;&lt;/FalsePositives&gt;&lt;FalseNegatives&gt;&lt;/FalseNegatives&gt;&lt;Documentable&gt;false&lt;/Documentable&gt;&lt;Mitigations&gt;&lt;/Mitigations&gt;&lt;SeverityOverrideGuidance&gt;&lt;/SeverityOverrideGuidance&gt;&lt;PotentialImpacts&gt;&lt;/PotentialImpacts&gt;&lt;ThirdPartyTools&gt;&lt;/ThirdPartyTools&gt;&lt;MitigationControl&gt;&lt;/MitigationControl&gt;&lt;Responsibility&gt;&lt;/Responsibility&gt;&lt;IAControls&gt;&lt;/IAControls&gt;</xccdf:description>
+              <xccdf:ident system="http://cyber.mil/cci">CCI-000901</xccdf:ident>
+              <xccdf:ident system="http://cyber.mil/cci">CCI-000366</xccdf:ident>
+              <xccdf:fixtext fixref="F-230301r1_fix">Start the "rsyslog" service and enable it to start at boot with the following commands:
+
+$ sudo systemctl enable --now rsyslog</xccdf:fixtext>
+              <xccdf:check system="C-230301r1_chk">
+                <xccdf:check-content>Verify that "rsyslog" is being used to monitor auditing on the system.
+
+Check that the "rsyslog" service is enabled and active with the following commands:
+
+$ sudo systemctl is-enabled rsyslog
+enabled
+
+$ sudo systemctl is-active rsyslog
+active
+
+If the service is not enabled and active, this is a finding.</xccdf:check-content>
+              </xccdf:check>
+            </xccdf:Rule>
+          </xccdf:Group>
+          <xccdf:Group id="xccdf_mil.disa.stig_group_V-230327">
+            <xccdf:title>V-230327</xccdf:title>
+            <xccdf:Rule id="xccdf_mil.disa.stig_rule_SV-230327r1130327_rule" severity="medium" weight="10.0">
+              <xccdf:version>RHEL-08-010571</xccdf:version>
+              <xccdf:title>RHEL 8 must prevent files with the setuid and setgid bit set from being executed on the /boot directory.</xccdf:title>
+              <xccdf:description>&lt;VulnDiscussion&gt;The "nosuid" mount option causes the system not to execute "setuid" and "setgid" files with owner privileges.&lt;/VulnDiscussion&gt;&lt;FalsePositives&gt;&lt;/FalsePositives&gt;&lt;FalseNegatives&gt;&lt;/FalseNegatives&gt;&lt;Documentable&gt;false&lt;/Documentable&gt;&lt;Mitigations&gt;&lt;/Mitigations&gt;&lt;SeverityOverrideGuidance&gt;&lt;/SeverityOverrideGuidance&gt;&lt;PotentialImpacts&gt;&lt;/PotentialImpacts&gt;&lt;ThirdPartyTools&gt;&lt;/ThirdPartyTools&gt;&lt;MitigationControl&gt;&lt;/MitigationControl&gt;&lt;Responsibility&gt;&lt;/Responsibility&gt;&lt;IAControls&gt;&lt;/IAControls&gt;</xccdf:description>
+              <xccdf:ident system="http://cyber.mil/cci">CCI-000927</xccdf:ident>
+              <xccdf:fixtext fixref="F-230327r1_fix">Configure the "/etc/fstab" to use the "nosuid" option on the /boot directory.</xccdf:fixtext>
+              <xccdf:check system="C-230327r1_chk">
+                <xccdf:check-content>Verify the /boot directory is mounted with the "nosuid" option with the following command:
+
+$ sudo mount | grep '\s/boot\s'
+/dev/sda1 on /boot type xfs (rw,nosuid,relatime,seclabel,attr2,inode64,noquota)
+
+If the /boot file system does not have the "nosuid" option set, this is a finding.</xccdf:check-content>
+              </xccdf:check>
+            </xccdf:Rule>
+          </xccdf:Group>
+          <xccdf:Group id="xccdf_mil.disa.stig_group_V-230332">
+            <xccdf:title>V-230332</xccdf:title>
+            <xccdf:Rule id="xccdf_mil.disa.stig_rule_SV-230332r1130332_rule" severity="medium" weight="10.0">
+              <xccdf:version>RHEL-08-020010</xccdf:version>
+              <xccdf:title>RHEL 8 must automatically lock an account when three unsuccessful logon attempts occur.</xccdf:title>
+              <xccdf:description>&lt;VulnDiscussion&gt;By limiting the number of failed logon attempts, the risk of unauthorized system access via user password guessing, otherwise known as brute-force attacks, is reduced.&lt;/VulnDiscussion&gt;&lt;FalsePositives&gt;&lt;/FalsePositives&gt;&lt;FalseNegatives&gt;&lt;/FalseNegatives&gt;&lt;Documentable&gt;false&lt;/Documentable&gt;&lt;Mitigations&gt;&lt;/Mitigations&gt;&lt;SeverityOverrideGuidance&gt;&lt;/SeverityOverrideGuidance&gt;&lt;PotentialImpacts&gt;&lt;/PotentialImpacts&gt;&lt;ThirdPartyTools&gt;&lt;/ThirdPartyTools&gt;&lt;MitigationControl&gt;&lt;/MitigationControl&gt;&lt;Responsibility&gt;&lt;/Responsibility&gt;&lt;IAControls&gt;&lt;/IAControls&gt;</xccdf:description>
+              <xccdf:ident system="http://cyber.mil/cci">CCI-000932</xccdf:ident>
+              <xccdf:fixtext fixref="F-230332r1_fix">Configure the operating system to lock an account when three unsuccessful logon attempts occur.
+
+Add/Modify the "/etc/security/faillock.conf" file to match the following line:
+
+deny = 3</xccdf:fixtext>
+              <xccdf:check system="C-230332r1_chk">
+                <xccdf:check-content>Check that the system locks an account after three unsuccessful logon attempts with the following commands:
+
+$ sudo grep 'deny =' /etc/security/faillock.conf
+deny = 3
+
+If the "deny" option is not set to "3" or less (but not "0"), is missing or commented out, this is a finding.</xccdf:check-content>
+              </xccdf:check>
+            </xccdf:Rule>
+          </xccdf:Group>
+          <xccdf:Group id="xccdf_mil.disa.stig_group_V-230346">
+            <xccdf:title>V-230346</xccdf:title>
+            <xccdf:Rule id="xccdf_mil.disa.stig_rule_SV-230346r1130346_rule" severity="medium" weight="10.0">
+              <xccdf:version>RHEL-08-020024</xccdf:version>
+              <xccdf:title>RHEL 8 must limit the number of concurrent sessions to ten for all accounts and/or account types.</xccdf:title>
+              <xccdf:description>&lt;VulnDiscussion&gt;Operating system management includes the ability to control the number of users and user sessions that utilize an operating system.&lt;/VulnDiscussion&gt;&lt;FalsePositives&gt;&lt;/FalsePositives&gt;&lt;FalseNegatives&gt;&lt;/FalseNegatives&gt;&lt;Documentable&gt;false&lt;/Documentable&gt;&lt;Mitigations&gt;&lt;/Mitigations&gt;&lt;SeverityOverrideGuidance&gt;&lt;/SeverityOverrideGuidance&gt;&lt;PotentialImpacts&gt;&lt;/PotentialImpacts&gt;&lt;ThirdPartyTools&gt;&lt;/ThirdPartyTools&gt;&lt;MitigationControl&gt;&lt;/MitigationControl&gt;&lt;Responsibility&gt;&lt;/Responsibility&gt;&lt;IAControls&gt;&lt;/IAControls&gt;</xccdf:description>
+              <xccdf:ident system="http://cyber.mil/cci">CCI-000946</xccdf:ident>
+              <xccdf:ident system="http://cyber.mil/cci">CCI-000366</xccdf:ident>
+              <xccdf:fixtext fixref="F-230346r1_fix">Configure the operating system to limit the number of concurrent sessions to ten for all accounts and/or account types.
+
+Add the following line to the top of the /etc/security/limits.conf or in a ".conf" file defined in /etc/security/limits.d/:
+
+* hard maxlogins 10</xccdf:fixtext>
+              <xccdf:check system="C-230346r1_chk">
+                <xccdf:check-content>Verify the operating system limits the number of concurrent sessions to "10" for all accounts and/or account types with the following command:
+
+$ sudo grep -r maxlogins /etc/security/limits.conf /etc/security/limits.d/*.conf
+* hard maxlogins 10
+
+If the "maxlogins" item is missing or the value is not set to 10 or less, this is a finding.</xccdf:check-content>
+              </xccdf:check>
+            </xccdf:Rule>
+          </xccdf:Group>
+          <xccdf:Group id="xccdf_mil.disa.stig_group_V-230348">
+            <xccdf:title>V-230348</xccdf:title>
+            <xccdf:Rule id="xccdf_mil.disa.stig_rule_SV-230348r1130348_rule" severity="medium" weight="10.0">
+              <xccdf:version>RHEL-08-020030</xccdf:version>
+              <xccdf:title>RHEL 8 must enable a user session lock until that user re-establishes access using established identification and authentication procedures for graphical user interfaces.</xccdf:title>
+              <xccdf:description>&lt;VulnDiscussion&gt;A session lock is a temporary action taken when a user stops work and moves away from the immediate physical vicinity of the information system.&lt;/VulnDiscussion&gt;&lt;FalsePositives&gt;&lt;/FalsePositives&gt;&lt;FalseNegatives&gt;&lt;/FalseNegatives&gt;&lt;Documentable&gt;false&lt;/Documentable&gt;&lt;Mitigations&gt;&lt;/Mitigations&gt;&lt;SeverityOverrideGuidance&gt;&lt;/SeverityOverrideGuidance&gt;&lt;PotentialImpacts&gt;&lt;/PotentialImpacts&gt;&lt;ThirdPartyTools&gt;&lt;/ThirdPartyTools&gt;&lt;MitigationControl&gt;&lt;/MitigationControl&gt;&lt;Responsibility&gt;&lt;/Responsibility&gt;&lt;IAControls&gt;&lt;/IAControls&gt;</xccdf:description>
+              <xccdf:ident system="http://cyber.mil/cci">CCI-000948</xccdf:ident>
+              <xccdf:fixtext fixref="F-230348r1_fix">Configure the operating system to enable a user's session lock until that user re-establishes access.
+
+Add the setting to enable screen locking in the [org/gnome/desktop/screensaver] section of /etc/dconf/db/local.d/00-screensaver:
+
+lock-enabled=true
+
+Update the system databases:
+
+$ sudo dconf update</xccdf:fixtext>
+              <xccdf:check system="C-230348r1_chk">
+                <xccdf:check-content>Verify the operating system enables a user's session lock until that user re-establishes access using established identification and authentication procedures with the following command:
+
+$ sudo grep -i lock-enabled /etc/dconf/db/local.d/*
+lock-enabled=true
+
+If the "lock-enabled" setting is missing or is not set to "true", this is a finding.</xccdf:check-content>
+              </xccdf:check>
+            </xccdf:Rule>
+          </xccdf:Group>
+          <xccdf:Group id="xccdf_mil.disa.stig_group_V-230352">
+            <xccdf:title>V-230352</xccdf:title>
+            <xccdf:Rule id="xccdf_mil.disa.stig_rule_SV-230352r1130352_rule" severity="medium" weight="10.0">
+              <xccdf:version>RHEL-08-020060</xccdf:version>
+              <xccdf:title>RHEL 8 must automatically lock graphical user sessions after 15 minutes of inactivity.</xccdf:title>
+              <xccdf:description>&lt;VulnDiscussion&gt;A session time-out lock is a temporary action taken when a user stops work and moves away from the immediate physical vicinity of the information system but does not log out.&lt;/VulnDiscussion&gt;&lt;FalsePositives&gt;&lt;/FalsePositives&gt;&lt;FalseNegatives&gt;&lt;/FalseNegatives&gt;&lt;Documentable&gt;false&lt;/Documentable&gt;&lt;Mitigations&gt;&lt;/Mitigations&gt;&lt;SeverityOverrideGuidance&gt;&lt;/SeverityOverrideGuidance&gt;&lt;PotentialImpacts&gt;&lt;/PotentialImpacts&gt;&lt;ThirdPartyTools&gt;&lt;/ThirdPartyTools&gt;&lt;MitigationControl&gt;&lt;/MitigationControl&gt;&lt;Responsibility&gt;&lt;/Responsibility&gt;&lt;IAControls&gt;&lt;/IAControls&gt;</xccdf:description>
+              <xccdf:ident system="http://cyber.mil/cci">CCI-000952</xccdf:ident>
+              <xccdf:ident system="http://cyber.mil/cci">CCI-000366</xccdf:ident>
+              <xccdf:fixtext fixref="F-230352r1_fix">Configure the operating system to initiate a session lock after a 15-minute period of inactivity for graphical user interfaces.
+
+Create a database to contain the system-wide screensaver settings with the following command:
+
+$ sudo touch /etc/dconf/db/local.d/00-screensaver
+
+Add the following line to the [org/gnome/desktop/session] section:
+
+idle-delay=uint32 900
+
+Update the system databases:
+
+$ sudo dconf update</xccdf:fixtext>
+              <xccdf:check system="C-230352r1_chk">
+                <xccdf:check-content>Verify the operating system initiates a session lock after a 15-minute period of inactivity for graphical user interfaces with the following command:
+
+$ sudo grep -i idle-delay /etc/dconf/db/local.d/*
+idle-delay=uint32 900
+
+If the "idle-delay" setting is missing or is not set to "900" or less, this is a finding.</xccdf:check-content>
+              </xccdf:check>
+            </xccdf:Rule>
+          </xccdf:Group>
+          <xccdf:Group id="xccdf_mil.disa.stig_group_V-230357">
+            <xccdf:title>V-230357</xccdf:title>
+            <xccdf:Rule id="xccdf_mil.disa.stig_rule_SV-230357r1130357_rule" severity="medium" weight="10.0">
+              <xccdf:version>RHEL-08-020100</xccdf:version>
+              <xccdf:title>RHEL 8 must ensure the password complexity module is enabled in the password-auth file.</xccdf:title>
+              <xccdf:description>&lt;VulnDiscussion&gt;Use of a complex password helps to increase the time and resources required to compromise the password.&lt;/VulnDiscussion&gt;&lt;FalsePositives&gt;&lt;/FalsePositives&gt;&lt;FalseNegatives&gt;&lt;/FalseNegatives&gt;&lt;Documentable&gt;false&lt;/Documentable&gt;&lt;Mitigations&gt;&lt;/Mitigations&gt;&lt;SeverityOverrideGuidance&gt;&lt;/SeverityOverrideGuidance&gt;&lt;PotentialImpacts&gt;&lt;/PotentialImpacts&gt;&lt;ThirdPartyTools&gt;&lt;/ThirdPartyTools&gt;&lt;MitigationControl&gt;&lt;/MitigationControl&gt;&lt;Responsibility&gt;&lt;/Responsibility&gt;&lt;IAControls&gt;&lt;/IAControls&gt;</xccdf:description>
+              <xccdf:ident system="http://cyber.mil/cci">CCI-000957</xccdf:ident>
+              <xccdf:fixtext fixref="F-230357r1_fix">Configure RHEL 8 to enable the password complexity module in the password-auth file.
+
+Add the following line to the "/etc/pam.d/password-auth" file (or modify the line to have the required value):
+
+password required pam_pwquality.so</xccdf:fixtext>
+              <xccdf:check system="C-230357r1_chk">
+                <xccdf:check-content>Verify the pam_pwquality.so module is present in the "/etc/pam.d/password-auth" file:
+
+$ sudo grep pam_pwquality /etc/pam.d/password-auth
+password required pam_pwquality.so
+
+If the line is commented out or missing, this is a finding.</xccdf:check-content>
+              </xccdf:check>
+            </xccdf:Rule>
+          </xccdf:Group>
+          <xccdf:Group id="xccdf_mil.disa.stig_group_V-230364">
+            <xccdf:title>V-230364</xccdf:title>
+            <xccdf:Rule id="xccdf_mil.disa.stig_rule_SV-230364r1130364_rule" severity="medium" weight="10.0">
+              <xccdf:version>RHEL-08-020170</xccdf:version>
+              <xccdf:title>RHEL 8 must require the change of at least four character classes when passwords are changed.</xccdf:title>
+              <xccdf:description>&lt;VulnDiscussion&gt;Use of a complex password helps to increase the time and resources required to compromise the password.&lt;/VulnDiscussion&gt;&lt;FalsePositives&gt;&lt;/FalsePositives&gt;&lt;FalseNegatives&gt;&lt;/FalseNegatives&gt;&lt;Documentable&gt;false&lt;/Documentable&gt;&lt;Mitigations&gt;&lt;/Mitigations&gt;&lt;SeverityOverrideGuidance&gt;&lt;/SeverityOverrideGuidance&gt;&lt;PotentialImpacts&gt;&lt;/PotentialImpacts&gt;&lt;ThirdPartyTools&gt;&lt;/ThirdPartyTools&gt;&lt;MitigationControl&gt;&lt;/MitigationControl&gt;&lt;Responsibility&gt;&lt;/Responsibility&gt;&lt;IAControls&gt;&lt;/IAControls&gt;</xccdf:description>
+              <xccdf:ident system="http://cyber.mil/cci">CCI-000964</xccdf:ident>
+              <xccdf:ident system="http://cyber.mil/cci">CCI-000366</xccdf:ident>
+              <xccdf:fixtext fixref="F-230364r1_fix">Configure the operating system to require the change of at least four character classes when passwords are changed by setting the "minclass" option in "/etc/security/pwquality.conf":
+
+minclass = 4</xccdf:fixtext>
+              <xccdf:check system="C-230364r1_chk">
+                <xccdf:check-content>Verify the value of the "minclass" option in "/etc/security/pwquality.conf" with the following command:
+
+$ sudo grep minclass /etc/security/pwquality.conf
+minclass = 4
+
+If the value of "minclass" is set to less than "4" or is commented out, this is a finding.</xccdf:check-content>
+              </xccdf:check>
+            </xccdf:Rule>
+          </xccdf:Group>
+          <xccdf:Group id="xccdf_mil.disa.stig_group_V-230366">
+            <xccdf:title>V-230366</xccdf:title>
+            <xccdf:Rule id="xccdf_mil.disa.stig_rule_SV-230366r1130366_rule" severity="medium" weight="10.0">
+              <xccdf:version>RHEL-08-020190</xccdf:version>
+              <xccdf:title>RHEL 8 must require the maximum number of repeating characters be limited to three when passwords are changed.</xccdf:title>
+              <xccdf:description>&lt;VulnDiscussion&gt;Use of a complex password helps to increase the time and resources required to compromise the password.&lt;/VulnDiscussion&gt;&lt;FalsePositives&gt;&lt;/FalsePositives&gt;&lt;FalseNegatives&gt;&lt;/FalseNegatives&gt;&lt;Documentable&gt;false&lt;/Documentable&gt;&lt;Mitigations&gt;&lt;/Mitigations&gt;&lt;SeverityOverrideGuidance&gt;&lt;/SeverityOverrideGuidance&gt;&lt;PotentialImpacts&gt;&lt;/PotentialImpacts&gt;&lt;ThirdPartyTools&gt;&lt;/ThirdPartyTools&gt;&lt;MitigationControl&gt;&lt;/MitigationControl&gt;&lt;Responsibility&gt;&lt;/Responsibility&gt;&lt;IAControls&gt;&lt;/IAControls&gt;</xccdf:description>
+              <xccdf:ident system="http://cyber.mil/cci">CCI-000966</xccdf:ident>
+              <xccdf:fixtext fixref="F-230366r1_fix">Configure the operating system to require the change of the number of repeating consecutive characters when passwords are changed by setting the "maxrepeat" option in "/etc/security/pwquality.conf":
+
+maxrepeat = 3</xccdf:fixtext>
+              <xccdf:check system="C-230366r1_chk">
+                <xccdf:check-content>Check for the value of the "maxrepeat" option in "/etc/security/pwquality.conf" with the following command:
+
+$ sudo grep maxrepeat /etc/security/pwquality.conf
+maxrepeat = 3
+
+If the value of "maxrepeat" is set to more than "3" or is commented out, this is a finding.</xccdf:check-content>
+              </xccdf:check>
+            </xccdf:Rule>
+          </xccdf:Group>
+          <xccdf:Group id="xccdf_mil.disa.stig_group_V-230369">
+            <xccdf:title>V-230369</xccdf:title>
+            <xccdf:Rule id="xccdf_mil.disa.stig_rule_SV-230369r1130369_rule" severity="medium" weight="10.0">
+              <xccdf:version>RHEL-08-020220</xccdf:version>
+              <xccdf:title>RHEL 8 passwords must have a 24 hours/1 day minimum password lifetime restriction in /etc/login.defs.</xccdf:title>
+              <xccdf:description>&lt;VulnDiscussion&gt;Enforcing a minimum password lifetime helps to prevent repeated password changes to defeat the password reuse or history enforcement requirement.&lt;/VulnDiscussion&gt;&lt;FalsePositives&gt;&lt;/FalsePositives&gt;&lt;FalseNegatives&gt;&lt;/FalseNegatives&gt;&lt;Documentable&gt;false&lt;/Documentable&gt;&lt;Mitigations&gt;&lt;/Mitigations&gt;&lt;SeverityOverrideGuidance&gt;&lt;/SeverityOverrideGuidance&gt;&lt;PotentialImpacts&gt;&lt;/PotentialImpacts&gt;&lt;ThirdPartyTools&gt;&lt;/ThirdPartyTools&gt;&lt;MitigationControl&gt;&lt;/MitigationControl&gt;&lt;Responsibility&gt;&lt;/Responsibility&gt;&lt;IAControls&gt;&lt;/IAControls&gt;</xccdf:description>
+              <xccdf:ident system="http://cyber.mil/cci">CCI-000969</xccdf:ident>
+              <xccdf:fixtext fixref="F-230369r1_fix">Configure the operating system to enforce 24 hours/one day as the minimum password lifetime.
+
+Add the following line in "/etc/login.defs" (or modify the line to have the required value):
+
+PASS_MIN_DAYS 1</xccdf:fixtext>
+              <xccdf:check system="C-230369r1_chk">
+                <xccdf:check-content>Verify the operating system enforces 24 hours/one day as the minimum password lifetime for new user accounts with the following command:
+
+$ sudo grep -i pass_min_days /etc/login.defs
+PASS_MIN_DAYS 1
+
+If the "PASS_MIN_DAYS" parameter value is less than "1", or is commented out, this is a finding.</xccdf:check-content>
+              </xccdf:check>
+            </xccdf:Rule>
+          </xccdf:Group>
+          <xccdf:Group id="xccdf_mil.disa.stig_group_V-230375">
+            <xccdf:title>V-230375</xccdf:title>
+            <xccdf:Rule id="xccdf_mil.disa.stig_rule_SV-230375r1130375_rule" severity="medium" weight="10.0">
+              <xccdf:version>RHEL-08-020250</xccdf:version>
+              <xccdf:title>RHEL 8 must be configured in the password-auth file to prohibit password reuse for a minimum of five generations.</xccdf:title>
+              <xccdf:description>&lt;VulnDiscussion&gt;Password complexity, or strength, is a measure of the effectiveness of a password in resisting attempts at guessing and brute-force attacks.&lt;/VulnDiscussion&gt;&lt;FalsePositives&gt;&lt;/FalsePositives&gt;&lt;FalseNegatives&gt;&lt;/FalseNegatives&gt;&lt;Documentable&gt;false&lt;/Documentable&gt;&lt;Mitigations&gt;&lt;/Mitigations&gt;&lt;SeverityOverrideGuidance&gt;&lt;/SeverityOverrideGuidance&gt;&lt;PotentialImpacts&gt;&lt;/PotentialImpacts&gt;&lt;ThirdPartyTools&gt;&lt;/ThirdPartyTools&gt;&lt;MitigationControl&gt;&lt;/MitigationControl&gt;&lt;Responsibility&gt;&lt;/Responsibility&gt;&lt;IAControls&gt;&lt;/IAControls&gt;</xccdf:description>
+              <xccdf:ident system="http://cyber.mil/cci">CCI-000975</xccdf:ident>
+              <xccdf:fixtext fixref="F-230375r1_fix">Configure the operating system to prohibit password reuse for a minimum of five generations.
+
+Add the following line in "/etc/pam.d/password-auth":
+
+password required pam_pwhistory.so use_authtok remember=5 retry=3</xccdf:fixtext>
+              <xccdf:check system="C-230375r1_chk">
+                <xccdf:check-content>Verify the operating system prohibits password reuse for a minimum of five generations:
+
+$ sudo grep -i remember /etc/pam.d/password-auth
+password required pam_pwhistory.so use_authtok remember=5 retry=3
+
+If the "remember" parameter value is not greater than or equal to "5", is commented out, or is missing, this is a finding.</xccdf:check-content>
+              </xccdf:check>
+            </xccdf:Rule>
+          </xccdf:Group>
+          <xccdf:Group id="xccdf_mil.disa.stig_group_V-230380">
+            <xccdf:title>V-230380</xccdf:title>
+            <xccdf:Rule id="xccdf_mil.disa.stig_rule_SV-230380r1130380_rule" severity="medium" weight="10.0">
+              <xccdf:version>RHEL-08-020300</xccdf:version>
+              <xccdf:title>RHEL 8 must enforce a minimum 15-character password length.</xccdf:title>
+              <xccdf:description>&lt;VulnDiscussion&gt;The shorter the password, the lower the number of possible combinations that need to be tested before the password is compromised.&lt;/VulnDiscussion&gt;&lt;FalsePositives&gt;&lt;/FalsePositives&gt;&lt;FalseNegatives&gt;&lt;/FalseNegatives&gt;&lt;Documentable&gt;false&lt;/Documentable&gt;&lt;Mitigations&gt;&lt;/Mitigations&gt;&lt;SeverityOverrideGuidance&gt;&lt;/SeverityOverrideGuidance&gt;&lt;PotentialImpacts&gt;&lt;/PotentialImpacts&gt;&lt;ThirdPartyTools&gt;&lt;/ThirdPartyTools&gt;&lt;MitigationControl&gt;&lt;/MitigationControl&gt;&lt;Responsibility&gt;&lt;/Responsibility&gt;&lt;IAControls&gt;&lt;/IAControls&gt;</xccdf:description>
+              <xccdf:ident system="http://cyber.mil/cci">CCI-000980</xccdf:ident>
+              <xccdf:fixtext fixref="F-230380r1_fix">Configure the operating system to enforce a minimum 15-character password length.
+
+Add or modify the following line in "/etc/security/pwquality.conf":
+
+minlen = 15</xccdf:fixtext>
+              <xccdf:check system="C-230380r1_chk">
+                <xccdf:check-content>Verify the operating system enforces a minimum 15-character password length with the following command:
+
+$ sudo grep minlen /etc/security/pwquality.conf
+minlen = 15
+
+If the command does not return a "minlen" value of 15 or greater, this is a finding.</xccdf:check-content>
+              </xccdf:check>
+            </xccdf:Rule>
+          </xccdf:Group>
+          <xccdf:Group id="xccdf_mil.disa.stig_group_V-230386">
+            <xccdf:title>V-230386</xccdf:title>
+            <xccdf:Rule id="xccdf_mil.disa.stig_rule_SV-230386r1130386_rule" severity="medium" weight="10.0">
+              <xccdf:version>RHEL-08-030000</xccdf:version>
+              <xccdf:title>RHEL 8 audit records must be off-loaded onto a different system or storage media from the system being audited.</xccdf:title>
+              <xccdf:description>&lt;VulnDiscussion&gt;Information stored in one location is vulnerable to accidental or incidental deletion or alteration.&lt;/VulnDiscussion&gt;&lt;FalsePositives&gt;&lt;/FalsePositives&gt;&lt;FalseNegatives&gt;&lt;/FalseNegatives&gt;&lt;Documentable&gt;false&lt;/Documentable&gt;&lt;Mitigations&gt;&lt;/Mitigations&gt;&lt;SeverityOverrideGuidance&gt;&lt;/SeverityOverrideGuidance&gt;&lt;PotentialImpacts&gt;&lt;/PotentialImpacts&gt;&lt;ThirdPartyTools&gt;&lt;/ThirdPartyTools&gt;&lt;MitigationControl&gt;&lt;/MitigationControl&gt;&lt;Responsibility&gt;&lt;/Responsibility&gt;&lt;IAControls&gt;&lt;/IAControls&gt;</xccdf:description>
+              <xccdf:ident system="http://cyber.mil/cci">CCI-000986</xccdf:ident>
+              <xccdf:fixtext fixref="F-230386r1_fix">Configure the audit system to off-load audit records onto a different system or media from the system being audited.
+
+Set the remote server option in "/etc/audisp/audisp-remote.conf" with the IP address of the log aggregation server.</xccdf:fixtext>
+              <xccdf:check system="C-230386r1_chk">
+                <xccdf:check-content>Verify the audit system off-loads audit records onto a different system or media from the system being audited with the following command:
+
+$ sudo grep -i remote_server /etc/audisp/audisp-remote.conf
+remote_server = 10.0.21.1
+
+If a remote server is not configured, or the line is commented out, ask the System Administrator to indicate how the audit logs are off-loaded to a different system or media.
+
+If there is no evidence that the audit logs are being off-loaded to another system or media, this is a finding.</xccdf:check-content>
+              </xccdf:check>
+            </xccdf:Rule>
+          </xccdf:Group>
+          <xccdf:Group id="xccdf_mil.disa.stig_group_V-230387">
+            <xccdf:title>V-230387</xccdf:title>
+            <xccdf:Rule id="xccdf_mil.disa.stig_rule_SV-230387r1130387_rule" severity="medium" weight="10.0">
+              <xccdf:version>RHEL-08-030010</xccdf:version>
+              <xccdf:title>RHEL 8 audit system must take appropriate action when the audit storage volume is full.</xccdf:title>
+              <xccdf:description>&lt;VulnDiscussion&gt;It is critical that when RHEL 8 is at risk of failing to process audit logs as required, it takes action to mitigate the failure.&lt;/VulnDiscussion&gt;&lt;FalsePositives&gt;&lt;/FalsePositives&gt;&lt;FalseNegatives&gt;&lt;/FalseNegatives&gt;&lt;Documentable&gt;false&lt;/Documentable&gt;&lt;Mitigations&gt;&lt;/Mitigations&gt;&lt;SeverityOverrideGuidance&gt;&lt;/SeverityOverrideGuidance&gt;&lt;PotentialImpacts&gt;&lt;/PotentialImpacts&gt;&lt;ThirdPartyTools&gt;&lt;/ThirdPartyTools&gt;&lt;MitigationControl&gt;&lt;/MitigationControl&gt;&lt;Responsibility&gt;&lt;/Responsibility&gt;&lt;IAControls&gt;&lt;/IAControls&gt;</xccdf:description>
+              <xccdf:ident system="http://cyber.mil/cci">CCI-000987</xccdf:ident>
+              <xccdf:fixtext fixref="F-230387r1_fix">Configure the audit system to take an appropriate action when the audit storage volume is full.
+
+Add or modify the following line in "/etc/audisp/audisp-remote.conf":
+
+disk_full_action = single</xccdf:fixtext>
+              <xccdf:check system="C-230387r1_chk">
+                <xccdf:check-content>Verify RHEL 8 takes the appropriate action when the audit storage volume is full with the following command:
+
+$ sudo grep disk_full_action /etc/audisp/audisp-remote.conf
+disk_full_action = single
+
+If the value of the "disk_full_action" option is not "syslog", "single", or "halt", or the line is commented out, this is a finding.</xccdf:check-content>
+              </xccdf:check>
+            </xccdf:Rule>
+          </xccdf:Group>
+          <xccdf:Group id="xccdf_mil.disa.stig_group_V-230389">
+            <xccdf:title>V-230389</xccdf:title>
+            <xccdf:Rule id="xccdf_mil.disa.stig_rule_SV-230389r1130389_rule" severity="medium" weight="10.0">
+              <xccdf:version>RHEL-08-030030</xccdf:version>
+              <xccdf:title>The RHEL 8 audit log directory must be owned by root to prevent unauthorized read access.</xccdf:title>
+              <xccdf:description>&lt;VulnDiscussion&gt;Unauthorized disclosure of audit records can reveal system and configuration data to attackers, thus compromising its confidentiality.&lt;/VulnDiscussion&gt;&lt;FalsePositives&gt;&lt;/FalsePositives&gt;&lt;FalseNegatives&gt;&lt;/FalseNegatives&gt;&lt;Documentable&gt;false&lt;/Documentable&gt;&lt;Mitigations&gt;&lt;/Mitigations&gt;&lt;SeverityOverrideGuidance&gt;&lt;/SeverityOverrideGuidance&gt;&lt;PotentialImpacts&gt;&lt;/PotentialImpacts&gt;&lt;ThirdPartyTools&gt;&lt;/ThirdPartyTools&gt;&lt;MitigationControl&gt;&lt;/MitigationControl&gt;&lt;Responsibility&gt;&lt;/Responsibility&gt;&lt;IAControls&gt;&lt;/IAControls&gt;</xccdf:description>
+              <xccdf:ident system="http://cyber.mil/cci">CCI-000989</xccdf:ident>
+              <xccdf:fixtext fixref="F-230389r1_fix">Configure the audit log directory to be owned by "root" with the following command:
+
+$ sudo chown root /var/log/audit</xccdf:fixtext>
+              <xccdf:check system="C-230389r1_chk">
+                <xccdf:check-content>Verify the audit log directory is owned by "root" with the following command:
+
+$ sudo stat -c "%U %n" /var/log/audit
+root /var/log/audit
+
+If the audit log directory is not owned by "root", this is a finding.</xccdf:check-content>
+              </xccdf:check>
+            </xccdf:Rule>
+          </xccdf:Group>
+        </xccdf:Benchmark>
+      </core:content>
+    </arf:report-request>
+  </arf:report-requests>
+  <arf:assets>
+    <arf:asset id="asset0">
+      <ai:computing-device>
+        <ai:connections>
+          <ai:connection>
+            <ai:ip-address>203.0.113.30</ai:ip-address>
+            <ai:mac-address>00:53:00:AA:30:04</ai:mac-address>
+          </ai:connection>
+        </ai:connections>
+        <ai:fqdn>host-delta.example.test</ai:fqdn>
+      </ai:computing-device>
+    </arf:asset>
+  </arf:assets>
+  <arf:reports>
+    <arf:report id="xccdf1">
+      <core:content>
+        <xccdf:TestResult id="xccdf_org.open-scap_testresult_xccdf_mil.disa.stig_benchmark_RHEL_8_STIG" start-time="2099-08-01T10:00:00+00:00" end-time="2099-08-01T10:07:33+00:00" version="1">
+          <xccdf:benchmark id="xccdf_mil.disa.stig_benchmark_RHEL_8_STIG" />
+          <xccdf:title>OSCAP Scan Result for host-delta.example.test</xccdf:title>
+          <xccdf:target>host-delta.example.test</xccdf:target>
+          <xccdf:target-address>127.0.0.1</xccdf:target-address>
+          <xccdf:target-address>203.0.113.30</xccdf:target-address>
+          <xccdf:target-facts>
+            <xccdf:fact name="urn:xccdf:fact:asset:identifier:mac" type="string">00:53:00:AA:30:04</xccdf:fact>
+            <xccdf:fact name="urn:xccdf:fact:asset:identifier:ipv4" type="string">203.0.113.30</xccdf:fact>
+            <xccdf:fact name="urn:xccdf:fact:asset:identifier:fqdn" type="string">host-delta.example.test</xccdf:fact>
+          </xccdf:target-facts>
+          <xccdf:rule-result idref="xccdf_mil.disa.stig_rule_SV-230221r1130221_rule" severity="high" time="2099-08-01T10:03:12+00:00" weight="10.0">
+            <xccdf:result>notchecked</xccdf:result>
+          </xccdf:rule-result>
+          <xccdf:rule-result idref="xccdf_mil.disa.stig_rule_SV-230222r1130222_rule" severity="medium" time="2099-08-01T10:03:12+00:00" weight="10.0">
+            <xccdf:result>fail</xccdf:result>
+            <xccdf:message severity="info">RHEL-08-010010: required value not present.</xccdf:message>
+          </xccdf:rule-result>
+          <xccdf:rule-result idref="xccdf_mil.disa.stig_rule_SV-230223r1130223_rule" severity="high" time="2099-08-01T10:03:12+00:00" weight="10.0">
+            <xccdf:result>notapplicable</xccdf:result>
+          </xccdf:rule-result>
+          <xccdf:rule-result idref="xccdf_mil.disa.stig_rule_SV-230224r1130224_rule" severity="medium" time="2099-08-01T10:03:12+00:00" weight="10.0">
+            <xccdf:result>fail</xccdf:result>
+            <xccdf:message severity="info">RHEL-08-010030: required value not present.</xccdf:message>
+          </xccdf:rule-result>
+          <xccdf:rule-result idref="xccdf_mil.disa.stig_rule_SV-230225r1130225_rule" severity="medium" time="2099-08-01T10:03:12+00:00" weight="10.0">
+            <xccdf:result>fail</xccdf:result>
+            <xccdf:message severity="info">RHEL-08-010040: required value not present.</xccdf:message>
+          </xccdf:rule-result>
+          <xccdf:rule-result idref="xccdf_mil.disa.stig_rule_SV-230227r1130227_rule" severity="medium" time="2099-08-01T10:03:12+00:00" weight="10.0">
+            <xccdf:result>fail</xccdf:result>
+            <xccdf:message severity="info">RHEL-08-010060: required value not present.</xccdf:message>
+          </xccdf:rule-result>
+          <xccdf:rule-result idref="xccdf_mil.disa.stig_rule_SV-230229r1130229_rule" severity="medium" time="2099-08-01T10:03:12+00:00" weight="10.0">
+            <xccdf:result>pass</xccdf:result>
+          </xccdf:rule-result>
+          <xccdf:rule-result idref="xccdf_mil.disa.stig_rule_SV-230230r1130230_rule" severity="medium" time="2099-08-01T10:03:12+00:00" weight="10.0">
+            <xccdf:result>fail</xccdf:result>
+            <xccdf:message severity="info">RHEL-08-010100: required value not present.</xccdf:message>
+          </xccdf:rule-result>
+          <xccdf:rule-result idref="xccdf_mil.disa.stig_rule_SV-230231r1130231_rule" severity="medium" time="2099-08-01T10:03:12+00:00" weight="10.0">
+            <xccdf:result>notchecked</xccdf:result>
+          </xccdf:rule-result>
+          <xccdf:rule-result idref="xccdf_mil.disa.stig_rule_SV-230232r1130232_rule" severity="medium" time="2099-08-01T10:03:12+00:00" weight="10.0">
+            <xccdf:result>fail</xccdf:result>
+            <xccdf:message severity="info">RHEL-08-010120: required value not present.</xccdf:message>
+          </xccdf:rule-result>
+          <xccdf:rule-result idref="xccdf_mil.disa.stig_rule_SV-230234r1130234_rule" severity="high" time="2099-08-01T10:03:12+00:00" weight="10.0">
+            <xccdf:result>notapplicable</xccdf:result>
+          </xccdf:rule-result>
+          <xccdf:rule-result idref="xccdf_mil.disa.stig_rule_SV-230237r1130237_rule" severity="medium" time="2099-08-01T10:03:12+00:00" weight="10.0">
+            <xccdf:result>fail</xccdf:result>
+            <xccdf:message severity="info">RHEL-08-010160: required value not present.</xccdf:message>
+          </xccdf:rule-result>
+          <xccdf:rule-result idref="xccdf_mil.disa.stig_rule_SV-230240r1130240_rule" severity="medium" time="2099-08-01T10:03:12+00:00" weight="10.0">
+            <xccdf:result>fail</xccdf:result>
+            <xccdf:message severity="info">RHEL-08-010171: required value not present.</xccdf:message>
+          </xccdf:rule-result>
+          <xccdf:rule-result idref="xccdf_mil.disa.stig_rule_SV-230244r1130244_rule" severity="medium" time="2099-08-01T10:03:12+00:00" weight="10.0">
+            <xccdf:result>fail</xccdf:result>
+            <xccdf:message severity="info">RHEL-08-010200: required value not present.</xccdf:message>
+          </xccdf:rule-result>
+          <xccdf:rule-result idref="xccdf_mil.disa.stig_rule_SV-230251r1130251_rule" severity="medium" time="2099-08-01T10:03:12+00:00" weight="10.0">
+            <xccdf:result>pass</xccdf:result>
+          </xccdf:rule-result>
+          <xccdf:rule-result idref="xccdf_mil.disa.stig_rule_SV-230257r1130257_rule" severity="medium" time="2099-08-01T10:03:12+00:00" weight="10.0">
+            <xccdf:result>fail</xccdf:result>
+            <xccdf:message severity="info">RHEL-08-010300: required value not present.</xccdf:message>
+          </xccdf:rule-result>
+          <xccdf:rule-result idref="xccdf_mil.disa.stig_rule_SV-230262r1130262_rule" severity="medium" time="2099-08-01T10:03:12+00:00" weight="10.0">
+            <xccdf:result>notchecked</xccdf:result>
+          </xccdf:rule-result>
+          <xccdf:rule-result idref="xccdf_mil.disa.stig_rule_SV-230265r1130265_rule" severity="medium" time="2099-08-01T10:03:12+00:00" weight="10.0">
+            <xccdf:result>fail</xccdf:result>
+            <xccdf:message severity="info">RHEL-08-010359: required value not present.</xccdf:message>
+          </xccdf:rule-result>
+          <xccdf:rule-result idref="xccdf_mil.disa.stig_rule_SV-230269r1130269_rule" severity="high" time="2099-08-01T10:03:12+00:00" weight="10.0">
+            <xccdf:result>notapplicable</xccdf:result>
+          </xccdf:rule-result>
+          <xccdf:rule-result idref="xccdf_mil.disa.stig_rule_SV-230270r1130270_rule" severity="high" time="2099-08-01T10:03:12+00:00" weight="10.0">
+            <xccdf:result>fail</xccdf:result>
+            <xccdf:message severity="info">RHEL-08-010371: required value not present.</xccdf:message>
+          </xccdf:rule-result>
+          <xccdf:rule-result idref="xccdf_mil.disa.stig_rule_SV-230271r1130271_rule" severity="medium" time="2099-08-01T10:03:12+00:00" weight="10.0">
+            <xccdf:result>fail</xccdf:result>
+            <xccdf:message severity="info">RHEL-08-010372: required value not present.</xccdf:message>
+          </xccdf:rule-result>
+          <xccdf:rule-result idref="xccdf_mil.disa.stig_rule_SV-230280r1130280_rule" severity="medium" time="2099-08-01T10:03:12+00:00" weight="10.0">
+            <xccdf:result>fail</xccdf:result>
+            <xccdf:message severity="info">RHEL-08-010440: required value not present.</xccdf:message>
+          </xccdf:rule-result>
+          <xccdf:rule-result idref="xccdf_mil.disa.stig_rule_SV-230283r1130283_rule" severity="medium" time="2099-08-01T10:03:12+00:00" weight="10.0">
+            <xccdf:result>pass</xccdf:result>
+          </xccdf:rule-result>
+          <xccdf:rule-result idref="xccdf_mil.disa.stig_rule_SV-230286r1130286_rule" severity="high" time="2099-08-01T10:03:12+00:00" weight="10.0">
+            <xccdf:result>fail</xccdf:result>
+            <xccdf:message severity="info">RHEL-08-010500: required value not present.</xccdf:message>
+          </xccdf:rule-result>
+          <xccdf:rule-result idref="xccdf_mil.disa.stig_rule_SV-230296r1130296_rule" severity="medium" time="2099-08-01T10:03:12+00:00" weight="10.0">
+            <xccdf:result>notchecked</xccdf:result>
+          </xccdf:rule-result>
+          <xccdf:rule-result idref="xccdf_mil.disa.stig_rule_SV-230301r1130301_rule" severity="medium" time="2099-08-01T10:03:12+00:00" weight="10.0">
+            <xccdf:result>fail</xccdf:result>
+            <xccdf:message severity="info">RHEL-08-010561: required value not present.</xccdf:message>
+          </xccdf:rule-result>
+          <xccdf:rule-result idref="xccdf_mil.disa.stig_rule_SV-230327r1130327_rule" severity="medium" time="2099-08-01T10:03:12+00:00" weight="10.0">
+            <xccdf:result>notapplicable</xccdf:result>
+          </xccdf:rule-result>
+          <xccdf:rule-result idref="xccdf_mil.disa.stig_rule_SV-230332r1130332_rule" severity="medium" time="2099-08-01T10:03:12+00:00" weight="10.0">
+            <xccdf:result>fail</xccdf:result>
+            <xccdf:message severity="info">RHEL-08-020010: required value not present.</xccdf:message>
+          </xccdf:rule-result>
+          <xccdf:rule-result idref="xccdf_mil.disa.stig_rule_SV-230346r1130346_rule" severity="medium" time="2099-08-01T10:03:12+00:00" weight="10.0">
+            <xccdf:result>fail</xccdf:result>
+            <xccdf:message severity="info">RHEL-08-020024: required value not present.</xccdf:message>
+          </xccdf:rule-result>
+          <xccdf:rule-result idref="xccdf_mil.disa.stig_rule_SV-230348r1130348_rule" severity="medium" time="2099-08-01T10:03:12+00:00" weight="10.0">
+            <xccdf:result>fail</xccdf:result>
+            <xccdf:message severity="info">RHEL-08-020030: required value not present.</xccdf:message>
+          </xccdf:rule-result>
+          <xccdf:rule-result idref="xccdf_mil.disa.stig_rule_SV-230352r1130352_rule" severity="medium" time="2099-08-01T10:03:12+00:00" weight="10.0">
+            <xccdf:result>pass</xccdf:result>
+          </xccdf:rule-result>
+          <xccdf:rule-result idref="xccdf_mil.disa.stig_rule_SV-230357r1130357_rule" severity="medium" time="2099-08-01T10:03:12+00:00" weight="10.0">
+            <xccdf:result>fail</xccdf:result>
+            <xccdf:message severity="info">RHEL-08-020100: required value not present.</xccdf:message>
+          </xccdf:rule-result>
+          <xccdf:rule-result idref="xccdf_mil.disa.stig_rule_SV-230364r1130364_rule" severity="medium" time="2099-08-01T10:03:12+00:00" weight="10.0">
+            <xccdf:result>notchecked</xccdf:result>
+          </xccdf:rule-result>
+          <xccdf:rule-result idref="xccdf_mil.disa.stig_rule_SV-230366r1130366_rule" severity="medium" time="2099-08-01T10:03:12+00:00" weight="10.0">
+            <xccdf:result>fail</xccdf:result>
+            <xccdf:message severity="info">RHEL-08-020190: required value not present.</xccdf:message>
+          </xccdf:rule-result>
+          <xccdf:rule-result idref="xccdf_mil.disa.stig_rule_SV-230369r1130369_rule" severity="medium" time="2099-08-01T10:03:12+00:00" weight="10.0">
+            <xccdf:result>notapplicable</xccdf:result>
+          </xccdf:rule-result>
+          <xccdf:rule-result idref="xccdf_mil.disa.stig_rule_SV-230375r1130375_rule" severity="medium" time="2099-08-01T10:03:12+00:00" weight="10.0">
+            <xccdf:result>fail</xccdf:result>
+            <xccdf:message severity="info">RHEL-08-020250: required value not present.</xccdf:message>
+          </xccdf:rule-result>
+          <xccdf:rule-result idref="xccdf_mil.disa.stig_rule_SV-230380r1130380_rule" severity="medium" time="2099-08-01T10:03:12+00:00" weight="10.0">
+            <xccdf:result>fail</xccdf:result>
+            <xccdf:message severity="info">RHEL-08-020300: required value not present.</xccdf:message>
+          </xccdf:rule-result>
+          <xccdf:rule-result idref="xccdf_mil.disa.stig_rule_SV-230386r1130386_rule" severity="medium" time="2099-08-01T10:03:12+00:00" weight="10.0">
+            <xccdf:result>fail</xccdf:result>
+            <xccdf:message severity="info">RHEL-08-030000: required value not present.</xccdf:message>
+          </xccdf:rule-result>
+          <xccdf:rule-result idref="xccdf_mil.disa.stig_rule_SV-230387r1130387_rule" severity="medium" time="2099-08-01T10:03:12+00:00" weight="10.0">
+            <xccdf:result>pass</xccdf:result>
+          </xccdf:rule-result>
+          <xccdf:rule-result idref="xccdf_mil.disa.stig_rule_SV-230389r1130389_rule" severity="medium" time="2099-08-01T10:03:12+00:00" weight="10.0">
+            <xccdf:result>fail</xccdf:result>
+            <xccdf:message severity="info">RHEL-08-030030: required value not present.</xccdf:message>
+          </xccdf:rule-result>
+          <xccdf:score system="urn:xccdf:scoring:default" maximum="100.0">12.500000</xccdf:score>
+        </xccdf:TestResult>
+      </core:content>
+    </arf:report>
+  </arf:reports>
+</arf:asset-report-collection>

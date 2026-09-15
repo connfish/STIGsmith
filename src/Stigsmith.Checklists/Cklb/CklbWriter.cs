@@ -43,7 +43,7 @@ public static class CklbWriter
         {
             var id = rule["rule_id"]?.ToString() ?? "";
             if (!findings.TryGetValue(id, out var f)) continue;
-            rule["status"] = StatusCodes.ToCklb(f.Status);
+            rule["status"] = FindingStatusCodes.ToCklb(f.Status);
             rule["finding_details"] = f.FindingDetails;
             rule["comments"] = f.Comments;
         }
@@ -54,7 +54,9 @@ public static class CklbWriter
     private static JsonObject BuildFresh(Checklist checklist) => new()
     {
         ["title"] = checklist.Title,
-        ["id"] = checklist.Id is { Length: > 0 } id ? id : Guid.NewGuid().ToString(),
+        ["id"] = checklist.Id is { Length: > 0 } id
+            ? id
+            : DeterministicGuid.String("checklist", checklist.Host.HostName, checklist.Title),
         ["stigs"] = new JsonArray([.. checklist.Stigs.Select(StigNode)]),
         ["active"] = false,
         ["mode"] = 1,
@@ -70,7 +72,9 @@ public static class CklbWriter
         ["stig_id"] = s.Info.StigId,
         ["version"] = s.Info.Version,
         ["release_info"] = s.Info.ReleaseInfo,
-        ["uuid"] = s.Info.Uuid is { Length: > 0 } u ? u : Guid.NewGuid().ToString(),
+        ["uuid"] = s.Info.Uuid is { Length: > 0 } u
+            ? u
+            : DeterministicGuid.String("stig", s.Info.StigId, s.Info.Version),
         ["reference_identifier"] = s.Info.ReferenceIdentifier,
         ["size"] = s.Findings.Count,
         ["rules"] = new JsonArray([.. s.Findings.Select(RuleNode)]),
@@ -81,7 +85,7 @@ public static class CklbWriter
         if (f.Raw?.CklbRule is JsonObject raw)
         {
             var clone = (JsonObject)raw.DeepClone();
-            clone["status"] = StatusCodes.ToCklb(f.Status);
+            clone["status"] = FindingStatusCodes.ToCklb(f.Status);
             clone["finding_details"] = f.FindingDetails;
             clone["comments"] = f.Comments;
             return clone;
@@ -90,7 +94,7 @@ public static class CklbWriter
         var r = f.Rule;
         return new JsonObject
         {
-            ["uuid"] = Guid.NewGuid().ToString(),
+            ["uuid"] = DeterministicGuid.String("rule", r.RuleId, r.RuleVersion),
             ["stig_uuid"] = "",
             ["target_key"] = null,
             ["stig_ref"] = r.StigRef,
@@ -119,7 +123,7 @@ public static class CklbWriter
             ["legacy_ids"] = new JsonArray([.. r.LegacyIds.Select(v => (JsonNode)JsonValue.Create(v))]),
             ["ccis"] = new JsonArray([.. r.CciRefs.Select(v => (JsonNode)JsonValue.Create(v))]),
             ["group_tree"] = new JsonArray(),
-            ["status"] = StatusCodes.ToCklb(f.Status),
+            ["status"] = FindingStatusCodes.ToCklb(f.Status),
             ["overrides"] = new JsonObject(),
             ["comments"] = f.Comments,
             ["finding_details"] = f.FindingDetails,

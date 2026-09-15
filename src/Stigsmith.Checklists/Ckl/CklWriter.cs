@@ -12,6 +12,10 @@ namespace Stigsmith.Checklists.Ckl;
 /// </summary>
 public static class CklWriter
 {
+    private const string Declaration = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n";
+    private const string ViewerComment = "DISA STIG Viewer :: 3.x";
+    private static readonly UTF8Encoding Utf8NoBom = new(encoderShouldEmitUTF8Identifier: false);
+
     /// <summary>
     /// STIG_DATA attribute order as STIG Viewer emits it. Used only for findings with no .ckl
     /// provenance; a round-tripped .ckl keeps whatever order it arrived in.
@@ -34,17 +38,20 @@ public static class CklWriter
     public static string Write(Checklist checklist)
     {
         var doc = new XDocument(
-            new XDeclaration("1.0", "UTF-8", null),
-            new XComment("DISA STIG Viewer :: 3.x"),
+            new XComment(ViewerComment),
             new XElement("CHECKLIST",
                 Asset(checklist.Host),
                 new XElement("STIGS", checklist.Stigs.Select(Stig))));
 
+        // The declaration is prepended by hand rather than left to XmlWriter, which spells the
+        // encoding "utf-8" where every .ckl in the wild spells it "UTF-8". Diff noise on the first
+        // line of every exported file is not worth it.
         var settings = new XmlWriterSettings
         {
             Indent = true,
             IndentChars = "\t",
-            Encoding = new UTF8Encoding(encoderShouldEmitUTF8Identifier: false),
+            OmitXmlDeclaration = true,
+            Encoding = Utf8NoBom,
             NewLineChars = "\n",
         };
 
@@ -54,28 +61,37 @@ public static class CklWriter
             doc.Save(writer);
         }
 
-        return settings.Encoding.GetString(buffer.ToArray()) + "\n";
+        return Declaration + Utf8NoBom.GetString(buffer.ToArray()) + "\n";
     }
 
-    public static void WriteFile(Checklist checklist, string path) => File.WriteAllText(path, Write(checklist), new UTF8Encoding(false));
+    public static void WriteFile(Checklist checklist, string path) => File.WriteAllText(path, Write(checklist), Utf8NoBom);
+
+    /// <summary>
+    /// An element whose value is empty is written self-closing (&lt;TECH_AREA /&gt;), which is what
+    /// STIG Viewer emits. Passing "" to XElement would add an empty text node and produce
+    /// &lt;TECH_AREA&gt;&lt;/TECH_AREA&gt; -- equivalent XML, but a gratuitous diff against the file
+    /// the operator handed us.
+    /// </summary>
+    private static XElement El(string name, string? value) =>
+        new(name, string.IsNullOrEmpty(value) ? null : value);
 
     private static XElement Asset(HostMetadata h) => new("ASSET",
-        new XElement("ROLE", h.Role),
-        new XElement("ASSET_TYPE", h.AssetType),
-        new XElement("HOST_NAME", h.HostName),
-        new XElement("HOST_IP", h.HostIp),
-        new XElement("HOST_MAC", h.HostMac),
-        new XElement("HOST_FQDN", h.HostFqdn),
-        new XElement("TARGET_COMMENT", h.TargetComment),
-        new XElement("TECH_AREA", h.TechArea),
-        new XElement("TARGET_KEY", h.TargetKey),
-        new XElement("WEB_OR_DATABASE", h.IsWebOrDatabase ? "true" : "false"),
-        new XElement("WEB_DB_SITE", h.WebDbSite),
-        new XElement("WEB_DB_INSTANCE", h.WebDbInstance));
+        El("ROLE", h.Role),
+        El("ASSET_TYPE", h.AssetType),
+        El("HOST_NAME", h.HostName),
+        El("HOST_IP", h.HostIp),
+        El("HOST_MAC", h.HostMac),
+        El("HOST_FQDN", h.HostFqdn),
+        El("TARGET_COMMENT", h.TargetComment),
+        El("TECH_AREA", h.TechArea),
+        El("TARGET_KEY", h.TargetKey),
+        El("WEB_OR_DATABASE", h.IsWebOrDatabase ? "true" : "false"),
+        El("WEB_DB_SITE", h.WebDbSite),
+        El("WEB_DB_INSTANCE", h.WebDbInstance));
 
     private static XElement Stig(StigSection section) => new("iSTIG",
         new XElement("STIG_INFO", SiData(section.Info).Select(kv =>
-            new XElement("SI_DATA", new XElement("SID_NAME", kv.Key), new XElement("SID_DATA", kv.Value)))),
+            new XElement("SI_DATA", El("SID_NAME", kv.Key), El("SID_DATA", kv.Value)))),
         section.Findings.Select(Vuln));
 
     private static IEnumerable<KeyValuePair<string, string>> SiData(StigInfo info)
@@ -101,12 +117,12 @@ public static class CklWriter
 
     private static XElement Vuln(Finding f) => new("VULN",
         StigData(f).Select(kv =>
-            new XElement("STIG_DATA", new XElement("VULN_ATTRIBUTE", kv.Key), new XElement("ATTRIBUTE_DATA", kv.Value))),
-        new XElement("STATUS", StatusCodes.ToCkl(f.Status)),
-        new XElement("FINDING_DETAILS", f.FindingDetails),
-        new XElement("COMMENTS", f.Comments),
-        new XElement("SEVERITY_OVERRIDE", f.SeverityOverride),
-        new XElement("SEVERITY_JUSTIFICATION", f.SeverityJustification));
+            new XElement("STIG_DATA", El("VULN_ATTRIBUTE", kv.Key), El("ATTRIBUTE_DATA", kv.Value))),
+        El("STATUS", FindingStatusCodes.ToCkl(f.Status)),
+        El("FINDING_DETAILS", f.FindingDetails),
+        El("COMMENTS", f.Comments),
+        El("SEVERITY_OVERRIDE", f.SeverityOverride),
+        El("SEVERITY_JUSTIFICATION", f.SeverityJustification));
 
     private static IEnumerable<KeyValuePair<string, string>> StigData(Finding f)
     {

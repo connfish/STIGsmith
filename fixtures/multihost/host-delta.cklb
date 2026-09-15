@@ -1,0 +1,2743 @@
+{
+  "title": "host-delta.example.test \u2014 RHEL 8 STIG",
+  "id": "1aac9b23-1324-5078-ab21-ea2069771eb0",
+  "stigs": [
+    {
+      "stig_name": "Red Hat Enterprise Linux 8 Security Technical Implementation Guide",
+      "display_name": "RHEL 8",
+      "stig_id": "RHEL_8_STIG",
+      "version": "1",
+      "release_info": "Release: 14 Benchmark Date: 24 Jul 2099",
+      "uuid": "8f0c2a64-5d7e-4a1b-9c3f-0e6d5b4a3c21",
+      "reference_identifier": "2777",
+      "size": 55,
+      "rules": [
+        {
+          "uuid": "4de780a1-56be-508e-98d4-a9fe2957ddae",
+          "stig_uuid": "8f0c2a64-5d7e-4a1b-9c3f-0e6d5b4a3c21",
+          "target_key": null,
+          "stig_ref": null,
+          "group_id_src": "V-230221",
+          "group_tree": [
+            {
+              "id": "V-230221",
+              "title": "RHEL 8 must be a vendor-supported release.",
+              "description": "<GroupDescription>An operating system release is considered supported if the vendor continues to provide security patches.</GroupDescription>"
+            }
+          ],
+          "group_id": "V-230221",
+          "severity": "high",
+          "group_title": "SRG-OS-000821-GPOS-00001",
+          "rule_id_src": "SV-230221r1130221_rule",
+          "rule_id": "SV-230221r1130221_rule",
+          "rule_version": "RHEL-08-010000",
+          "rule_title": "RHEL 8 must be a vendor-supported release.",
+          "fix_text": "Upgrade to a supported version of RHEL 8.",
+          "weight": "10.0",
+          "check_content": "Verify the version of the operating system is vendor supported.\n\nCheck the version with the following command:\n\n$ cat /etc/redhat-release\n\nIf the release is not supported by the vendor, this is a finding.",
+          "check_content_ref": {
+            "href": "",
+            "name": "M"
+          },
+          "classification": "Unclass",
+          "discussion": "An operating system release is considered supported if the vendor continues to provide security patches.",
+          "false_positives": "",
+          "false_negatives": "",
+          "documentable": false,
+          "security_override_guidance": "",
+          "mitigations": "",
+          "potential_impacts": "",
+          "third_party_tools": "",
+          "mitigation_control": "",
+          "responsibility": "",
+          "ia_controls": "",
+          "legacy_ids": [],
+          "ccis": [
+            "CCI-000821"
+          ],
+          "status": "not_reviewed",
+          "overrides": {},
+          "comments": "",
+          "finding_details": ""
+        },
+        {
+          "uuid": "bb980e0f-a963-5488-abe6-224938bdf1b7",
+          "stig_uuid": "8f0c2a64-5d7e-4a1b-9c3f-0e6d5b4a3c21",
+          "target_key": null,
+          "stig_ref": null,
+          "group_id_src": "V-230222",
+          "group_tree": [
+            {
+              "id": "V-230222",
+              "title": "RHEL 8 vendor packaged system security patches and updates must be installed and up to date.",
+              "description": "<GroupDescription>Timely patching is critical for maintaining the operational availability and integrity of a system.</GroupDescription>"
+            }
+          ],
+          "group_id": "V-230222",
+          "severity": "medium",
+          "group_title": "SRG-OS-000822-GPOS-00002",
+          "rule_id_src": "SV-230222r1130222_rule",
+          "rule_id": "SV-230222r1130222_rule",
+          "rule_version": "RHEL-08-010010",
+          "rule_title": "RHEL 8 vendor packaged system security patches and updates must be installed and up to date.",
+          "fix_text": "Install the operating system patches or updated packages available from the vendor.",
+          "weight": "10.0",
+          "check_content": "Verify the operating system security patches are up to date with the following command:\n\n$ sudo yum history list | more\n\nIf the system is not being patched per the organizational patch schedule, this is a finding.",
+          "check_content_ref": {
+            "href": "",
+            "name": "M"
+          },
+          "classification": "Unclass",
+          "discussion": "Timely patching is critical for maintaining the operational availability and integrity of a system.",
+          "false_positives": "",
+          "false_negatives": "",
+          "documentable": false,
+          "security_override_guidance": "",
+          "mitigations": "",
+          "potential_impacts": "",
+          "third_party_tools": "",
+          "mitigation_control": "",
+          "responsibility": "",
+          "ia_controls": "",
+          "legacy_ids": [],
+          "ccis": [
+            "CCI-000822"
+          ],
+          "status": "open",
+          "overrides": {},
+          "comments": "Queued for remediation.",
+          "finding_details": "Scanned by synthetic fixture generator. RHEL-08-010010 did not match the required value."
+        },
+        {
+          "uuid": "c306c439-6ec5-550a-906a-c8e972f4479d",
+          "stig_uuid": "8f0c2a64-5d7e-4a1b-9c3f-0e6d5b4a3c21",
+          "target_key": null,
+          "stig_ref": null,
+          "group_id_src": "V-230223",
+          "group_tree": [
+            {
+              "id": "V-230223",
+              "title": "RHEL 8 must implement NIST FIPS-validated cryptography for the following: to provision digital signatures, to generate cryptographic hashes, and to protect data.",
+              "description": "<GroupDescription>Use of weak or untested encryption algorithms undermines the purposes of using encryption to protect data.</GroupDescription>"
+            }
+          ],
+          "group_id": "V-230223",
+          "severity": "high",
+          "group_title": "SRG-OS-000823-GPOS-00003",
+          "rule_id_src": "SV-230223r1130223_rule",
+          "rule_id": "SV-230223r1130223_rule",
+          "rule_version": "RHEL-08-010020",
+          "rule_title": "RHEL 8 must implement NIST FIPS-validated cryptography for the following: to provision digital signatures, to generate cryptographic hashes, and to protect data.",
+          "fix_text": "Configure the operating system to implement FIPS mode with the following command:\n\n$ sudo fips-mode-setup --enable\n\nReboot the system for the change to take effect.",
+          "weight": "10.0",
+          "check_content": "Verify the operating system implements FIPS mode with the following command:\n\n$ sudo fips-mode-setup --check\nFIPS mode is enabled.\n\nIf FIPS mode is not enabled, this is a finding.",
+          "check_content_ref": {
+            "href": "",
+            "name": "M"
+          },
+          "classification": "Unclass",
+          "discussion": "Use of weak or untested encryption algorithms undermines the purposes of using encryption to protect data.",
+          "false_positives": "",
+          "false_negatives": "",
+          "documentable": false,
+          "security_override_guidance": "",
+          "mitigations": "",
+          "potential_impacts": "",
+          "third_party_tools": "",
+          "mitigation_control": "",
+          "responsibility": "",
+          "ia_controls": "",
+          "legacy_ids": [],
+          "ccis": [
+            "CCI-000823",
+            "CCI-000366"
+          ],
+          "status": "not_applicable",
+          "overrides": {},
+          "comments": "",
+          "finding_details": "Not applicable to this platform configuration."
+        },
+        {
+          "uuid": "90d007a7-174c-58c3-98e9-141f93bf6ae5",
+          "stig_uuid": "8f0c2a64-5d7e-4a1b-9c3f-0e6d5b4a3c21",
+          "target_key": null,
+          "stig_ref": null,
+          "group_id_src": "V-230224",
+          "group_tree": [
+            {
+              "id": "V-230224",
+              "title": "All RHEL 8 local disk partitions must implement cryptographic mechanisms to prevent unauthorized disclosure or modification of all information that requires at rest protection.",
+              "description": "<GroupDescription>Operating systems handling data requiring data at rest protections must employ cryptographic mechanisms to prevent unauthorized disclosure and modification of the information at rest.</GroupDescription>"
+            }
+          ],
+          "group_id": "V-230224",
+          "severity": "medium",
+          "group_title": "SRG-OS-000824-GPOS-00004",
+          "rule_id_src": "SV-230224r1130224_rule",
+          "rule_id": "SV-230224r1130224_rule",
+          "rule_version": "RHEL-08-010030",
+          "rule_title": "All RHEL 8 local disk partitions must implement cryptographic mechanisms to prevent unauthorized disclosure or modification of all information that requires at rest protection.",
+          "fix_text": "Configure RHEL 8 to prevent unauthorized modification of all information at rest by using disk encryption.\n\nEncrypting a partition in an already installed system is more difficult, because existing partitions will need to be resized and changed. To encrypt an entire partition, dedicate a partition for encryption in the partition layout.",
+          "weight": "10.0",
+          "check_content": "Verify RHEL 8 prevents unauthorized disclosure or modification of all information requiring at rest protection by using disk encryption.\n\nIf there is a documented and approved reason for not having data-at-rest encryption, this requirement is Not Applicable.\n\nDetermine the partition layout with the following command:\n\n$ sudo blkid\n\nIf partitions containing information requiring at rest protection are not encrypted, this is a finding.",
+          "check_content_ref": {
+            "href": "",
+            "name": "M"
+          },
+          "classification": "Unclass",
+          "discussion": "Operating systems handling data requiring data at rest protections must employ cryptographic mechanisms to prevent unauthorized disclosure and modification of the information at rest.",
+          "false_positives": "",
+          "false_negatives": "",
+          "documentable": false,
+          "security_override_guidance": "",
+          "mitigations": "",
+          "potential_impacts": "",
+          "third_party_tools": "",
+          "mitigation_control": "",
+          "responsibility": "",
+          "ia_controls": "",
+          "legacy_ids": [
+            "SV-87224r792904_rule",
+            "V-87224"
+          ],
+          "ccis": [
+            "CCI-000824"
+          ],
+          "status": "open",
+          "overrides": {},
+          "comments": "Queued for remediation.",
+          "finding_details": "Scanned by synthetic fixture generator. RHEL-08-010030 did not match the required value."
+        },
+        {
+          "uuid": "3ca5e344-8a86-55be-8aa0-a65eae90ff40",
+          "stig_uuid": "8f0c2a64-5d7e-4a1b-9c3f-0e6d5b4a3c21",
+          "target_key": null,
+          "stig_ref": null,
+          "group_id_src": "V-230225",
+          "group_tree": [
+            {
+              "id": "V-230225",
+              "title": "RHEL 8 must display the Standard Mandatory DoD Notice and Consent Banner before granting local or remote access to the system via a ssh logon.",
+              "description": "<GroupDescription>Display of a standardized and approved use notification before granting access to the operating system ensures privacy and security notification verbiage used is consistent with applicable federal laws.</GroupDescription>"
+            }
+          ],
+          "group_id": "V-230225",
+          "severity": "medium",
+          "group_title": "SRG-OS-000825-GPOS-00005",
+          "rule_id_src": "SV-230225r1130225_rule",
+          "rule_id": "SV-230225r1130225_rule",
+          "rule_version": "RHEL-08-010040",
+          "rule_title": "RHEL 8 must display the Standard Mandatory DoD Notice and Consent Banner before granting local or remote access to the system via a ssh logon.",
+          "fix_text": "Configure RHEL 8 to display the Standard Mandatory DoD Notice and Consent Banner before granting access to the system via SSH.\n\nEdit the \"/etc/ssh/sshd_config\" file to uncomment the banner keyword and configure it to point to a file that will contain the logon banner:\n\nBanner /etc/issue\n\nThe SSH service must be restarted for changes to take effect.",
+          "weight": "10.0",
+          "check_content": "Verify any publicly accessible connection to the operating system displays the Standard Mandatory DoD Notice and Consent Banner before granting access.\n\nCheck for the location of the banner file being used with the following command:\n\n$ sudo grep -ir banner /etc/ssh/sshd_config\nbanner /etc/issue\n\nIf the line is commented out or missing, this is a finding.",
+          "check_content_ref": {
+            "href": "",
+            "name": "M"
+          },
+          "classification": "Unclass",
+          "discussion": "Display of a standardized and approved use notification before granting access to the operating system ensures privacy and security notification verbiage used is consistent with applicable federal laws.",
+          "false_positives": "",
+          "false_negatives": "",
+          "documentable": false,
+          "security_override_guidance": "",
+          "mitigations": "",
+          "potential_impacts": "",
+          "third_party_tools": "",
+          "mitigation_control": "",
+          "responsibility": "",
+          "ia_controls": "",
+          "legacy_ids": [],
+          "ccis": [
+            "CCI-000825"
+          ],
+          "status": "open",
+          "overrides": {},
+          "comments": "Queued for remediation.",
+          "finding_details": "Scanned by synthetic fixture generator. RHEL-08-010040 did not match the required value."
+        },
+        {
+          "uuid": "f7180193-a044-5027-b1be-0343ea017f82",
+          "stig_uuid": "8f0c2a64-5d7e-4a1b-9c3f-0e6d5b4a3c21",
+          "target_key": null,
+          "stig_ref": null,
+          "group_id_src": "V-230227",
+          "group_tree": [
+            {
+              "id": "V-230227",
+              "title": "RHEL 8 must display the Standard Mandatory DoD Notice and Consent Banner before granting local or remote access to the system via a graphical user logon.",
+              "description": "<GroupDescription>The banner must be acknowledged by the user prior to allowing the user access to the operating system.</GroupDescription>"
+            }
+          ],
+          "group_id": "V-230227",
+          "severity": "medium",
+          "group_title": "SRG-OS-000827-GPOS-00006",
+          "rule_id_src": "SV-230227r1130227_rule",
+          "rule_id": "SV-230227r1130227_rule",
+          "rule_version": "RHEL-08-010060",
+          "rule_title": "RHEL 8 must display the Standard Mandatory DoD Notice and Consent Banner before granting local or remote access to the system via a graphical user logon.",
+          "fix_text": "Configure the operating system to display the Standard Mandatory DoD Notice and Consent Banner before granting access to the system.\n\nCreate a database to contain the system-wide graphical user logon settings (if it does not already exist) with the following command:\n\n$ sudo touch /etc/dconf/db/local.d/01-banner-message\n\nAdd the following line to the [org/gnome/login-screen] section:\n\nbanner-message-enable=true\n\nRun the following command to update the database:\n\n$ sudo dconf update",
+          "weight": "10.0",
+          "check_content": "Verify RHEL 8 displays the Standard Mandatory DoD Notice and Consent Banner before granting access to the operating system via a graphical user logon.\n\nNote: This requirement assumes the use of the RHEL 8 default graphical user interface, Gnome Shell. If the system does not have any graphical user interface installed, this requirement is Not Applicable.\n\nCheck that the operating system displays the exact Standard Mandatory DoD Notice and Consent Banner text with the command:\n\n$ sudo grep banner-message-text /etc/dconf/db/local.d/*\n\nIf the banner does not match the Standard Mandatory DoD Notice and Consent Banner exactly, this is a finding.",
+          "check_content_ref": {
+            "href": "",
+            "name": "M"
+          },
+          "classification": "Unclass",
+          "discussion": "The banner must be acknowledged by the user prior to allowing the user access to the operating system.",
+          "false_positives": "",
+          "false_negatives": "",
+          "documentable": false,
+          "security_override_guidance": "",
+          "mitigations": "",
+          "potential_impacts": "",
+          "third_party_tools": "",
+          "mitigation_control": "",
+          "responsibility": "",
+          "ia_controls": "",
+          "legacy_ids": [],
+          "ccis": [
+            "CCI-000827"
+          ],
+          "status": "open",
+          "overrides": {},
+          "comments": "Queued for remediation.",
+          "finding_details": "Scanned by synthetic fixture generator. RHEL-08-010060 did not match the required value."
+        },
+        {
+          "uuid": "9fbcdeed-43e9-5490-9f92-c8ff064a257f",
+          "stig_uuid": "8f0c2a64-5d7e-4a1b-9c3f-0e6d5b4a3c21",
+          "target_key": null,
+          "stig_ref": null,
+          "group_id_src": "V-230229",
+          "group_tree": [
+            {
+              "id": "V-230229",
+              "title": "RHEL 8 must have the packages required for multifactor authentication installed.",
+              "description": "<GroupDescription>Using an authentication device, such as a CAC or token that is separate from the information system, ensures that even if the information system is compromised, that compromise will not affect credentials stored on the authentication device.</GroupDescription>"
+            }
+          ],
+          "group_id": "V-230229",
+          "severity": "medium",
+          "group_title": "SRG-OS-000829-GPOS-00007",
+          "rule_id_src": "SV-230229r1130229_rule",
+          "rule_id": "SV-230229r1130229_rule",
+          "rule_version": "RHEL-08-010090",
+          "rule_title": "RHEL 8 must have the packages required for multifactor authentication installed.",
+          "fix_text": "Configure the operating system to implement multifactor authentication by installing the required package with the following command:\n\n$ sudo yum install openssl-pkcs11",
+          "weight": "10.0",
+          "check_content": "Verify the operating system has the packages required for multifactor authentication installed with the following command:\n\n$ sudo yum list installed openssl-pkcs11\n\nIf the \"openssl-pkcs11\" package is not installed, this is a finding.",
+          "check_content_ref": {
+            "href": "",
+            "name": "M"
+          },
+          "classification": "Unclass",
+          "discussion": "Using an authentication device, such as a CAC or token that is separate from the information system, ensures that even if the information system is compromised, that compromise will not affect credentials stored on the authentication device.",
+          "false_positives": "",
+          "false_negatives": "",
+          "documentable": false,
+          "security_override_guidance": "",
+          "mitigations": "",
+          "potential_impacts": "",
+          "third_party_tools": "",
+          "mitigation_control": "",
+          "responsibility": "",
+          "ia_controls": "",
+          "legacy_ids": [],
+          "ccis": [
+            "CCI-000829",
+            "CCI-000366"
+          ],
+          "status": "not_a_finding",
+          "overrides": {},
+          "comments": "",
+          "finding_details": "Scanned by synthetic fixture generator. RHEL-08-010090 matched the required value."
+        },
+        {
+          "uuid": "d6bf35ce-8b0b-5133-ab90-dca8c4d7e74f",
+          "stig_uuid": "8f0c2a64-5d7e-4a1b-9c3f-0e6d5b4a3c21",
+          "target_key": null,
+          "stig_ref": null,
+          "group_id_src": "V-230230",
+          "group_tree": [
+            {
+              "id": "V-230230",
+              "title": "RHEL 8, for PKI-based authentication, must validate certificates by constructing a certification path (which includes status information) to an accepted trust anchor.",
+              "description": "<GroupDescription>Without path validation, an informed trust decision by the relying party cannot be made when presented with any certificate not already explicitly trusted.</GroupDescription>"
+            }
+          ],
+          "group_id": "V-230230",
+          "severity": "medium",
+          "group_title": "SRG-OS-000830-GPOS-00008",
+          "rule_id_src": "SV-230230r1130230_rule",
+          "rule_id": "SV-230230r1130230_rule",
+          "rule_version": "RHEL-08-010100",
+          "rule_title": "RHEL 8, for PKI-based authentication, must validate certificates by constructing a certification path (which includes status information) to an accepted trust anchor.",
+          "fix_text": "Configure RHEL 8, for PKI-based authentication, to validate certificates by constructing a certification path to an accepted trust anchor.\n\nObtain the DoD-approved certificate bundle and install it in \"/etc/sssd/pki/sssd_auth_ca_db.pem\".",
+          "weight": "10.0",
+          "check_content": "Verify RHEL 8 for PKI-based authentication has valid certificates by constructing a certification path to an accepted trust anchor.\n\nCheck that the system has a valid DoD root CA installed with the following command:\n\n$ sudo openssl x509 -text -in /etc/sssd/pki/sssd_auth_ca_db.pem\n\nIf the root ca file is not a DoD-approved trust anchor, this is a finding.",
+          "check_content_ref": {
+            "href": "",
+            "name": "M"
+          },
+          "classification": "Unclass",
+          "discussion": "Without path validation, an informed trust decision by the relying party cannot be made when presented with any certificate not already explicitly trusted.",
+          "false_positives": "",
+          "false_negatives": "",
+          "documentable": false,
+          "security_override_guidance": "",
+          "mitigations": "",
+          "potential_impacts": "",
+          "third_party_tools": "",
+          "mitigation_control": "",
+          "responsibility": "",
+          "ia_controls": "",
+          "legacy_ids": [],
+          "ccis": [
+            "CCI-000830"
+          ],
+          "status": "open",
+          "overrides": {},
+          "comments": "Queued for remediation.",
+          "finding_details": "Scanned by synthetic fixture generator. RHEL-08-010100 did not match the required value."
+        },
+        {
+          "uuid": "e75b07dc-9ecb-5c20-8fc4-a35a201e4523",
+          "stig_uuid": "8f0c2a64-5d7e-4a1b-9c3f-0e6d5b4a3c21",
+          "target_key": null,
+          "stig_ref": null,
+          "group_id_src": "V-230231",
+          "group_tree": [
+            {
+              "id": "V-230231",
+              "title": "RHEL 8 must encrypt all stored passwords with a FIPS 140-2 approved cryptographic hashing algorithm.",
+              "description": "<GroupDescription>Passwords need to be protected at all times, and encryption is the standard method for protecting passwords.</GroupDescription>"
+            }
+          ],
+          "group_id": "V-230231",
+          "severity": "medium",
+          "group_title": "SRG-OS-000831-GPOS-00009",
+          "rule_id_src": "SV-230231r1130231_rule",
+          "rule_id": "SV-230231r1130231_rule",
+          "rule_version": "RHEL-08-010110",
+          "rule_title": "RHEL 8 must encrypt all stored passwords with a FIPS 140-2 approved cryptographic hashing algorithm.",
+          "fix_text": "Configure RHEL 8 to encrypt all stored passwords with a strong cryptographic hash.\n\nEdit/modify the following line in the \"/etc/libuser.conf\" file in the [defaults] section and set \"crypt_style\" to \"sha512\":\n\ncrypt_style = sha512",
+          "weight": "10.0",
+          "check_content": "Confirm that the interactive user account passwords are using a strong password hash with the following command:\n\n$ sudo grep -i crypt_style /etc/libuser.conf\ncrypt_style = sha512\n\nIf the \"crypt_style\" variable is not set to \"sha512\", is commented out, or does not exist, this is a finding.",
+          "check_content_ref": {
+            "href": "",
+            "name": "M"
+          },
+          "classification": "Unclass",
+          "discussion": "Passwords need to be protected at all times, and encryption is the standard method for protecting passwords.",
+          "false_positives": "",
+          "false_negatives": "",
+          "documentable": false,
+          "security_override_guidance": "",
+          "mitigations": "",
+          "potential_impacts": "",
+          "third_party_tools": "",
+          "mitigation_control": "",
+          "responsibility": "",
+          "ia_controls": "",
+          "legacy_ids": [],
+          "ccis": [
+            "CCI-000831"
+          ],
+          "status": "not_reviewed",
+          "overrides": {},
+          "comments": "",
+          "finding_details": ""
+        },
+        {
+          "uuid": "fc222b08-b704-55ed-ae3a-8ff5bf99cb50",
+          "stig_uuid": "8f0c2a64-5d7e-4a1b-9c3f-0e6d5b4a3c21",
+          "target_key": null,
+          "stig_ref": null,
+          "group_id_src": "V-230232",
+          "group_tree": [
+            {
+              "id": "V-230232",
+              "title": "RHEL 8 must employ FIPS 140-2 approved cryptographic hashing algorithms for all stored passwords.",
+              "description": "<GroupDescription>The system must use a strong hashing algorithm to store the password.</GroupDescription>"
+            }
+          ],
+          "group_id": "V-230232",
+          "severity": "medium",
+          "group_title": "SRG-OS-000832-GPOS-00010",
+          "rule_id_src": "SV-230232r1130232_rule",
+          "rule_id": "SV-230232r1130232_rule",
+          "rule_version": "RHEL-08-010120",
+          "rule_title": "RHEL 8 must employ FIPS 140-2 approved cryptographic hashing algorithms for all stored passwords.",
+          "fix_text": "Lock all interactive user accounts not using SHA-512 hashing until the passwords can be regenerated with SHA-512.",
+          "weight": "10.0",
+          "check_content": "Verify that the shadow password suite configuration is set to encrypt password with a FIPS 140-2 approved cryptographic hashing algorithm.\n\nCheck the hashes of interactive user passwords with the following command:\n\n$ sudo cut -d: -f2 /etc/shadow\n$6$kcOnRq/5$NUEYPuyL.wghQwWssXRcLRFiiru7f5JPV6GaJhNC2aK5F3PZpE/BCCtwrxRc/AInKMNX3CdMw11m9STiql12f/\n\nIf any interactive user password hash does not begin with \"$6\", this is a finding.",
+          "check_content_ref": {
+            "href": "",
+            "name": "M"
+          },
+          "classification": "Unclass",
+          "discussion": "The system must use a strong hashing algorithm to store the password.",
+          "false_positives": "",
+          "false_negatives": "",
+          "documentable": false,
+          "security_override_guidance": "",
+          "mitigations": "",
+          "potential_impacts": "",
+          "third_party_tools": "",
+          "mitigation_control": "",
+          "responsibility": "",
+          "ia_controls": "",
+          "legacy_ids": [
+            "SV-87232r792904_rule",
+            "V-87232"
+          ],
+          "ccis": [
+            "CCI-000832",
+            "CCI-000366"
+          ],
+          "status": "open",
+          "overrides": {},
+          "comments": "Queued for remediation.",
+          "finding_details": "Scanned by synthetic fixture generator. RHEL-08-010120 did not match the required value."
+        },
+        {
+          "uuid": "8abfa49e-07fe-51d4-823d-7c735320e441",
+          "stig_uuid": "8f0c2a64-5d7e-4a1b-9c3f-0e6d5b4a3c21",
+          "target_key": null,
+          "stig_ref": null,
+          "group_id_src": "V-230234",
+          "group_tree": [
+            {
+              "id": "V-230234",
+              "title": "RHEL 8 operating systems booted with United Extensible Firmware Interface (UEFI) must require authentication upon booting into single-user mode and maintenance.",
+              "description": "<GroupDescription>If the system does not require valid authentication before it boots into single-user or maintenance mode, anyone who invokes single-user or maintenance mode is granted privileged access to all files on the system.</GroupDescription>"
+            }
+          ],
+          "group_id": "V-230234",
+          "severity": "high",
+          "group_title": "SRG-OS-000834-GPOS-00011",
+          "rule_id_src": "SV-230234r1130234_rule",
+          "rule_id": "SV-230234r1130234_rule",
+          "rule_version": "RHEL-08-010140",
+          "rule_title": "RHEL 8 operating systems booted with United Extensible Firmware Interface (UEFI) must require authentication upon booting into single-user mode and maintenance.",
+          "fix_text": "Configure the system to encrypt the boot password for root.\n\nGenerate an encrypted grub2 password for root with the following command:\n\n$ sudo grub2-setpassword\nEnter password:\nConfirm password:",
+          "weight": "10.0",
+          "check_content": "For systems that use BIOS, this is Not Applicable.\n\nVerify that an encrypted root password is set with the following command:\n\n$ sudo grep -iw grub2_password /boot/efi/EFI/redhat/user.cfg\nGRUB2_PASSWORD=grub.pbkdf2.sha512.10000.C40F1BC6...\n\nIf the root password does not begin with \"grub.pbkdf2.sha512\", this is a finding.",
+          "check_content_ref": {
+            "href": "",
+            "name": "M"
+          },
+          "classification": "Unclass",
+          "discussion": "If the system does not require valid authentication before it boots into single-user or maintenance mode, anyone who invokes single-user or maintenance mode is granted privileged access to all files on the system.",
+          "false_positives": "",
+          "false_negatives": "",
+          "documentable": false,
+          "security_override_guidance": "",
+          "mitigations": "",
+          "potential_impacts": "",
+          "third_party_tools": "",
+          "mitigation_control": "",
+          "responsibility": "",
+          "ia_controls": "",
+          "legacy_ids": [],
+          "ccis": [
+            "CCI-000834"
+          ],
+          "status": "not_applicable",
+          "overrides": {},
+          "comments": "",
+          "finding_details": "Not applicable to this platform configuration."
+        },
+        {
+          "uuid": "f92a5309-5dbb-5812-9815-d35fcf86bbbb",
+          "stig_uuid": "8f0c2a64-5d7e-4a1b-9c3f-0e6d5b4a3c21",
+          "target_key": null,
+          "stig_ref": null,
+          "group_id_src": "V-230237",
+          "group_tree": [
+            {
+              "id": "V-230237",
+              "title": "The RHEL 8 pam_unix.so module must be configured in the password-auth file to use a FIPS 140-2 approved cryptographic hashing algorithm for system authentication.",
+              "description": "<GroupDescription>Unapproved mechanisms that are used for authentication to the cryptographic module are not verified and therefore cannot be relied upon to provide confidentiality or integrity.</GroupDescription>"
+            }
+          ],
+          "group_id": "V-230237",
+          "severity": "medium",
+          "group_title": "SRG-OS-000837-GPOS-00012",
+          "rule_id_src": "SV-230237r1130237_rule",
+          "rule_id": "SV-230237r1130237_rule",
+          "rule_version": "RHEL-08-010160",
+          "rule_title": "The RHEL 8 pam_unix.so module must be configured in the password-auth file to use a FIPS 140-2 approved cryptographic hashing algorithm for system authentication.",
+          "fix_text": "Configure RHEL 8 to use a FIPS 140-2 approved cryptographic hashing algorithm for system authentication.\n\nEdit/modify the following line in the \"/etc/pam.d/password-auth\" file to include the sha512 option for pam_unix.so:\n\npassword sufficient pam_unix.so sha512 shadow try_first_pass use_authtok",
+          "weight": "10.0",
+          "check_content": "Verify that pam_unix.so module is configured to use sha512 with the following command:\n\n$ sudo grep password /etc/pam.d/password-auth | grep pam_unix\npassword sufficient pam_unix.so sha512 shadow try_first_pass use_authtok\n\nIf \"sha512\" is missing, or is commented out, this is a finding.",
+          "check_content_ref": {
+            "href": "",
+            "name": "M"
+          },
+          "classification": "Unclass",
+          "discussion": "Unapproved mechanisms that are used for authentication to the cryptographic module are not verified and therefore cannot be relied upon to provide confidentiality or integrity.",
+          "false_positives": "",
+          "false_negatives": "",
+          "documentable": false,
+          "security_override_guidance": "",
+          "mitigations": "",
+          "potential_impacts": "",
+          "third_party_tools": "",
+          "mitigation_control": "",
+          "responsibility": "",
+          "ia_controls": "",
+          "legacy_ids": [],
+          "ccis": [
+            "CCI-000837"
+          ],
+          "status": "open",
+          "overrides": {},
+          "comments": "Queued for remediation.",
+          "finding_details": "Scanned by synthetic fixture generator. RHEL-08-010160 did not match the required value."
+        },
+        {
+          "uuid": "7a3799d4-3fe6-5b8c-880d-fbfb8ff82c1d",
+          "stig_uuid": "8f0c2a64-5d7e-4a1b-9c3f-0e6d5b4a3c21",
+          "target_key": null,
+          "stig_ref": null,
+          "group_id_src": "V-230240",
+          "group_tree": [
+            {
+              "id": "V-230240",
+              "title": "RHEL 8 must have the policycoreutils package installed.",
+              "description": "<GroupDescription>Policycoreutils contains the policy core utilities that are required for basic operation of an SELinux-enabled system.</GroupDescription>"
+            }
+          ],
+          "group_id": "V-230240",
+          "severity": "medium",
+          "group_title": "SRG-OS-000840-GPOS-00013",
+          "rule_id_src": "SV-230240r1130240_rule",
+          "rule_id": "SV-230240r1130240_rule",
+          "rule_version": "RHEL-08-010171",
+          "rule_title": "RHEL 8 must have the policycoreutils package installed.",
+          "fix_text": "Configure the operating system to have the policycoreutils package installed with the following command:\n\n$ sudo yum install policycoreutils",
+          "weight": "10.0",
+          "check_content": "Verify the operating system has the policycoreutils package installed with the following command:\n\n$ sudo yum list installed policycoreutils\npolicycoreutils.x86_64       2.9-9.el8       @anaconda\n\nIf the policycoreutils package is not installed, this is a finding.",
+          "check_content_ref": {
+            "href": "",
+            "name": "M"
+          },
+          "classification": "Unclass",
+          "discussion": "Policycoreutils contains the policy core utilities that are required for basic operation of an SELinux-enabled system.",
+          "false_positives": "",
+          "false_negatives": "",
+          "documentable": false,
+          "security_override_guidance": "",
+          "mitigations": "",
+          "potential_impacts": "",
+          "third_party_tools": "",
+          "mitigation_control": "",
+          "responsibility": "",
+          "ia_controls": "",
+          "legacy_ids": [
+            "SV-87240r792904_rule",
+            "V-87240"
+          ],
+          "ccis": [
+            "CCI-000840"
+          ],
+          "status": "open",
+          "overrides": {},
+          "comments": "Queued for remediation.",
+          "finding_details": "Scanned by synthetic fixture generator. RHEL-08-010171 did not match the required value."
+        },
+        {
+          "uuid": "7d8f6ac8-3d87-5686-b559-138a7b58639e",
+          "stig_uuid": "8f0c2a64-5d7e-4a1b-9c3f-0e6d5b4a3c21",
+          "target_key": null,
+          "stig_ref": null,
+          "group_id_src": "V-230244",
+          "group_tree": [
+            {
+              "id": "V-230244",
+              "title": "RHEL 8 must be configured so that all network connections associated with SSH traffic are terminated after a period of inactivity.",
+              "description": "<GroupDescription>Terminating an idle SSH session within a short time period reduces the window of opportunity for unauthorized personnel to take control of a management session.</GroupDescription>"
+            }
+          ],
+          "group_id": "V-230244",
+          "severity": "medium",
+          "group_title": "SRG-OS-000844-GPOS-00014",
+          "rule_id_src": "SV-230244r1130244_rule",
+          "rule_id": "SV-230244r1130244_rule",
+          "rule_version": "RHEL-08-010200",
+          "rule_title": "RHEL 8 must be configured so that all network connections associated with SSH traffic are terminated after a period of inactivity.",
+          "fix_text": "Configure RHEL 8 so that all network connections associated with SSH traffic terminate after a period of inactivity.\n\nAdd the following line to the \"/etc/ssh/sshd_config\" file:\n\nClientAliveCountMax 1\n\nThe SSH service must be restarted for changes to take effect.",
+          "weight": "10.0",
+          "check_content": "Verify that all network connections associated with SSH traffic automatically terminate after a period of inactivity with the following command:\n\n$ sudo grep -i clientalivecountmax /etc/ssh/sshd_config\nClientAliveCountMax 1\n\nIf \"ClientAliveCountMax\" does not exist, is not set to a value of \"1\", or is commented out, this is a finding.",
+          "check_content_ref": {
+            "href": "",
+            "name": "M"
+          },
+          "classification": "Unclass",
+          "discussion": "Terminating an idle SSH session within a short time period reduces the window of opportunity for unauthorized personnel to take control of a management session.",
+          "false_positives": "",
+          "false_negatives": "",
+          "documentable": false,
+          "security_override_guidance": "",
+          "mitigations": "",
+          "potential_impacts": "",
+          "third_party_tools": "",
+          "mitigation_control": "",
+          "responsibility": "",
+          "ia_controls": "",
+          "legacy_ids": [
+            "SV-87244r792904_rule",
+            "V-87244"
+          ],
+          "ccis": [
+            "CCI-000844",
+            "CCI-000366"
+          ],
+          "status": "open",
+          "overrides": {},
+          "comments": "Queued for remediation.",
+          "finding_details": "Scanned by synthetic fixture generator. RHEL-08-010200 did not match the required value."
+        },
+        {
+          "uuid": "a3cea6c0-3f2f-538f-9a82-4772bb176189",
+          "stig_uuid": "8f0c2a64-5d7e-4a1b-9c3f-0e6d5b4a3c21",
+          "target_key": null,
+          "stig_ref": null,
+          "group_id_src": "V-230251",
+          "group_tree": [
+            {
+              "id": "V-230251",
+              "title": "The RHEL 8 SSH server must be configured to use only Message Authentication Codes (MACs) employing FIPS 140-2 validated cryptographic hash algorithms.",
+              "description": "<GroupDescription>Without cryptographic integrity protections, information can be altered by unauthorized users without detection.</GroupDescription>"
+            }
+          ],
+          "group_id": "V-230251",
+          "severity": "medium",
+          "group_title": "SRG-OS-000851-GPOS-00015",
+          "rule_id_src": "SV-230251r1130251_rule",
+          "rule_id": "SV-230251r1130251_rule",
+          "rule_version": "RHEL-08-010290",
+          "rule_title": "The RHEL 8 SSH server must be configured to use only Message Authentication Codes (MACs) employing FIPS 140-2 validated cryptographic hash algorithms.",
+          "fix_text": "Configure the RHEL 8 SSH server to use only MACs employing FIPS 140-2-approved algorithms.\n\nUpdate the \"/etc/crypto-policies/back-ends/openssh.config\" file to include these MACs employing FIPS 140-2-approved algorithms:\n\nMACs hmac-sha2-512,hmac-sha2-256\n\nA reboot is required for the changes to take effect.",
+          "weight": "10.0",
+          "check_content": "Verify the SSH server is configured to use only MACs employing FIPS 140-2-approved algorithms with the following command:\n\n$ sudo grep -i macs /etc/crypto-policies/back-ends/openssh.config\nMACs hmac-sha2-512,hmac-sha2-256\n\nIf the MACs entries in the \"openssh.config\" file have any hashes other than \"hmac-sha2-512\" and \"hmac-sha2-256\", the order differs from the example above, or they are missing or commented out, this is a finding.",
+          "check_content_ref": {
+            "href": "",
+            "name": "M"
+          },
+          "classification": "Unclass",
+          "discussion": "Without cryptographic integrity protections, information can be altered by unauthorized users without detection.",
+          "false_positives": "",
+          "false_negatives": "",
+          "documentable": false,
+          "security_override_guidance": "",
+          "mitigations": "",
+          "potential_impacts": "",
+          "third_party_tools": "",
+          "mitigation_control": "",
+          "responsibility": "",
+          "ia_controls": "",
+          "legacy_ids": [],
+          "ccis": [
+            "CCI-000851"
+          ],
+          "status": "not_a_finding",
+          "overrides": {},
+          "comments": "",
+          "finding_details": "Scanned by synthetic fixture generator. RHEL-08-010290 matched the required value."
+        },
+        {
+          "uuid": "4d9ba214-8e62-5195-972a-a5ab916f23bf",
+          "stig_uuid": "8f0c2a64-5d7e-4a1b-9c3f-0e6d5b4a3c21",
+          "target_key": null,
+          "stig_ref": null,
+          "group_id_src": "V-230257",
+          "group_tree": [
+            {
+              "id": "V-230257",
+              "title": "RHEL 8 system commands must have mode 755 or less permissive.",
+              "description": "<GroupDescription>If RHEL 8 were to allow any user to make changes to software libraries, then those changes might be implemented without undergoing the appropriate testing and approvals.</GroupDescription>"
+            }
+          ],
+          "group_id": "V-230257",
+          "severity": "medium",
+          "group_title": "SRG-OS-000857-GPOS-00016",
+          "rule_id_src": "SV-230257r1130257_rule",
+          "rule_id": "SV-230257r1130257_rule",
+          "rule_version": "RHEL-08-010300",
+          "rule_title": "RHEL 8 system commands must have mode 755 or less permissive.",
+          "fix_text": "Configure the system commands to be protected from unauthorized access.\n\nRun the following command, replacing \"[FILE]\" with any system command with a mode more permissive than 755:\n\n$ sudo chmod 755 [FILE]",
+          "weight": "10.0",
+          "check_content": "Verify the system commands contained in the following directories have mode 755 or less permissive with the following command:\n\n$ sudo find -L /bin /sbin /usr/bin /usr/sbin /usr/local/bin /usr/local/sbin -perm /022 -type f -exec ls -l {} \\;\n\nIf any system commands are found to be group-writable or world-writable, this is a finding.",
+          "check_content_ref": {
+            "href": "",
+            "name": "M"
+          },
+          "classification": "Unclass",
+          "discussion": "If RHEL 8 were to allow any user to make changes to software libraries, then those changes might be implemented without undergoing the appropriate testing and approvals.",
+          "false_positives": "",
+          "false_negatives": "",
+          "documentable": false,
+          "security_override_guidance": "",
+          "mitigations": "",
+          "potential_impacts": "",
+          "third_party_tools": "",
+          "mitigation_control": "",
+          "responsibility": "",
+          "ia_controls": "",
+          "legacy_ids": [],
+          "ccis": [
+            "CCI-000857"
+          ],
+          "status": "open",
+          "overrides": {},
+          "comments": "Queued for remediation.",
+          "finding_details": "Scanned by synthetic fixture generator. RHEL-08-010300 did not match the required value."
+        },
+        {
+          "uuid": "2723d32b-bcba-51e3-841d-9eb94b44887f",
+          "stig_uuid": "8f0c2a64-5d7e-4a1b-9c3f-0e6d5b4a3c21",
+          "target_key": null,
+          "stig_ref": null,
+          "group_id_src": "V-230262",
+          "group_tree": [
+            {
+              "id": "V-230262",
+              "title": "RHEL 8 library files must have mode 755 or less permissive.",
+              "description": "<GroupDescription>If RHEL 8 were to allow any user to make changes to software libraries, then those changes might be implemented without undergoing the appropriate testing and approvals.</GroupDescription>"
+            }
+          ],
+          "group_id": "V-230262",
+          "severity": "medium",
+          "group_title": "SRG-OS-000862-GPOS-00017",
+          "rule_id_src": "SV-230262r1130262_rule",
+          "rule_id": "SV-230262r1130262_rule",
+          "rule_version": "RHEL-08-010330",
+          "rule_title": "RHEL 8 library files must have mode 755 or less permissive.",
+          "fix_text": "Configure the library files to be protected from unauthorized access. Run the following command, replacing \"[FILE]\" with any library file with a mode more permissive than 755:\n\n$ sudo chmod 755 [FILE]",
+          "weight": "10.0",
+          "check_content": "Verify the system-wide shared library files contained in the following directories have mode 755 or less permissive with the following command:\n\n$ sudo find -L /lib /lib64 /usr/lib /usr/lib64 -perm /022 -type f -exec ls -l {} \\;\n\nIf any system-wide shared library file is found to be group-writable or world-writable, this is a finding.",
+          "check_content_ref": {
+            "href": "",
+            "name": "M"
+          },
+          "classification": "Unclass",
+          "discussion": "If RHEL 8 were to allow any user to make changes to software libraries, then those changes might be implemented without undergoing the appropriate testing and approvals.",
+          "false_positives": "",
+          "false_negatives": "",
+          "documentable": false,
+          "security_override_guidance": "",
+          "mitigations": "",
+          "potential_impacts": "",
+          "third_party_tools": "",
+          "mitigation_control": "",
+          "responsibility": "",
+          "ia_controls": "",
+          "legacy_ids": [],
+          "ccis": [
+            "CCI-000862",
+            "CCI-000366"
+          ],
+          "status": "not_reviewed",
+          "overrides": {},
+          "comments": "",
+          "finding_details": ""
+        },
+        {
+          "uuid": "12991d1b-da48-520d-a2a5-a67395d28ca2",
+          "stig_uuid": "8f0c2a64-5d7e-4a1b-9c3f-0e6d5b4a3c21",
+          "target_key": null,
+          "stig_ref": null,
+          "group_id_src": "V-230265",
+          "group_tree": [
+            {
+              "id": "V-230265",
+              "title": "The RHEL 8 file integrity tool must be configured to verify Access Control Lists (ACLs).",
+              "description": "<GroupDescription>ACLs can provide permissions beyond those permitted through the file mode and must be verified by the file integrity tools.</GroupDescription>"
+            }
+          ],
+          "group_id": "V-230265",
+          "severity": "medium",
+          "group_title": "SRG-OS-000865-GPOS-00018",
+          "rule_id_src": "SV-230265r1130265_rule",
+          "rule_id": "SV-230265r1130265_rule",
+          "rule_version": "RHEL-08-010359",
+          "rule_title": "The RHEL 8 file integrity tool must be configured to verify Access Control Lists (ACLs).",
+          "fix_text": "Configure the file integrity tool to check file and directory ACLs.\n\nIf AIDE is installed, ensure the \"acl\" rule is present on all uncommented file and directory selection lists.",
+          "weight": "10.0",
+          "check_content": "Verify the file integrity tool is configured to verify ACLs.\n\nIf AIDE is not installed, ask the System Administrator how file integrity checks are performed on the system.\n\nIf there is no application installed to perform file integrity checks, this is a finding.\n\nNote: AIDE is highly configurable at install time. This requirement assumes the \"aide.conf\" file is under the \"/etc\" directory.\n\nUse the following command to determine if the file is in another location:\n\n$ sudo find / -name aide.conf\n\nCheck the \"aide.conf\" file to determine if the \"acl\" rule has been added to the rule list being applied to the files and directories selection lists.\n\nIf the \"acl\" rule is not being used on all selection lines in the \"/etc/aide.conf\" file, is commented out, or ACLs are not being checked by another file integrity tool, this is a finding.",
+          "check_content_ref": {
+            "href": "",
+            "name": "M"
+          },
+          "classification": "Unclass",
+          "discussion": "ACLs can provide permissions beyond those permitted through the file mode and must be verified by the file integrity tools.",
+          "false_positives": "",
+          "false_negatives": "",
+          "documentable": false,
+          "security_override_guidance": "",
+          "mitigations": "",
+          "potential_impacts": "",
+          "third_party_tools": "",
+          "mitigation_control": "",
+          "responsibility": "",
+          "ia_controls": "",
+          "legacy_ids": [],
+          "ccis": [
+            "CCI-000865",
+            "CCI-000366"
+          ],
+          "status": "open",
+          "overrides": {},
+          "comments": "Queued for remediation.",
+          "finding_details": "Scanned by synthetic fixture generator. RHEL-08-010359 did not match the required value."
+        },
+        {
+          "uuid": "63c1cf92-d33f-55e9-8e9d-36560005feb3",
+          "stig_uuid": "8f0c2a64-5d7e-4a1b-9c3f-0e6d5b4a3c21",
+          "target_key": null,
+          "stig_ref": null,
+          "group_id_src": "V-230269",
+          "group_tree": [
+            {
+              "id": "V-230269",
+              "title": "RHEL 8 must prevent the installation of software, patches, service packs, device drivers, or operating system components from a repository without verification they have been digitally signed using a certificate that is issued by a Certificate Authority (CA) that is recognized and approved by the organization.",
+              "description": "<GroupDescription>Changes to any software components can have significant effects on the overall security of the operating system.</GroupDescription>"
+            }
+          ],
+          "group_id": "V-230269",
+          "severity": "high",
+          "group_title": "SRG-OS-000869-GPOS-00019",
+          "rule_id_src": "SV-230269r1130269_rule",
+          "rule_id": "SV-230269r1130269_rule",
+          "rule_version": "RHEL-08-010370",
+          "rule_title": "RHEL 8 must prevent the installation of software, patches, service packs, device drivers, or operating system components from a repository without verification they have been digitally signed using a certificate that is issued by a Certificate Authority (CA) that is recognized and approved by the organization.",
+          "fix_text": "Configure the operating system to verify the signature of packages from a repository prior to install by setting the following option in the \"/etc/dnf/dnf.conf\" file:\n\ngpgcheck=1",
+          "weight": "10.0",
+          "check_content": "Verify the operating system prevents the installation of patches, service packs, device drivers, or operating system components from a repository without verification that they have been digitally signed using a certificate that is recognized and approved by the organization.\n\nCheck that yum verifies the signature of packages from a repository prior to install with the following command:\n\n$ sudo grep gpgcheck /etc/dnf/dnf.conf\ngpgcheck=1\n\nIf \"gpgcheck\" is not set to \"1\", or is missing, this is a finding.",
+          "check_content_ref": {
+            "href": "",
+            "name": "M"
+          },
+          "classification": "Unclass",
+          "discussion": "Changes to any software components can have significant effects on the overall security of the operating system.",
+          "false_positives": "",
+          "false_negatives": "",
+          "documentable": false,
+          "security_override_guidance": "",
+          "mitigations": "",
+          "potential_impacts": "",
+          "third_party_tools": "",
+          "mitigation_control": "",
+          "responsibility": "",
+          "ia_controls": "",
+          "legacy_ids": [],
+          "ccis": [
+            "CCI-000869"
+          ],
+          "status": "not_applicable",
+          "overrides": {},
+          "comments": "",
+          "finding_details": "Not applicable to this platform configuration."
+        },
+        {
+          "uuid": "b91b2860-1f4c-53b6-95a4-5ddb4376ce23",
+          "stig_uuid": "8f0c2a64-5d7e-4a1b-9c3f-0e6d5b4a3c21",
+          "target_key": null,
+          "stig_ref": null,
+          "group_id_src": "V-230270",
+          "group_tree": [
+            {
+              "id": "V-230270",
+              "title": "RHEL 8 must prevent the loading of a new kernel for later execution.",
+              "description": "<GroupDescription>Changes to any software components can have significant effects on the overall security of the operating system.</GroupDescription>"
+            }
+          ],
+          "group_id": "V-230270",
+          "severity": "high",
+          "group_title": "SRG-OS-000870-GPOS-00020",
+          "rule_id_src": "SV-230270r1130270_rule",
+          "rule_id": "SV-230270r1130270_rule",
+          "rule_version": "RHEL-08-010371",
+          "rule_title": "RHEL 8 must prevent the loading of a new kernel for later execution.",
+          "fix_text": "Configure the operating system to disable kernel image loading.\n\nAdd or edit the following line in a system configuration file in the \"/etc/sysctl.d/\" directory:\n\nkernel.kexec_load_disabled = 1\n\nLoad settings from all system configuration files with the following command:\n\n$ sudo sysctl --system",
+          "weight": "10.0",
+          "check_content": "Verify the operating system is configured to disable kernel image loading.\n\nCheck the status of the kernel.kexec_load_disabled kernel parameter with the following command:\n\n$ sudo sysctl kernel.kexec_load_disabled\nkernel.kexec_load_disabled = 1\n\nIf \"kernel.kexec_load_disabled\" is not set to \"1\" or is missing, this is a finding.",
+          "check_content_ref": {
+            "href": "",
+            "name": "M"
+          },
+          "classification": "Unclass",
+          "discussion": "Changes to any software components can have significant effects on the overall security of the operating system.",
+          "false_positives": "",
+          "false_negatives": "",
+          "documentable": false,
+          "security_override_guidance": "",
+          "mitigations": "",
+          "potential_impacts": "",
+          "third_party_tools": "",
+          "mitigation_control": "",
+          "responsibility": "",
+          "ia_controls": "",
+          "legacy_ids": [],
+          "ccis": [
+            "CCI-000870"
+          ],
+          "status": "open",
+          "overrides": {},
+          "comments": "Queued for remediation.",
+          "finding_details": "Scanned by synthetic fixture generator. RHEL-08-010371 did not match the required value."
+        },
+        {
+          "uuid": "a2674404-442a-542a-80bf-e354dda3e558",
+          "stig_uuid": "8f0c2a64-5d7e-4a1b-9c3f-0e6d5b4a3c21",
+          "target_key": null,
+          "stig_ref": null,
+          "group_id_src": "V-230271",
+          "group_tree": [
+            {
+              "id": "V-230271",
+              "title": "RHEL 8 must enable kernel parameters to enforce discretionary access control on symlinks.",
+              "description": "<GroupDescription>By enabling the fs.protected_symlinks kernel parameter, symbolic links are permitted to be followed only when outside a sticky world-writable directory.</GroupDescription>"
+            }
+          ],
+          "group_id": "V-230271",
+          "severity": "medium",
+          "group_title": "SRG-OS-000871-GPOS-00021",
+          "rule_id_src": "SV-230271r1130271_rule",
+          "rule_id": "SV-230271r1130271_rule",
+          "rule_version": "RHEL-08-010372",
+          "rule_title": "RHEL 8 must enable kernel parameters to enforce discretionary access control on symlinks.",
+          "fix_text": "Configure the operating system to enable DAC on symlinks with the following command:\n\nAdd or edit the following line in a system configuration file in the \"/etc/sysctl.d/\" directory:\n\nfs.protected_symlinks = 1\n\nLoad settings from all system configuration files with the following command:\n\n$ sudo sysctl --system",
+          "weight": "10.0",
+          "check_content": "Verify the operating system is configured to enable DAC on symlinks with the following command:\n\n$ sudo sysctl fs.protected_symlinks\nfs.protected_symlinks = 1\n\nIf \"fs.protected_symlinks\" is not set to \"1\" or is missing, this is a finding.",
+          "check_content_ref": {
+            "href": "",
+            "name": "M"
+          },
+          "classification": "Unclass",
+          "discussion": "By enabling the fs.protected_symlinks kernel parameter, symbolic links are permitted to be followed only when outside a sticky world-writable directory.",
+          "false_positives": "",
+          "false_negatives": "",
+          "documentable": false,
+          "security_override_guidance": "",
+          "mitigations": "",
+          "potential_impacts": "",
+          "third_party_tools": "",
+          "mitigation_control": "",
+          "responsibility": "",
+          "ia_controls": "",
+          "legacy_ids": [],
+          "ccis": [
+            "CCI-000871",
+            "CCI-000366"
+          ],
+          "status": "open",
+          "overrides": {},
+          "comments": "Queued for remediation.",
+          "finding_details": "Scanned by synthetic fixture generator. RHEL-08-010372 did not match the required value."
+        },
+        {
+          "uuid": "f990f596-8adc-5714-a825-c6f3c73895cf",
+          "stig_uuid": "8f0c2a64-5d7e-4a1b-9c3f-0e6d5b4a3c21",
+          "target_key": null,
+          "stig_ref": null,
+          "group_id_src": "V-230280",
+          "group_tree": [
+            {
+              "id": "V-230280",
+              "title": "YUM must remove all software components after updated versions have been installed on RHEL 8.",
+              "description": "<GroupDescription>Previous versions of software components that are not removed from the information system after updates have been installed may be exploited by adversaries.</GroupDescription>"
+            }
+          ],
+          "group_id": "V-230280",
+          "severity": "medium",
+          "group_title": "SRG-OS-000880-GPOS-00022",
+          "rule_id_src": "SV-230280r1130280_rule",
+          "rule_id": "SV-230280r1130280_rule",
+          "rule_version": "RHEL-08-010440",
+          "rule_title": "YUM must remove all software components after updated versions have been installed on RHEL 8.",
+          "fix_text": "Configure the operating system to remove all software components after updated versions have been installed.\n\nSet the \"clean_requirements_on_remove\" option to \"True\" in the \"/etc/dnf/dnf.conf\" file:\n\nclean_requirements_on_remove=True",
+          "weight": "10.0",
+          "check_content": "Verify the operating system removes all software components after updated versions have been installed.\n\nCheck if yum is configured to remove unneeded packages with the following command:\n\n$ sudo grep -i clean_requirements_on_remove /etc/dnf/dnf.conf\nclean_requirements_on_remove=True\n\nIf \"clean_requirements_on_remove\" is not set to \"True\", \"1\", or \"yes\", or is commented out, this is a finding.",
+          "check_content_ref": {
+            "href": "",
+            "name": "M"
+          },
+          "classification": "Unclass",
+          "discussion": "Previous versions of software components that are not removed from the information system after updates have been installed may be exploited by adversaries.",
+          "false_positives": "",
+          "false_negatives": "",
+          "documentable": false,
+          "security_override_guidance": "",
+          "mitigations": "",
+          "potential_impacts": "",
+          "third_party_tools": "",
+          "mitigation_control": "",
+          "responsibility": "",
+          "ia_controls": "",
+          "legacy_ids": [
+            "SV-87280r792904_rule",
+            "V-87280"
+          ],
+          "ccis": [
+            "CCI-000880",
+            "CCI-000366"
+          ],
+          "status": "open",
+          "overrides": {},
+          "comments": "Queued for remediation.",
+          "finding_details": "Scanned by synthetic fixture generator. RHEL-08-010440 did not match the required value."
+        },
+        {
+          "uuid": "2ba6ff2a-5602-59fc-bd15-d53f2cd14718",
+          "stig_uuid": "8f0c2a64-5d7e-4a1b-9c3f-0e6d5b4a3c21",
+          "target_key": null,
+          "stig_ref": null,
+          "group_id_src": "V-230283",
+          "group_tree": [
+            {
+              "id": "V-230283",
+              "title": "There must be no shosts.equiv files on the RHEL 8 operating system.",
+              "description": "<GroupDescription>The shosts.equiv files are used to configure host-based authentication for the system via SSH. Host-based authentication is not sufficient for preventing unauthorized access to the system.</GroupDescription>"
+            }
+          ],
+          "group_id": "V-230283",
+          "severity": "medium",
+          "group_title": "SRG-OS-000883-GPOS-00023",
+          "rule_id_src": "SV-230283r1130283_rule",
+          "rule_id": "SV-230283r1130283_rule",
+          "rule_version": "RHEL-08-010460",
+          "rule_title": "There must be no shosts.equiv files on the RHEL 8 operating system.",
+          "fix_text": "Remove any found \"shosts.equiv\" files from the system.\n\n$ sudo rm /etc/ssh/shosts.equiv",
+          "weight": "10.0",
+          "check_content": "Verify there are no \"shosts.equiv\" files on RHEL 8 with the following command:\n\n$ sudo find / -name shosts.equiv\n\nIf a \"shosts.equiv\" file is found, this is a finding.",
+          "check_content_ref": {
+            "href": "",
+            "name": "M"
+          },
+          "classification": "Unclass",
+          "discussion": "The shosts.equiv files are used to configure host-based authentication for the system via SSH. Host-based authentication is not sufficient for preventing unauthorized access to the system.",
+          "false_positives": "",
+          "false_negatives": "",
+          "documentable": false,
+          "security_override_guidance": "",
+          "mitigations": "",
+          "potential_impacts": "",
+          "third_party_tools": "",
+          "mitigation_control": "",
+          "responsibility": "",
+          "ia_controls": "",
+          "legacy_ids": [],
+          "ccis": [
+            "CCI-000883",
+            "CCI-000366"
+          ],
+          "status": "not_a_finding",
+          "overrides": {},
+          "comments": "",
+          "finding_details": "Scanned by synthetic fixture generator. RHEL-08-010460 matched the required value."
+        },
+        {
+          "uuid": "621908bf-c940-58b4-9852-f88da031a55f",
+          "stig_uuid": "8f0c2a64-5d7e-4a1b-9c3f-0e6d5b4a3c21",
+          "target_key": null,
+          "stig_ref": null,
+          "group_id_src": "V-230286",
+          "group_tree": [
+            {
+              "id": "V-230286",
+              "title": "The RHEL 8 SSH daemon must perform strict mode checking of home directory configuration files.",
+              "description": "<GroupDescription>If other users have access to modify user-specific SSH configuration files, they may be able to log on to the system as another user.</GroupDescription>"
+            }
+          ],
+          "group_id": "V-230286",
+          "severity": "high",
+          "group_title": "SRG-OS-000886-GPOS-00024",
+          "rule_id_src": "SV-230286r1130286_rule",
+          "rule_id": "SV-230286r1130286_rule",
+          "rule_version": "RHEL-08-010500",
+          "rule_title": "The RHEL 8 SSH daemon must perform strict mode checking of home directory configuration files.",
+          "fix_text": "Configure the SSH daemon to perform strict mode checking of home directory configuration files.\n\nUncomment the \"StrictModes\" keyword in \"/etc/ssh/sshd_config\" and set the value to \"yes\":\n\nStrictModes yes\n\nThe SSH service must be restarted for changes to take effect.",
+          "weight": "10.0",
+          "check_content": "Verify the SSH daemon performs strict mode checking of home directory configuration files with the following command:\n\n$ sudo grep -i strictmodes /etc/ssh/sshd_config\nStrictModes yes\n\nIf \"StrictModes\" is set to \"no\", is missing, or the returned line is commented out, this is a finding.",
+          "check_content_ref": {
+            "href": "",
+            "name": "M"
+          },
+          "classification": "Unclass",
+          "discussion": "If other users have access to modify user-specific SSH configuration files, they may be able to log on to the system as another user.",
+          "false_positives": "",
+          "false_negatives": "",
+          "documentable": false,
+          "security_override_guidance": "",
+          "mitigations": "",
+          "potential_impacts": "",
+          "third_party_tools": "",
+          "mitigation_control": "",
+          "responsibility": "",
+          "ia_controls": "",
+          "legacy_ids": [],
+          "ccis": [
+            "CCI-000886",
+            "CCI-000366"
+          ],
+          "status": "open",
+          "overrides": {},
+          "comments": "Queued for remediation.",
+          "finding_details": "Scanned by synthetic fixture generator. RHEL-08-010500 did not match the required value."
+        },
+        {
+          "uuid": "73deb875-721a-50ed-932f-95f51a14b2d7",
+          "stig_uuid": "8f0c2a64-5d7e-4a1b-9c3f-0e6d5b4a3c21",
+          "target_key": null,
+          "stig_ref": null,
+          "group_id_src": "V-230296",
+          "group_tree": [
+            {
+              "id": "V-230296",
+              "title": "RHEL 8 must not permit direct logons to the root account using remote access via SSH.",
+              "description": "<GroupDescription>Even though the communications channel may be encrypted, an additional layer of security is gained by extending the policy of not logging on directly as root.</GroupDescription>"
+            }
+          ],
+          "group_id": "V-230296",
+          "severity": "medium",
+          "group_title": "SRG-OS-000896-GPOS-00025",
+          "rule_id_src": "SV-230296r1130296_rule",
+          "rule_id": "SV-230296r1130296_rule",
+          "rule_version": "RHEL-08-010550",
+          "rule_title": "RHEL 8 must not permit direct logons to the root account using remote access via SSH.",
+          "fix_text": "Configure RHEL 8 to stop users from logging on remotely as the \"root\" user via SSH.\n\nEdit the appropriate \"/etc/ssh/sshd_config\" file to uncomment or add the line for the \"PermitRootLogin\" keyword and set its value to \"no\":\n\nPermitRootLogin no\n\nThe SSH service must be restarted for changes to take effect.",
+          "weight": "10.0",
+          "check_content": "Verify remote access using SSH prevents users from logging on directly as \"root\" with the following command:\n\n$ sudo grep -i permitrootlogin /etc/ssh/sshd_config\nPermitRootLogin no\n\nIf the \"PermitRootLogin\" keyword is set to any value other than \"no\", is missing, or is commented out, this is a finding.",
+          "check_content_ref": {
+            "href": "",
+            "name": "M"
+          },
+          "classification": "Unclass",
+          "discussion": "Even though the communications channel may be encrypted, an additional layer of security is gained by extending the policy of not logging on directly as root.",
+          "false_positives": "",
+          "false_negatives": "",
+          "documentable": false,
+          "security_override_guidance": "",
+          "mitigations": "",
+          "potential_impacts": "",
+          "third_party_tools": "",
+          "mitigation_control": "",
+          "responsibility": "",
+          "ia_controls": "",
+          "legacy_ids": [
+            "SV-87296r792904_rule",
+            "V-87296"
+          ],
+          "ccis": [
+            "CCI-000896"
+          ],
+          "status": "not_reviewed",
+          "overrides": {},
+          "comments": "",
+          "finding_details": ""
+        },
+        {
+          "uuid": "10185dd9-3769-5459-9154-2447f00fe972",
+          "stig_uuid": "8f0c2a64-5d7e-4a1b-9c3f-0e6d5b4a3c21",
+          "target_key": null,
+          "stig_ref": null,
+          "group_id_src": "V-230301",
+          "group_tree": [
+            {
+              "id": "V-230301",
+              "title": "The rsyslog service must be running in RHEL 8.",
+              "description": "<GroupDescription>Configuring RHEL 8 to implement organization-wide security implementation guides and security checklists ensures compliance with federal standards.</GroupDescription>"
+            }
+          ],
+          "group_id": "V-230301",
+          "severity": "medium",
+          "group_title": "SRG-OS-000901-GPOS-00026",
+          "rule_id_src": "SV-230301r1130301_rule",
+          "rule_id": "SV-230301r1130301_rule",
+          "rule_version": "RHEL-08-010561",
+          "rule_title": "The rsyslog service must be running in RHEL 8.",
+          "fix_text": "Start the \"rsyslog\" service and enable it to start at boot with the following commands:\n\n$ sudo systemctl enable --now rsyslog",
+          "weight": "10.0",
+          "check_content": "Verify that \"rsyslog\" is being used to monitor auditing on the system.\n\nCheck that the \"rsyslog\" service is enabled and active with the following commands:\n\n$ sudo systemctl is-enabled rsyslog\nenabled\n\n$ sudo systemctl is-active rsyslog\nactive\n\nIf the service is not enabled and active, this is a finding.",
+          "check_content_ref": {
+            "href": "",
+            "name": "M"
+          },
+          "classification": "Unclass",
+          "discussion": "Configuring RHEL 8 to implement organization-wide security implementation guides and security checklists ensures compliance with federal standards.",
+          "false_positives": "",
+          "false_negatives": "",
+          "documentable": false,
+          "security_override_guidance": "",
+          "mitigations": "",
+          "potential_impacts": "",
+          "third_party_tools": "",
+          "mitigation_control": "",
+          "responsibility": "",
+          "ia_controls": "",
+          "legacy_ids": [],
+          "ccis": [
+            "CCI-000901",
+            "CCI-000366"
+          ],
+          "status": "open",
+          "overrides": {},
+          "comments": "Queued for remediation.",
+          "finding_details": "Scanned by synthetic fixture generator. RHEL-08-010561 did not match the required value."
+        },
+        {
+          "uuid": "8d8dca99-29ef-56ae-935a-7b0b109ec192",
+          "stig_uuid": "8f0c2a64-5d7e-4a1b-9c3f-0e6d5b4a3c21",
+          "target_key": null,
+          "stig_ref": null,
+          "group_id_src": "V-230327",
+          "group_tree": [
+            {
+              "id": "V-230327",
+              "title": "RHEL 8 must prevent files with the setuid and setgid bit set from being executed on the /boot directory.",
+              "description": "<GroupDescription>The \"nosuid\" mount option causes the system not to execute \"setuid\" and \"setgid\" files with owner privileges.</GroupDescription>"
+            }
+          ],
+          "group_id": "V-230327",
+          "severity": "medium",
+          "group_title": "SRG-OS-000927-GPOS-00027",
+          "rule_id_src": "SV-230327r1130327_rule",
+          "rule_id": "SV-230327r1130327_rule",
+          "rule_version": "RHEL-08-010571",
+          "rule_title": "RHEL 8 must prevent files with the setuid and setgid bit set from being executed on the /boot directory.",
+          "fix_text": "Configure the \"/etc/fstab\" to use the \"nosuid\" option on the /boot directory.",
+          "weight": "10.0",
+          "check_content": "Verify the /boot directory is mounted with the \"nosuid\" option with the following command:\n\n$ sudo mount | grep '\\s/boot\\s'\n/dev/sda1 on /boot type xfs (rw,nosuid,relatime,seclabel,attr2,inode64,noquota)\n\nIf the /boot file system does not have the \"nosuid\" option set, this is a finding.",
+          "check_content_ref": {
+            "href": "",
+            "name": "M"
+          },
+          "classification": "Unclass",
+          "discussion": "The \"nosuid\" mount option causes the system not to execute \"setuid\" and \"setgid\" files with owner privileges.",
+          "false_positives": "",
+          "false_negatives": "",
+          "documentable": false,
+          "security_override_guidance": "",
+          "mitigations": "",
+          "potential_impacts": "",
+          "third_party_tools": "",
+          "mitigation_control": "",
+          "responsibility": "",
+          "ia_controls": "",
+          "legacy_ids": [],
+          "ccis": [
+            "CCI-000927"
+          ],
+          "status": "not_applicable",
+          "overrides": {},
+          "comments": "",
+          "finding_details": "Not applicable to this platform configuration."
+        },
+        {
+          "uuid": "70276563-13c1-5700-8ef4-c9eafd608b5b",
+          "stig_uuid": "8f0c2a64-5d7e-4a1b-9c3f-0e6d5b4a3c21",
+          "target_key": null,
+          "stig_ref": null,
+          "group_id_src": "V-230332",
+          "group_tree": [
+            {
+              "id": "V-230332",
+              "title": "RHEL 8 must automatically lock an account when three unsuccessful logon attempts occur.",
+              "description": "<GroupDescription>By limiting the number of failed logon attempts, the risk of unauthorized system access via user password guessing, otherwise known as brute-force attacks, is reduced.</GroupDescription>"
+            }
+          ],
+          "group_id": "V-230332",
+          "severity": "medium",
+          "group_title": "SRG-OS-000932-GPOS-00028",
+          "rule_id_src": "SV-230332r1130332_rule",
+          "rule_id": "SV-230332r1130332_rule",
+          "rule_version": "RHEL-08-020010",
+          "rule_title": "RHEL 8 must automatically lock an account when three unsuccessful logon attempts occur.",
+          "fix_text": "Configure the operating system to lock an account when three unsuccessful logon attempts occur.\n\nAdd/Modify the \"/etc/security/faillock.conf\" file to match the following line:\n\ndeny = 3",
+          "weight": "10.0",
+          "check_content": "Check that the system locks an account after three unsuccessful logon attempts with the following commands:\n\n$ sudo grep 'deny =' /etc/security/faillock.conf\ndeny = 3\n\nIf the \"deny\" option is not set to \"3\" or less (but not \"0\"), is missing or commented out, this is a finding.",
+          "check_content_ref": {
+            "href": "",
+            "name": "M"
+          },
+          "classification": "Unclass",
+          "discussion": "By limiting the number of failed logon attempts, the risk of unauthorized system access via user password guessing, otherwise known as brute-force attacks, is reduced.",
+          "false_positives": "",
+          "false_negatives": "",
+          "documentable": false,
+          "security_override_guidance": "",
+          "mitigations": "",
+          "potential_impacts": "",
+          "third_party_tools": "",
+          "mitigation_control": "",
+          "responsibility": "",
+          "ia_controls": "",
+          "legacy_ids": [
+            "SV-87332r792904_rule",
+            "V-87332"
+          ],
+          "ccis": [
+            "CCI-000932"
+          ],
+          "status": "open",
+          "overrides": {},
+          "comments": "Queued for remediation.",
+          "finding_details": "Scanned by synthetic fixture generator. RHEL-08-020010 did not match the required value."
+        },
+        {
+          "uuid": "71ce8d53-5dbc-5a11-956e-c1cdae5d0e5f",
+          "stig_uuid": "8f0c2a64-5d7e-4a1b-9c3f-0e6d5b4a3c21",
+          "target_key": null,
+          "stig_ref": null,
+          "group_id_src": "V-230346",
+          "group_tree": [
+            {
+              "id": "V-230346",
+              "title": "RHEL 8 must limit the number of concurrent sessions to ten for all accounts and/or account types.",
+              "description": "<GroupDescription>Operating system management includes the ability to control the number of users and user sessions that utilize an operating system.</GroupDescription>"
+            }
+          ],
+          "group_id": "V-230346",
+          "severity": "medium",
+          "group_title": "SRG-OS-000946-GPOS-00029",
+          "rule_id_src": "SV-230346r1130346_rule",
+          "rule_id": "SV-230346r1130346_rule",
+          "rule_version": "RHEL-08-020024",
+          "rule_title": "RHEL 8 must limit the number of concurrent sessions to ten for all accounts and/or account types.",
+          "fix_text": "Configure the operating system to limit the number of concurrent sessions to ten for all accounts and/or account types.\n\nAdd the following line to the top of the /etc/security/limits.conf or in a \".conf\" file defined in /etc/security/limits.d/:\n\n* hard maxlogins 10",
+          "weight": "10.0",
+          "check_content": "Verify the operating system limits the number of concurrent sessions to \"10\" for all accounts and/or account types with the following command:\n\n$ sudo grep -r maxlogins /etc/security/limits.conf /etc/security/limits.d/*.conf\n* hard maxlogins 10\n\nIf the \"maxlogins\" item is missing or the value is not set to 10 or less, this is a finding.",
+          "check_content_ref": {
+            "href": "",
+            "name": "M"
+          },
+          "classification": "Unclass",
+          "discussion": "Operating system management includes the ability to control the number of users and user sessions that utilize an operating system.",
+          "false_positives": "",
+          "false_negatives": "",
+          "documentable": false,
+          "security_override_guidance": "",
+          "mitigations": "",
+          "potential_impacts": "",
+          "third_party_tools": "",
+          "mitigation_control": "",
+          "responsibility": "",
+          "ia_controls": "",
+          "legacy_ids": [],
+          "ccis": [
+            "CCI-000946",
+            "CCI-000366"
+          ],
+          "status": "open",
+          "overrides": {},
+          "comments": "Queued for remediation.",
+          "finding_details": "Scanned by synthetic fixture generator. RHEL-08-020024 did not match the required value."
+        },
+        {
+          "uuid": "2dda30a6-7c63-55e6-a021-b3cc8a88eefc",
+          "stig_uuid": "8f0c2a64-5d7e-4a1b-9c3f-0e6d5b4a3c21",
+          "target_key": null,
+          "stig_ref": null,
+          "group_id_src": "V-230348",
+          "group_tree": [
+            {
+              "id": "V-230348",
+              "title": "RHEL 8 must enable a user session lock until that user re-establishes access using established identification and authentication procedures for graphical user interfaces.",
+              "description": "<GroupDescription>A session lock is a temporary action taken when a user stops work and moves away from the immediate physical vicinity of the information system.</GroupDescription>"
+            }
+          ],
+          "group_id": "V-230348",
+          "severity": "medium",
+          "group_title": "SRG-OS-000948-GPOS-00030",
+          "rule_id_src": "SV-230348r1130348_rule",
+          "rule_id": "SV-230348r1130348_rule",
+          "rule_version": "RHEL-08-020030",
+          "rule_title": "RHEL 8 must enable a user session lock until that user re-establishes access using established identification and authentication procedures for graphical user interfaces.",
+          "fix_text": "Configure the operating system to enable a user's session lock until that user re-establishes access.\n\nAdd the setting to enable screen locking in the [org/gnome/desktop/screensaver] section of /etc/dconf/db/local.d/00-screensaver:\n\nlock-enabled=true\n\nUpdate the system databases:\n\n$ sudo dconf update",
+          "weight": "10.0",
+          "check_content": "Verify the operating system enables a user's session lock until that user re-establishes access using established identification and authentication procedures with the following command:\n\n$ sudo grep -i lock-enabled /etc/dconf/db/local.d/*\nlock-enabled=true\n\nIf the \"lock-enabled\" setting is missing or is not set to \"true\", this is a finding.",
+          "check_content_ref": {
+            "href": "",
+            "name": "M"
+          },
+          "classification": "Unclass",
+          "discussion": "A session lock is a temporary action taken when a user stops work and moves away from the immediate physical vicinity of the information system.",
+          "false_positives": "",
+          "false_negatives": "",
+          "documentable": false,
+          "security_override_guidance": "",
+          "mitigations": "",
+          "potential_impacts": "",
+          "third_party_tools": "",
+          "mitigation_control": "",
+          "responsibility": "",
+          "ia_controls": "",
+          "legacy_ids": [
+            "SV-87348r792904_rule",
+            "V-87348"
+          ],
+          "ccis": [
+            "CCI-000948"
+          ],
+          "status": "open",
+          "overrides": {},
+          "comments": "Queued for remediation.",
+          "finding_details": "Scanned by synthetic fixture generator. RHEL-08-020030 did not match the required value."
+        },
+        {
+          "uuid": "2dfd0ef7-cedb-536f-b4c1-8949a4f5fe0d",
+          "stig_uuid": "8f0c2a64-5d7e-4a1b-9c3f-0e6d5b4a3c21",
+          "target_key": null,
+          "stig_ref": null,
+          "group_id_src": "V-230352",
+          "group_tree": [
+            {
+              "id": "V-230352",
+              "title": "RHEL 8 must automatically lock graphical user sessions after 15 minutes of inactivity.",
+              "description": "<GroupDescription>A session time-out lock is a temporary action taken when a user stops work and moves away from the immediate physical vicinity of the information system but does not log out.</GroupDescription>"
+            }
+          ],
+          "group_id": "V-230352",
+          "severity": "medium",
+          "group_title": "SRG-OS-000952-GPOS-00031",
+          "rule_id_src": "SV-230352r1130352_rule",
+          "rule_id": "SV-230352r1130352_rule",
+          "rule_version": "RHEL-08-020060",
+          "rule_title": "RHEL 8 must automatically lock graphical user sessions after 15 minutes of inactivity.",
+          "fix_text": "Configure the operating system to initiate a session lock after a 15-minute period of inactivity for graphical user interfaces.\n\nCreate a database to contain the system-wide screensaver settings with the following command:\n\n$ sudo touch /etc/dconf/db/local.d/00-screensaver\n\nAdd the following line to the [org/gnome/desktop/session] section:\n\nidle-delay=uint32 900\n\nUpdate the system databases:\n\n$ sudo dconf update",
+          "weight": "10.0",
+          "check_content": "Verify the operating system initiates a session lock after a 15-minute period of inactivity for graphical user interfaces with the following command:\n\n$ sudo grep -i idle-delay /etc/dconf/db/local.d/*\nidle-delay=uint32 900\n\nIf the \"idle-delay\" setting is missing or is not set to \"900\" or less, this is a finding.",
+          "check_content_ref": {
+            "href": "",
+            "name": "M"
+          },
+          "classification": "Unclass",
+          "discussion": "A session time-out lock is a temporary action taken when a user stops work and moves away from the immediate physical vicinity of the information system but does not log out.",
+          "false_positives": "",
+          "false_negatives": "",
+          "documentable": false,
+          "security_override_guidance": "",
+          "mitigations": "",
+          "potential_impacts": "",
+          "third_party_tools": "",
+          "mitigation_control": "",
+          "responsibility": "",
+          "ia_controls": "",
+          "legacy_ids": [
+            "SV-87352r792904_rule",
+            "V-87352"
+          ],
+          "ccis": [
+            "CCI-000952",
+            "CCI-000366"
+          ],
+          "status": "not_a_finding",
+          "overrides": {},
+          "comments": "",
+          "finding_details": "Scanned by synthetic fixture generator. RHEL-08-020060 matched the required value."
+        },
+        {
+          "uuid": "d0906322-313b-53d0-b35e-0c80c35f8ab9",
+          "stig_uuid": "8f0c2a64-5d7e-4a1b-9c3f-0e6d5b4a3c21",
+          "target_key": null,
+          "stig_ref": null,
+          "group_id_src": "V-230357",
+          "group_tree": [
+            {
+              "id": "V-230357",
+              "title": "RHEL 8 must ensure the password complexity module is enabled in the password-auth file.",
+              "description": "<GroupDescription>Use of a complex password helps to increase the time and resources required to compromise the password.</GroupDescription>"
+            }
+          ],
+          "group_id": "V-230357",
+          "severity": "medium",
+          "group_title": "SRG-OS-000957-GPOS-00032",
+          "rule_id_src": "SV-230357r1130357_rule",
+          "rule_id": "SV-230357r1130357_rule",
+          "rule_version": "RHEL-08-020100",
+          "rule_title": "RHEL 8 must ensure the password complexity module is enabled in the password-auth file.",
+          "fix_text": "Configure RHEL 8 to enable the password complexity module in the password-auth file.\n\nAdd the following line to the \"/etc/pam.d/password-auth\" file (or modify the line to have the required value):\n\npassword required pam_pwquality.so",
+          "weight": "10.0",
+          "check_content": "Verify the pam_pwquality.so module is present in the \"/etc/pam.d/password-auth\" file:\n\n$ sudo grep pam_pwquality /etc/pam.d/password-auth\npassword required pam_pwquality.so\n\nIf the line is commented out or missing, this is a finding.",
+          "check_content_ref": {
+            "href": "",
+            "name": "M"
+          },
+          "classification": "Unclass",
+          "discussion": "Use of a complex password helps to increase the time and resources required to compromise the password.",
+          "false_positives": "",
+          "false_negatives": "",
+          "documentable": false,
+          "security_override_guidance": "",
+          "mitigations": "",
+          "potential_impacts": "",
+          "third_party_tools": "",
+          "mitigation_control": "",
+          "responsibility": "",
+          "ia_controls": "",
+          "legacy_ids": [],
+          "ccis": [
+            "CCI-000957"
+          ],
+          "status": "open",
+          "overrides": {},
+          "comments": "Queued for remediation.",
+          "finding_details": "Scanned by synthetic fixture generator. RHEL-08-020100 did not match the required value."
+        },
+        {
+          "uuid": "94d8046d-30d9-5f96-ad9b-32b4f09c3cc0",
+          "stig_uuid": "8f0c2a64-5d7e-4a1b-9c3f-0e6d5b4a3c21",
+          "target_key": null,
+          "stig_ref": null,
+          "group_id_src": "V-230364",
+          "group_tree": [
+            {
+              "id": "V-230364",
+              "title": "RHEL 8 must require the change of at least four character classes when passwords are changed.",
+              "description": "<GroupDescription>Use of a complex password helps to increase the time and resources required to compromise the password.</GroupDescription>"
+            }
+          ],
+          "group_id": "V-230364",
+          "severity": "medium",
+          "group_title": "SRG-OS-000964-GPOS-00033",
+          "rule_id_src": "SV-230364r1130364_rule",
+          "rule_id": "SV-230364r1130364_rule",
+          "rule_version": "RHEL-08-020170",
+          "rule_title": "RHEL 8 must require the change of at least four character classes when passwords are changed.",
+          "fix_text": "Configure the operating system to require the change of at least four character classes when passwords are changed by setting the \"minclass\" option in \"/etc/security/pwquality.conf\":\n\nminclass = 4",
+          "weight": "10.0",
+          "check_content": "Verify the value of the \"minclass\" option in \"/etc/security/pwquality.conf\" with the following command:\n\n$ sudo grep minclass /etc/security/pwquality.conf\nminclass = 4\n\nIf the value of \"minclass\" is set to less than \"4\" or is commented out, this is a finding.",
+          "check_content_ref": {
+            "href": "",
+            "name": "M"
+          },
+          "classification": "Unclass",
+          "discussion": "Use of a complex password helps to increase the time and resources required to compromise the password.",
+          "false_positives": "",
+          "false_negatives": "",
+          "documentable": false,
+          "security_override_guidance": "",
+          "mitigations": "",
+          "potential_impacts": "",
+          "third_party_tools": "",
+          "mitigation_control": "",
+          "responsibility": "",
+          "ia_controls": "",
+          "legacy_ids": [
+            "SV-87364r792904_rule",
+            "V-87364"
+          ],
+          "ccis": [
+            "CCI-000964",
+            "CCI-000366"
+          ],
+          "status": "not_reviewed",
+          "overrides": {},
+          "comments": "",
+          "finding_details": ""
+        },
+        {
+          "uuid": "0b7dada2-f6d0-55e0-9e11-5621a3567e92",
+          "stig_uuid": "8f0c2a64-5d7e-4a1b-9c3f-0e6d5b4a3c21",
+          "target_key": null,
+          "stig_ref": null,
+          "group_id_src": "V-230366",
+          "group_tree": [
+            {
+              "id": "V-230366",
+              "title": "RHEL 8 must require the maximum number of repeating characters be limited to three when passwords are changed.",
+              "description": "<GroupDescription>Use of a complex password helps to increase the time and resources required to compromise the password.</GroupDescription>"
+            }
+          ],
+          "group_id": "V-230366",
+          "severity": "medium",
+          "group_title": "SRG-OS-000966-GPOS-00034",
+          "rule_id_src": "SV-230366r1130366_rule",
+          "rule_id": "SV-230366r1130366_rule",
+          "rule_version": "RHEL-08-020190",
+          "rule_title": "RHEL 8 must require the maximum number of repeating characters be limited to three when passwords are changed.",
+          "fix_text": "Configure the operating system to require the change of the number of repeating consecutive characters when passwords are changed by setting the \"maxrepeat\" option in \"/etc/security/pwquality.conf\":\n\nmaxrepeat = 3",
+          "weight": "10.0",
+          "check_content": "Check for the value of the \"maxrepeat\" option in \"/etc/security/pwquality.conf\" with the following command:\n\n$ sudo grep maxrepeat /etc/security/pwquality.conf\nmaxrepeat = 3\n\nIf the value of \"maxrepeat\" is set to more than \"3\" or is commented out, this is a finding.",
+          "check_content_ref": {
+            "href": "",
+            "name": "M"
+          },
+          "classification": "Unclass",
+          "discussion": "Use of a complex password helps to increase the time and resources required to compromise the password.",
+          "false_positives": "",
+          "false_negatives": "",
+          "documentable": false,
+          "security_override_guidance": "",
+          "mitigations": "",
+          "potential_impacts": "",
+          "third_party_tools": "",
+          "mitigation_control": "",
+          "responsibility": "",
+          "ia_controls": "",
+          "legacy_ids": [],
+          "ccis": [
+            "CCI-000966"
+          ],
+          "status": "open",
+          "overrides": {},
+          "comments": "Queued for remediation.",
+          "finding_details": "Scanned by synthetic fixture generator. RHEL-08-020190 did not match the required value."
+        },
+        {
+          "uuid": "dde60201-67e5-56f3-b13f-ce64c777f992",
+          "stig_uuid": "8f0c2a64-5d7e-4a1b-9c3f-0e6d5b4a3c21",
+          "target_key": null,
+          "stig_ref": null,
+          "group_id_src": "V-230369",
+          "group_tree": [
+            {
+              "id": "V-230369",
+              "title": "RHEL 8 passwords must have a 24 hours/1 day minimum password lifetime restriction in /etc/login.defs.",
+              "description": "<GroupDescription>Enforcing a minimum password lifetime helps to prevent repeated password changes to defeat the password reuse or history enforcement requirement.</GroupDescription>"
+            }
+          ],
+          "group_id": "V-230369",
+          "severity": "medium",
+          "group_title": "SRG-OS-000969-GPOS-00035",
+          "rule_id_src": "SV-230369r1130369_rule",
+          "rule_id": "SV-230369r1130369_rule",
+          "rule_version": "RHEL-08-020220",
+          "rule_title": "RHEL 8 passwords must have a 24 hours/1 day minimum password lifetime restriction in /etc/login.defs.",
+          "fix_text": "Configure the operating system to enforce 24 hours/one day as the minimum password lifetime.\n\nAdd the following line in \"/etc/login.defs\" (or modify the line to have the required value):\n\nPASS_MIN_DAYS 1",
+          "weight": "10.0",
+          "check_content": "Verify the operating system enforces 24 hours/one day as the minimum password lifetime for new user accounts with the following command:\n\n$ sudo grep -i pass_min_days /etc/login.defs\nPASS_MIN_DAYS 1\n\nIf the \"PASS_MIN_DAYS\" parameter value is less than \"1\", or is commented out, this is a finding.",
+          "check_content_ref": {
+            "href": "",
+            "name": "M"
+          },
+          "classification": "Unclass",
+          "discussion": "Enforcing a minimum password lifetime helps to prevent repeated password changes to defeat the password reuse or history enforcement requirement.",
+          "false_positives": "",
+          "false_negatives": "",
+          "documentable": false,
+          "security_override_guidance": "",
+          "mitigations": "",
+          "potential_impacts": "",
+          "third_party_tools": "",
+          "mitigation_control": "",
+          "responsibility": "",
+          "ia_controls": "",
+          "legacy_ids": [],
+          "ccis": [
+            "CCI-000969"
+          ],
+          "status": "not_applicable",
+          "overrides": {},
+          "comments": "",
+          "finding_details": "Not applicable to this platform configuration."
+        },
+        {
+          "uuid": "61353d99-f676-56ff-938c-6d778ae8c023",
+          "stig_uuid": "8f0c2a64-5d7e-4a1b-9c3f-0e6d5b4a3c21",
+          "target_key": null,
+          "stig_ref": null,
+          "group_id_src": "V-230375",
+          "group_tree": [
+            {
+              "id": "V-230375",
+              "title": "RHEL 8 must be configured in the password-auth file to prohibit password reuse for a minimum of five generations.",
+              "description": "<GroupDescription>Password complexity, or strength, is a measure of the effectiveness of a password in resisting attempts at guessing and brute-force attacks.</GroupDescription>"
+            }
+          ],
+          "group_id": "V-230375",
+          "severity": "medium",
+          "group_title": "SRG-OS-000975-GPOS-00036",
+          "rule_id_src": "SV-230375r1130375_rule",
+          "rule_id": "SV-230375r1130375_rule",
+          "rule_version": "RHEL-08-020250",
+          "rule_title": "RHEL 8 must be configured in the password-auth file to prohibit password reuse for a minimum of five generations.",
+          "fix_text": "Configure the operating system to prohibit password reuse for a minimum of five generations.\n\nAdd the following line in \"/etc/pam.d/password-auth\":\n\npassword required pam_pwhistory.so use_authtok remember=5 retry=3",
+          "weight": "10.0",
+          "check_content": "Verify the operating system prohibits password reuse for a minimum of five generations:\n\n$ sudo grep -i remember /etc/pam.d/password-auth\npassword required pam_pwhistory.so use_authtok remember=5 retry=3\n\nIf the \"remember\" parameter value is not greater than or equal to \"5\", is commented out, or is missing, this is a finding.",
+          "check_content_ref": {
+            "href": "",
+            "name": "M"
+          },
+          "classification": "Unclass",
+          "discussion": "Password complexity, or strength, is a measure of the effectiveness of a password in resisting attempts at guessing and brute-force attacks.",
+          "false_positives": "",
+          "false_negatives": "",
+          "documentable": false,
+          "security_override_guidance": "",
+          "mitigations": "",
+          "potential_impacts": "",
+          "third_party_tools": "",
+          "mitigation_control": "",
+          "responsibility": "",
+          "ia_controls": "",
+          "legacy_ids": [],
+          "ccis": [
+            "CCI-000975"
+          ],
+          "status": "open",
+          "overrides": {},
+          "comments": "Queued for remediation.",
+          "finding_details": "Scanned by synthetic fixture generator. RHEL-08-020250 did not match the required value."
+        },
+        {
+          "uuid": "80f5c7a1-71a6-551b-8c3f-52a90fd877bb",
+          "stig_uuid": "8f0c2a64-5d7e-4a1b-9c3f-0e6d5b4a3c21",
+          "target_key": null,
+          "stig_ref": null,
+          "group_id_src": "V-230380",
+          "group_tree": [
+            {
+              "id": "V-230380",
+              "title": "RHEL 8 must enforce a minimum 15-character password length.",
+              "description": "<GroupDescription>The shorter the password, the lower the number of possible combinations that need to be tested before the password is compromised.</GroupDescription>"
+            }
+          ],
+          "group_id": "V-230380",
+          "severity": "medium",
+          "group_title": "SRG-OS-000980-GPOS-00037",
+          "rule_id_src": "SV-230380r1130380_rule",
+          "rule_id": "SV-230380r1130380_rule",
+          "rule_version": "RHEL-08-020300",
+          "rule_title": "RHEL 8 must enforce a minimum 15-character password length.",
+          "fix_text": "Configure the operating system to enforce a minimum 15-character password length.\n\nAdd or modify the following line in \"/etc/security/pwquality.conf\":\n\nminlen = 15",
+          "weight": "10.0",
+          "check_content": "Verify the operating system enforces a minimum 15-character password length with the following command:\n\n$ sudo grep minlen /etc/security/pwquality.conf\nminlen = 15\n\nIf the command does not return a \"minlen\" value of 15 or greater, this is a finding.",
+          "check_content_ref": {
+            "href": "",
+            "name": "M"
+          },
+          "classification": "Unclass",
+          "discussion": "The shorter the password, the lower the number of possible combinations that need to be tested before the password is compromised.",
+          "false_positives": "",
+          "false_negatives": "",
+          "documentable": false,
+          "security_override_guidance": "",
+          "mitigations": "",
+          "potential_impacts": "",
+          "third_party_tools": "",
+          "mitigation_control": "",
+          "responsibility": "",
+          "ia_controls": "",
+          "legacy_ids": [
+            "SV-87380r792904_rule",
+            "V-87380"
+          ],
+          "ccis": [
+            "CCI-000980"
+          ],
+          "status": "open",
+          "overrides": {},
+          "comments": "Queued for remediation.",
+          "finding_details": "Scanned by synthetic fixture generator. RHEL-08-020300 did not match the required value."
+        },
+        {
+          "uuid": "5c9ce79a-81ac-50b1-b372-957fb292c077",
+          "stig_uuid": "8f0c2a64-5d7e-4a1b-9c3f-0e6d5b4a3c21",
+          "target_key": null,
+          "stig_ref": null,
+          "group_id_src": "V-230386",
+          "group_tree": [
+            {
+              "id": "V-230386",
+              "title": "RHEL 8 audit records must be off-loaded onto a different system or storage media from the system being audited.",
+              "description": "<GroupDescription>Information stored in one location is vulnerable to accidental or incidental deletion or alteration.</GroupDescription>"
+            }
+          ],
+          "group_id": "V-230386",
+          "severity": "medium",
+          "group_title": "SRG-OS-000986-GPOS-00038",
+          "rule_id_src": "SV-230386r1130386_rule",
+          "rule_id": "SV-230386r1130386_rule",
+          "rule_version": "RHEL-08-030000",
+          "rule_title": "RHEL 8 audit records must be off-loaded onto a different system or storage media from the system being audited.",
+          "fix_text": "Configure the audit system to off-load audit records onto a different system or media from the system being audited.\n\nSet the remote server option in \"/etc/audisp/audisp-remote.conf\" with the IP address of the log aggregation server.",
+          "weight": "10.0",
+          "check_content": "Verify the audit system off-loads audit records onto a different system or media from the system being audited with the following command:\n\n$ sudo grep -i remote_server /etc/audisp/audisp-remote.conf\nremote_server = 10.0.21.1\n\nIf a remote server is not configured, or the line is commented out, ask the System Administrator to indicate how the audit logs are off-loaded to a different system or media.\n\nIf there is no evidence that the audit logs are being off-loaded to another system or media, this is a finding.",
+          "check_content_ref": {
+            "href": "",
+            "name": "M"
+          },
+          "classification": "Unclass",
+          "discussion": "Information stored in one location is vulnerable to accidental or incidental deletion or alteration.",
+          "false_positives": "",
+          "false_negatives": "",
+          "documentable": false,
+          "security_override_guidance": "",
+          "mitigations": "",
+          "potential_impacts": "",
+          "third_party_tools": "",
+          "mitigation_control": "",
+          "responsibility": "",
+          "ia_controls": "",
+          "legacy_ids": [],
+          "ccis": [
+            "CCI-000986"
+          ],
+          "status": "open",
+          "overrides": {},
+          "comments": "Queued for remediation.",
+          "finding_details": "Scanned by synthetic fixture generator. RHEL-08-030000 did not match the required value."
+        },
+        {
+          "uuid": "b7308a9a-8ba5-5e55-b1b6-4ea2e4f728d4",
+          "stig_uuid": "8f0c2a64-5d7e-4a1b-9c3f-0e6d5b4a3c21",
+          "target_key": null,
+          "stig_ref": null,
+          "group_id_src": "V-230387",
+          "group_tree": [
+            {
+              "id": "V-230387",
+              "title": "RHEL 8 audit system must take appropriate action when the audit storage volume is full.",
+              "description": "<GroupDescription>It is critical that when RHEL 8 is at risk of failing to process audit logs as required, it takes action to mitigate the failure.</GroupDescription>"
+            }
+          ],
+          "group_id": "V-230387",
+          "severity": "medium",
+          "group_title": "SRG-OS-000987-GPOS-00039",
+          "rule_id_src": "SV-230387r1130387_rule",
+          "rule_id": "SV-230387r1130387_rule",
+          "rule_version": "RHEL-08-030010",
+          "rule_title": "RHEL 8 audit system must take appropriate action when the audit storage volume is full.",
+          "fix_text": "Configure the audit system to take an appropriate action when the audit storage volume is full.\n\nAdd or modify the following line in \"/etc/audisp/audisp-remote.conf\":\n\ndisk_full_action = single",
+          "weight": "10.0",
+          "check_content": "Verify RHEL 8 takes the appropriate action when the audit storage volume is full with the following command:\n\n$ sudo grep disk_full_action /etc/audisp/audisp-remote.conf\ndisk_full_action = single\n\nIf the value of the \"disk_full_action\" option is not \"syslog\", \"single\", or \"halt\", or the line is commented out, this is a finding.",
+          "check_content_ref": {
+            "href": "",
+            "name": "M"
+          },
+          "classification": "Unclass",
+          "discussion": "It is critical that when RHEL 8 is at risk of failing to process audit logs as required, it takes action to mitigate the failure.",
+          "false_positives": "",
+          "false_negatives": "",
+          "documentable": false,
+          "security_override_guidance": "",
+          "mitigations": "",
+          "potential_impacts": "",
+          "third_party_tools": "",
+          "mitigation_control": "",
+          "responsibility": "",
+          "ia_controls": "",
+          "legacy_ids": [],
+          "ccis": [
+            "CCI-000987"
+          ],
+          "status": "not_a_finding",
+          "overrides": {},
+          "comments": "",
+          "finding_details": "Scanned by synthetic fixture generator. RHEL-08-030010 matched the required value."
+        },
+        {
+          "uuid": "428794f1-e5a1-5a87-b778-3be9b800444d",
+          "stig_uuid": "8f0c2a64-5d7e-4a1b-9c3f-0e6d5b4a3c21",
+          "target_key": null,
+          "stig_ref": null,
+          "group_id_src": "V-230389",
+          "group_tree": [
+            {
+              "id": "V-230389",
+              "title": "The RHEL 8 audit log directory must be owned by root to prevent unauthorized read access.",
+              "description": "<GroupDescription>Unauthorized disclosure of audit records can reveal system and configuration data to attackers, thus compromising its confidentiality.</GroupDescription>"
+            }
+          ],
+          "group_id": "V-230389",
+          "severity": "medium",
+          "group_title": "SRG-OS-000989-GPOS-00040",
+          "rule_id_src": "SV-230389r1130389_rule",
+          "rule_id": "SV-230389r1130389_rule",
+          "rule_version": "RHEL-08-030030",
+          "rule_title": "The RHEL 8 audit log directory must be owned by root to prevent unauthorized read access.",
+          "fix_text": "Configure the audit log directory to be owned by \"root\" with the following command:\n\n$ sudo chown root /var/log/audit",
+          "weight": "10.0",
+          "check_content": "Verify the audit log directory is owned by \"root\" with the following command:\n\n$ sudo stat -c \"%U %n\" /var/log/audit\nroot /var/log/audit\n\nIf the audit log directory is not owned by \"root\", this is a finding.",
+          "check_content_ref": {
+            "href": "",
+            "name": "M"
+          },
+          "classification": "Unclass",
+          "discussion": "Unauthorized disclosure of audit records can reveal system and configuration data to attackers, thus compromising its confidentiality.",
+          "false_positives": "",
+          "false_negatives": "",
+          "documentable": false,
+          "security_override_guidance": "",
+          "mitigations": "",
+          "potential_impacts": "",
+          "third_party_tools": "",
+          "mitigation_control": "",
+          "responsibility": "",
+          "ia_controls": "",
+          "legacy_ids": [],
+          "ccis": [
+            "CCI-000989"
+          ],
+          "status": "open",
+          "overrides": {},
+          "comments": "Queued for remediation.",
+          "finding_details": "Scanned by synthetic fixture generator. RHEL-08-030030 did not match the required value."
+        },
+        {
+          "uuid": "584bd4f2-3962-5e69-a8a9-8c8388d76cac",
+          "stig_uuid": "8f0c2a64-5d7e-4a1b-9c3f-0e6d5b4a3c21",
+          "target_key": null,
+          "stig_ref": null,
+          "group_id_src": "V-230396",
+          "group_tree": [
+            {
+              "id": "V-230396",
+              "title": "RHEL 8 must allocate an audit_backlog_limit of sufficient size to capture processes that start prior to the audit daemon.",
+              "description": "<GroupDescription>Without the capability to generate audit records, it would be difficult to establish, correlate, and investigate the events relating to an incident.</GroupDescription>"
+            }
+          ],
+          "group_id": "V-230396",
+          "severity": "medium",
+          "group_title": "SRG-OS-000996-GPOS-00041",
+          "rule_id_src": "SV-230396r1130396_rule",
+          "rule_id": "SV-230396r1130396_rule",
+          "rule_version": "RHEL-08-030063",
+          "rule_title": "RHEL 8 must allocate an audit_backlog_limit of sufficient size to capture processes that start prior to the audit daemon.",
+          "fix_text": "Configure RHEL 8 to allocate sufficient audit_backlog_limit to capture processes that start prior to the audit daemon with the following command:\n\n$ sudo grubby --update-kernel=ALL --args=audit_backlog_limit=8192\n\nAdd the argument to the default grub config so it persists across kernel updates:\n\nEdit \"/etc/default/grub\" and add \"audit_backlog_limit=8192\" to the GRUB_CMDLINE_LINUX line.",
+          "weight": "10.0",
+          "check_content": "Verify RHEL 8 allocates a sufficient audit_backlog_limit with the following command:\n\n$ sudo grub2-editenv list | grep audit\nkernelopts=root=/dev/mapper/rhel-root ro crashkernel=auto resume=/dev/mapper/rhel-swap rd.lvm.lv=rhel/root rd.lvm.lv=rhel/swap rhgb quiet fips=1 audit=1 audit_backlog_limit=8192\n\nIf the \"audit_backlog_limit\" entry does not equal or exceed \"8192\", is missing, or the line is commented out, this is a finding.",
+          "check_content_ref": {
+            "href": "",
+            "name": "M"
+          },
+          "classification": "Unclass",
+          "discussion": "Without the capability to generate audit records, it would be difficult to establish, correlate, and investigate the events relating to an incident.",
+          "false_positives": "",
+          "false_negatives": "",
+          "documentable": false,
+          "security_override_guidance": "",
+          "mitigations": "",
+          "potential_impacts": "",
+          "third_party_tools": "",
+          "mitigation_control": "",
+          "responsibility": "",
+          "ia_controls": "",
+          "legacy_ids": [
+            "SV-87396r792904_rule",
+            "V-87396"
+          ],
+          "ccis": [
+            "CCI-000996"
+          ],
+          "status": "not_reviewed",
+          "overrides": {},
+          "comments": "",
+          "finding_details": ""
+        },
+        {
+          "uuid": "7e9833be-5b70-5367-9d0f-258045b3f4d0",
+          "stig_uuid": "8f0c2a64-5d7e-4a1b-9c3f-0e6d5b4a3c21",
+          "target_key": null,
+          "stig_ref": null,
+          "group_id_src": "V-230423",
+          "group_tree": [
+            {
+              "id": "V-230423",
+              "title": "Successful/unsuccessful modifications to the faillock log file in RHEL 8 must generate an audit record.",
+              "description": "<GroupDescription>Without generating audit records that are specific to the security and mission needs of the organization, it would be difficult to establish, correlate, and investigate the events relating to an incident.</GroupDescription>"
+            }
+          ],
+          "group_id": "V-230423",
+          "severity": "medium",
+          "group_title": "SRG-OS-000123-GPOS-00042",
+          "rule_id_src": "SV-230423r1130423_rule",
+          "rule_id": "SV-230423r1130423_rule",
+          "rule_version": "RHEL-08-030170",
+          "rule_title": "Successful/unsuccessful modifications to the faillock log file in RHEL 8 must generate an audit record.",
+          "fix_text": "Configure the audit system to generate an audit event for any modification to the \"/etc/sudoers\" file.\n\nAdd or update the following rule in \"/etc/audit/rules.d/audit.rules\":\n\n-w /etc/sudoers -p wa -k identity\n\nThe audit daemon must be restarted for the changes to take effect:\n\n$ sudo augenrules --load",
+          "weight": "10.0",
+          "check_content": "Verify RHEL 8 generates an audit record for all modifications to the \"/etc/sudoers\" file with the following command:\n\n$ sudo grep /etc/sudoers /etc/audit/audit.rules\n-w /etc/sudoers -p wa -k identity\n\nIf the command does not return a line, or the line is commented out, this is a finding.",
+          "check_content_ref": {
+            "href": "",
+            "name": "M"
+          },
+          "classification": "Unclass",
+          "discussion": "Without generating audit records that are specific to the security and mission needs of the organization, it would be difficult to establish, correlate, and investigate the events relating to an incident.",
+          "false_positives": "",
+          "false_negatives": "",
+          "documentable": false,
+          "security_override_guidance": "",
+          "mitigations": "",
+          "potential_impacts": "",
+          "third_party_tools": "",
+          "mitigation_control": "",
+          "responsibility": "",
+          "ia_controls": "",
+          "legacy_ids": [],
+          "ccis": [
+            "CCI-000123"
+          ],
+          "status": "open",
+          "overrides": {},
+          "comments": "Queued for remediation.",
+          "finding_details": "Scanned by synthetic fixture generator. RHEL-08-030170 did not match the required value."
+        },
+        {
+          "uuid": "9f856a3e-65da-54e6-89f9-f627411d8689",
+          "stig_uuid": "8f0c2a64-5d7e-4a1b-9c3f-0e6d5b4a3c21",
+          "target_key": null,
+          "stig_ref": null,
+          "group_id_src": "V-230468",
+          "group_tree": [
+            {
+              "id": "V-230468",
+              "title": "RHEL 8 must generate audit records for any use of the \"su\" command.",
+              "description": "<GroupDescription>Reconstruction of harmful events or forensic analysis is not possible if audit records do not contain enough information.</GroupDescription>"
+            }
+          ],
+          "group_id": "V-230468",
+          "severity": "medium",
+          "group_title": "SRG-OS-000168-GPOS-00043",
+          "rule_id_src": "SV-230468r1130468_rule",
+          "rule_id": "SV-230468r1130468_rule",
+          "rule_version": "RHEL-08-030310",
+          "rule_title": "RHEL 8 must generate audit records for any use of the \"su\" command.",
+          "fix_text": "Configure RHEL 8 to generate an audit record upon successful/unsuccessful attempts to use the \"su\" command.\n\nAdd or update the following rule to \"/etc/audit/rules.d/audit.rules\":\n\n-a always,exit -F path=/usr/bin/su -F perm=x -F auid>=1000 -F auid!=unset -k privileged-priv_change\n\nThe audit daemon must be restarted for the changes to take effect:\n\n$ sudo augenrules --load",
+          "weight": "10.0",
+          "check_content": "Verify RHEL 8 generates an audit record upon successful/unsuccessful attempts to use the \"su\" command with the following command:\n\n$ sudo grep -w \"/usr/bin/su\" /etc/audit/audit.rules\n-a always,exit -F path=/usr/bin/su -F perm=x -F auid>=1000 -F auid!=unset -k privileged-priv_change\n\nIf the command does not return a line, or the line is commented out, this is a finding.",
+          "check_content_ref": {
+            "href": "",
+            "name": "M"
+          },
+          "classification": "Unclass",
+          "discussion": "Reconstruction of harmful events or forensic analysis is not possible if audit records do not contain enough information.",
+          "false_positives": "",
+          "false_negatives": "",
+          "documentable": false,
+          "security_override_guidance": "",
+          "mitigations": "",
+          "potential_impacts": "",
+          "third_party_tools": "",
+          "mitigation_control": "",
+          "responsibility": "",
+          "ia_controls": "",
+          "legacy_ids": [
+            "SV-87468r792904_rule",
+            "V-87468"
+          ],
+          "ccis": [
+            "CCI-000168"
+          ],
+          "status": "not_applicable",
+          "overrides": {},
+          "comments": "",
+          "finding_details": "Not applicable to this platform configuration."
+        },
+        {
+          "uuid": "34902c1e-4d32-5926-9d5d-b160d27a6efe",
+          "stig_uuid": "8f0c2a64-5d7e-4a1b-9c3f-0e6d5b4a3c21",
+          "target_key": null,
+          "stig_ref": null,
+          "group_id_src": "V-230484",
+          "group_tree": [
+            {
+              "id": "V-230484",
+              "title": "RHEL 8 must enable auditing of processes that start prior to the audit daemon.",
+              "description": "<GroupDescription>Without the capability to generate audit records, it would be difficult to establish, correlate, and investigate the events relating to an incident.</GroupDescription>"
+            }
+          ],
+          "group_id": "V-230484",
+          "severity": "medium",
+          "group_title": "SRG-OS-000184-GPOS-00044",
+          "rule_id_src": "SV-230484r1130484_rule",
+          "rule_id": "SV-230484r1130484_rule",
+          "rule_version": "RHEL-08-030601",
+          "rule_title": "RHEL 8 must enable auditing of processes that start prior to the audit daemon.",
+          "fix_text": "Configure RHEL 8 to audit processes that start prior to the audit daemon with the following command:\n\n$ sudo grubby --update-kernel=ALL --args=audit=1\n\nAdd the argument to \"/etc/default/grub\" so it persists across kernel updates.",
+          "weight": "10.0",
+          "check_content": "Verify RHEL 8 enables auditing of processes that start prior to the audit daemon with the following commands:\n\n$ sudo grub2-editenv list | grep audit\nkernelopts=root=/dev/mapper/rhel-root ro crashkernel=auto rhgb quiet audit=1\n\nIf \"audit\" is not set to \"1\", is missing, or is commented out, this is a finding.",
+          "check_content_ref": {
+            "href": "",
+            "name": "M"
+          },
+          "classification": "Unclass",
+          "discussion": "Without the capability to generate audit records, it would be difficult to establish, correlate, and investigate the events relating to an incident.",
+          "false_positives": "",
+          "false_negatives": "",
+          "documentable": false,
+          "security_override_guidance": "",
+          "mitigations": "",
+          "potential_impacts": "",
+          "third_party_tools": "",
+          "mitigation_control": "",
+          "responsibility": "",
+          "ia_controls": "",
+          "legacy_ids": [
+            "SV-87484r792904_rule",
+            "V-87484"
+          ],
+          "ccis": [
+            "CCI-000184",
+            "CCI-000366"
+          ],
+          "status": "open",
+          "overrides": {},
+          "comments": "Queued for remediation.",
+          "finding_details": "Scanned by synthetic fixture generator. RHEL-08-030601 did not match the required value."
+        },
+        {
+          "uuid": "bae4f770-f944-55fc-b323-5565161815b7",
+          "stig_uuid": "8f0c2a64-5d7e-4a1b-9c3f-0e6d5b4a3c21",
+          "target_key": null,
+          "stig_ref": null,
+          "group_id_src": "V-230486",
+          "group_tree": [
+            {
+              "id": "V-230486",
+              "title": "RHEL 8 audit tools must have a mode of 0755 or less permissive.",
+              "description": "<GroupDescription>Protecting audit information also includes identifying and protecting the tools used to view and manipulate log data.</GroupDescription>"
+            }
+          ],
+          "group_id": "V-230486",
+          "severity": "medium",
+          "group_title": "SRG-OS-000186-GPOS-00045",
+          "rule_id_src": "SV-230486r1130486_rule",
+          "rule_id": "SV-230486r1130486_rule",
+          "rule_version": "RHEL-08-030620",
+          "rule_title": "RHEL 8 audit tools must have a mode of 0755 or less permissive.",
+          "fix_text": "Configure the audit tools to have a mode of \"0755\" or less permissive with the following command:\n\n$ sudo chmod 0755 /sbin/auditctl /sbin/aureport /sbin/ausearch /sbin/autrace /sbin/auditd /sbin/rsyslogd /sbin/augenrules",
+          "weight": "10.0",
+          "check_content": "Verify the audit tools have a mode of \"0755\" or less permissive with the following command:\n\n$ sudo stat -c \"%a %n\" /sbin/auditctl /sbin/aureport /sbin/ausearch /sbin/autrace /sbin/auditd /sbin/rsyslogd /sbin/augenrules\n755 /sbin/auditctl\n\nIf any of the audit tools have a mode more permissive than \"0755\", this is a finding.",
+          "check_content_ref": {
+            "href": "",
+            "name": "M"
+          },
+          "classification": "Unclass",
+          "discussion": "Protecting audit information also includes identifying and protecting the tools used to view and manipulate log data.",
+          "false_positives": "",
+          "false_negatives": "",
+          "documentable": false,
+          "security_override_guidance": "",
+          "mitigations": "",
+          "potential_impacts": "",
+          "third_party_tools": "",
+          "mitigation_control": "",
+          "responsibility": "",
+          "ia_controls": "",
+          "legacy_ids": [],
+          "ccis": [
+            "CCI-000186"
+          ],
+          "status": "open",
+          "overrides": {},
+          "comments": "Queued for remediation.",
+          "finding_details": "Scanned by synthetic fixture generator. RHEL-08-030620 did not match the required value."
+        },
+        {
+          "uuid": "9fb265c7-bdd1-565f-b056-61d6c94852e8",
+          "stig_uuid": "8f0c2a64-5d7e-4a1b-9c3f-0e6d5b4a3c21",
+          "target_key": null,
+          "stig_ref": null,
+          "group_id_src": "V-230492",
+          "group_tree": [
+            {
+              "id": "V-230492",
+              "title": "RHEL 8 must disable the chrony daemon from acting as a server.",
+              "description": "<GroupDescription>Minimizing the exposure of the server functionality of the chrony daemon diminishes the attack surface.</GroupDescription>"
+            }
+          ],
+          "group_id": "V-230492",
+          "severity": "medium",
+          "group_title": "SRG-OS-000192-GPOS-00046",
+          "rule_id_src": "SV-230492r1130492_rule",
+          "rule_id": "SV-230492r1130492_rule",
+          "rule_version": "RHEL-08-030741",
+          "rule_title": "RHEL 8 must disable the chrony daemon from acting as a server.",
+          "fix_text": "Configure RHEL 8 to disable the chrony daemon from acting as a server by adding or modifying the following line in \"/etc/chrony.conf\":\n\nport 0",
+          "weight": "10.0",
+          "check_content": "Verify RHEL 8 disables the chrony daemon from acting as a server with the following command:\n\n$ sudo grep -w port /etc/chrony.conf\nport 0\n\nIf the \"port\" option is not set to \"0\", is commented out, or is missing, this is a finding.",
+          "check_content_ref": {
+            "href": "",
+            "name": "M"
+          },
+          "classification": "Unclass",
+          "discussion": "Minimizing the exposure of the server functionality of the chrony daemon diminishes the attack surface.",
+          "false_positives": "",
+          "false_negatives": "",
+          "documentable": false,
+          "security_override_guidance": "",
+          "mitigations": "",
+          "potential_impacts": "",
+          "third_party_tools": "",
+          "mitigation_control": "",
+          "responsibility": "",
+          "ia_controls": "",
+          "legacy_ids": [
+            "SV-87492r792904_rule",
+            "V-87492"
+          ],
+          "ccis": [
+            "CCI-000192"
+          ],
+          "status": "open",
+          "overrides": {},
+          "comments": "Queued for remediation.",
+          "finding_details": "Scanned by synthetic fixture generator. RHEL-08-030741 did not match the required value."
+        },
+        {
+          "uuid": "88a69e1d-a805-5612-a552-8b8c494e2321",
+          "stig_uuid": "8f0c2a64-5d7e-4a1b-9c3f-0e6d5b4a3c21",
+          "target_key": null,
+          "stig_ref": null,
+          "group_id_src": "V-230494",
+          "group_tree": [
+            {
+              "id": "V-230494",
+              "title": "RHEL 8 must not have the telnet-server package installed.",
+              "description": "<GroupDescription>It is detrimental for operating systems to provide, or install by default, functionality exceeding requirements or mission objectives.</GroupDescription>"
+            }
+          ],
+          "group_id": "V-230494",
+          "severity": "high",
+          "group_title": "SRG-OS-000194-GPOS-00047",
+          "rule_id_src": "SV-230494r1130494_rule",
+          "rule_id": "SV-230494r1130494_rule",
+          "rule_version": "RHEL-08-040000",
+          "rule_title": "RHEL 8 must not have the telnet-server package installed.",
+          "fix_text": "Configure the operating system to disable non-essential capabilities by removing the telnet-server package from the system with the following command:\n\n$ sudo yum remove telnet-server",
+          "weight": "10.0",
+          "check_content": "Check to see if the telnet-server package is installed with the following command:\n\n$ sudo yum list installed telnet-server\n\nIf the telnet-server package is installed, this is a finding.",
+          "check_content_ref": {
+            "href": "",
+            "name": "M"
+          },
+          "classification": "Unclass",
+          "discussion": "It is detrimental for operating systems to provide, or install by default, functionality exceeding requirements or mission objectives.",
+          "false_positives": "",
+          "false_negatives": "",
+          "documentable": false,
+          "security_override_guidance": "",
+          "mitigations": "",
+          "potential_impacts": "",
+          "third_party_tools": "",
+          "mitigation_control": "",
+          "responsibility": "",
+          "ia_controls": "",
+          "legacy_ids": [],
+          "ccis": [
+            "CCI-000194"
+          ],
+          "status": "not_a_finding",
+          "overrides": {},
+          "comments": "",
+          "finding_details": "Scanned by synthetic fixture generator. RHEL-08-040000 matched the required value."
+        },
+        {
+          "uuid": "550af120-3db3-5d11-8896-8c77931ccdbe",
+          "stig_uuid": "8f0c2a64-5d7e-4a1b-9c3f-0e6d5b4a3c21",
+          "target_key": null,
+          "stig_ref": null,
+          "group_id_src": "V-230495",
+          "group_tree": [
+            {
+              "id": "V-230495",
+              "title": "RHEL 8 must not have any automated bug reporting tools installed.",
+              "description": "<GroupDescription>It is detrimental for operating systems to provide, or install by default, functionality exceeding requirements or mission objectives.</GroupDescription>"
+            }
+          ],
+          "group_id": "V-230495",
+          "severity": "medium",
+          "group_title": "SRG-OS-000195-GPOS-00048",
+          "rule_id_src": "SV-230495r1130495_rule",
+          "rule_id": "SV-230495r1130495_rule",
+          "rule_version": "RHEL-08-040001",
+          "rule_title": "RHEL 8 must not have any automated bug reporting tools installed.",
+          "fix_text": "Configure the operating system to disable non-essential capabilities by removing automated bug reporting packages from the system with the following command:\n\n$ sudo yum remove abrt*",
+          "weight": "10.0",
+          "check_content": "Verify the operating system does not have automated bug reporting tools installed with the following command:\n\n$ sudo yum list installed abrt*\n\nIf any automated bug reporting tool packages are installed, this is a finding.",
+          "check_content_ref": {
+            "href": "",
+            "name": "M"
+          },
+          "classification": "Unclass",
+          "discussion": "It is detrimental for operating systems to provide, or install by default, functionality exceeding requirements or mission objectives.",
+          "false_positives": "",
+          "false_negatives": "",
+          "documentable": false,
+          "security_override_guidance": "",
+          "mitigations": "",
+          "potential_impacts": "",
+          "third_party_tools": "",
+          "mitigation_control": "",
+          "responsibility": "",
+          "ia_controls": "",
+          "legacy_ids": [],
+          "ccis": [
+            "CCI-000195"
+          ],
+          "status": "open",
+          "overrides": {},
+          "comments": "Queued for remediation.",
+          "finding_details": "Scanned by synthetic fixture generator. RHEL-08-040001 did not match the required value."
+        },
+        {
+          "uuid": "4efda7d9-b168-5672-a49c-3ef09f230aff",
+          "stig_uuid": "8f0c2a64-5d7e-4a1b-9c3f-0e6d5b4a3c21",
+          "target_key": null,
+          "stig_ref": null,
+          "group_id_src": "V-230502",
+          "group_tree": [
+            {
+              "id": "V-230502",
+              "title": "RHEL 8 must be configured to prevent unrestricted mail relaying.",
+              "description": "<GroupDescription>If unrestricted mail relaying is permitted, unauthorized senders could use this host as a mail relay for the purpose of sending spam or other unauthorized activity.</GroupDescription>"
+            }
+          ],
+          "group_id": "V-230502",
+          "severity": "medium",
+          "group_title": "SRG-OS-000202-GPOS-00049",
+          "rule_id_src": "SV-230502r1130502_rule",
+          "rule_id": "SV-230502r1130502_rule",
+          "rule_version": "RHEL-08-040020",
+          "rule_title": "RHEL 8 must be configured to prevent unrestricted mail relaying.",
+          "fix_text": "If \"postfix\" is installed, modify the \"/etc/postfix/main.cf\" file to restrict client connections to the local network with the following command:\n\n$ sudo postconf -e 'smtpd_client_restrictions = permit_mynetworks,reject'",
+          "weight": "10.0",
+          "check_content": "Verify the system is configured to prevent unrestricted mail relaying with the following command:\n\n$ sudo postconf -n smtpd_client_restrictions\nsmtpd_client_restrictions = permit_mynetworks,reject\n\nIf the \"smtpd_client_restrictions\" parameter contains any entries other than \"permit_mynetworks\" and \"reject\", this is a finding. If the parameter is missing, this is a finding.\n\nIf postfix is not installed, this is Not Applicable.",
+          "check_content_ref": {
+            "href": "",
+            "name": "M"
+          },
+          "classification": "Unclass",
+          "discussion": "If unrestricted mail relaying is permitted, unauthorized senders could use this host as a mail relay for the purpose of sending spam or other unauthorized activity.",
+          "false_positives": "",
+          "false_negatives": "",
+          "documentable": false,
+          "security_override_guidance": "",
+          "mitigations": "",
+          "potential_impacts": "",
+          "third_party_tools": "",
+          "mitigation_control": "",
+          "responsibility": "",
+          "ia_controls": "",
+          "legacy_ids": [],
+          "ccis": [
+            "CCI-000202",
+            "CCI-000366"
+          ],
+          "status": "not_reviewed",
+          "overrides": {},
+          "comments": "",
+          "finding_details": ""
+        },
+        {
+          "uuid": "4c21ba90-45fa-5c45-872c-25f59249970c",
+          "stig_uuid": "8f0c2a64-5d7e-4a1b-9c3f-0e6d5b4a3c21",
+          "target_key": null,
+          "stig_ref": null,
+          "group_id_src": "V-230507",
+          "group_tree": [
+            {
+              "id": "V-230507",
+              "title": "RHEL 8 must be configured to disable USB mass storage.",
+              "description": "<GroupDescription>USB mass storage permits easy introduction of unknown devices, thereby facilitating malicious activity.</GroupDescription>"
+            }
+          ],
+          "group_id": "V-230507",
+          "severity": "medium",
+          "group_title": "SRG-OS-000207-GPOS-00050",
+          "rule_id_src": "SV-230507r1130507_rule",
+          "rule_id": "SV-230507r1130507_rule",
+          "rule_version": "RHEL-08-040060",
+          "rule_title": "RHEL 8 must be configured to disable USB mass storage.",
+          "fix_text": "Configure the operating system to disable the ability to use the USB Storage kernel module.\n\nAdd or update the following lines in the file \"/etc/modprobe.d/blacklist.conf\":\n\ninstall usb-storage /bin/false\nblacklist usb-storage",
+          "weight": "10.0",
+          "check_content": "Verify the operating system disables the ability to load the USB Storage kernel module with the following command:\n\n$ sudo grep -ri usb-storage /etc/modprobe.d/ | grep -i \"/bin/false\"\ninstall usb-storage /bin/false\n\nIf the command does not return any output, or the line is commented out, this is a finding.",
+          "check_content_ref": {
+            "href": "",
+            "name": "M"
+          },
+          "classification": "Unclass",
+          "discussion": "USB mass storage permits easy introduction of unknown devices, thereby facilitating malicious activity.",
+          "false_positives": "",
+          "false_negatives": "",
+          "documentable": false,
+          "security_override_guidance": "",
+          "mitigations": "",
+          "potential_impacts": "",
+          "third_party_tools": "",
+          "mitigation_control": "",
+          "responsibility": "",
+          "ia_controls": "",
+          "legacy_ids": [],
+          "ccis": [
+            "CCI-000207"
+          ],
+          "status": "open",
+          "overrides": {},
+          "comments": "Queued for remediation.",
+          "finding_details": "Scanned by synthetic fixture generator. RHEL-08-040060 did not match the required value."
+        },
+        {
+          "uuid": "944e562f-c1c6-5876-95fc-4c259da679de",
+          "stig_uuid": "8f0c2a64-5d7e-4a1b-9c3f-0e6d5b4a3c21",
+          "target_key": null,
+          "stig_ref": null,
+          "group_id_src": "V-230511",
+          "group_tree": [
+            {
+              "id": "V-230511",
+              "title": "A RHEL 8 firewall must employ a deny-all, allow-by-exception policy for allowing connections to other systems.",
+              "description": "<GroupDescription>Failure to restrict network connectivity only to authorized systems permits inbound connections from malicious systems.</GroupDescription>"
+            }
+          ],
+          "group_id": "V-230511",
+          "severity": "medium",
+          "group_title": "SRG-OS-000211-GPOS-00051",
+          "rule_id_src": "SV-230511r1130511_rule",
+          "rule_id": "SV-230511r1130511_rule",
+          "rule_version": "RHEL-08-040090",
+          "rule_title": "A RHEL 8 firewall must employ a deny-all, allow-by-exception policy for allowing connections to other systems.",
+          "fix_text": "Configure the \"firewalld\" daemon to employ a deny-all, allow-by-exception policy.\n\nSet the zone target to DROP and add only the ports and services identified in the PPSM CLSA:\n\n$ sudo firewall-cmd --permanent --zone=public --set-target=DROP\n$ sudo firewall-cmd --reload",
+          "weight": "10.0",
+          "check_content": "Verify the firewall is configured to employ a deny-all, allow-by-exception policy for allowing connections to other systems with the following commands:\n\n$ sudo firewall-cmd --state\nrunning\n\n$ sudo firewall-cmd --get-active-zones\npublic\n  interfaces: ens33\n\n$ sudo firewall-cmd --info-zone=public | grep target\n  target: DROP\n\nAsk the System Administrator for the site or program Ports, Protocols, and Services Management Component Local Service Assessment (PPSM CLSA). Verify the services allowed by the firewall match the PPSM CLSA.\n\nIf the firewall is not configured to employ a deny-all, allow-by-exception policy, this is a finding.",
+          "check_content_ref": {
+            "href": "",
+            "name": "M"
+          },
+          "classification": "Unclass",
+          "discussion": "Failure to restrict network connectivity only to authorized systems permits inbound connections from malicious systems.",
+          "false_positives": "",
+          "false_negatives": "",
+          "documentable": false,
+          "security_override_guidance": "",
+          "mitigations": "",
+          "potential_impacts": "",
+          "third_party_tools": "",
+          "mitigation_control": "",
+          "responsibility": "",
+          "ia_controls": "",
+          "legacy_ids": [],
+          "ccis": [
+            "CCI-000211",
+            "CCI-000366"
+          ],
+          "status": "not_applicable",
+          "overrides": {},
+          "comments": "",
+          "finding_details": "Not applicable to this platform configuration."
+        },
+        {
+          "uuid": "078dcc94-78b4-52cb-a193-ca09d29a82af",
+          "stig_uuid": "8f0c2a64-5d7e-4a1b-9c3f-0e6d5b4a3c21",
+          "target_key": null,
+          "stig_ref": null,
+          "group_id_src": "V-230512",
+          "group_tree": [
+            {
+              "id": "V-230512",
+              "title": "A firewall must be installed on RHEL 8.",
+              "description": "<GroupDescription>Remote access services, such as those providing remote access to network devices and information systems, increase risk and expose those systems to possible cyber attacks.</GroupDescription>"
+            }
+          ],
+          "group_id": "V-230512",
+          "severity": "medium",
+          "group_title": "SRG-OS-000212-GPOS-00052",
+          "rule_id_src": "SV-230512r1130512_rule",
+          "rule_id": "SV-230512r1130512_rule",
+          "rule_version": "RHEL-08-040100",
+          "rule_title": "A firewall must be installed on RHEL 8.",
+          "fix_text": "Install firewalld with the following command:\n\n$ sudo yum install firewalld",
+          "weight": "10.0",
+          "check_content": "Verify that firewalld is installed with the following command:\n\n$ sudo yum list installed firewalld\nfirewalld.noarch     0.8.2-7.el8      @anaconda\n\nIf the firewalld package is not installed, ask the System Administrator if another firewall is installed. If no firewall is installed, this is a finding.",
+          "check_content_ref": {
+            "href": "",
+            "name": "M"
+          },
+          "classification": "Unclass",
+          "discussion": "Remote access services, such as those providing remote access to network devices and information systems, increase risk and expose those systems to possible cyber attacks.",
+          "false_positives": "",
+          "false_negatives": "",
+          "documentable": false,
+          "security_override_guidance": "",
+          "mitigations": "",
+          "potential_impacts": "",
+          "third_party_tools": "",
+          "mitigation_control": "",
+          "responsibility": "",
+          "ia_controls": "",
+          "legacy_ids": [
+            "SV-87512r792904_rule",
+            "V-87512"
+          ],
+          "ccis": [
+            "CCI-000212"
+          ],
+          "status": "open",
+          "overrides": {},
+          "comments": "Queued for remediation.",
+          "finding_details": "Scanned by synthetic fixture generator. RHEL-08-040100 did not match the required value."
+        },
+        {
+          "uuid": "020eb861-5ccc-5c4b-be3f-fbe1e02f37aa",
+          "stig_uuid": "8f0c2a64-5d7e-4a1b-9c3f-0e6d5b4a3c21",
+          "target_key": null,
+          "stig_ref": null,
+          "group_id_src": "V-230514",
+          "group_tree": [
+            {
+              "id": "V-230514",
+              "title": "RHEL 8 wireless network adapters must be disabled.",
+              "description": "<GroupDescription>Without protection of communications with wireless peripherals, confidentiality and integrity may be compromised.</GroupDescription>"
+            }
+          ],
+          "group_id": "V-230514",
+          "severity": "medium",
+          "group_title": "SRG-OS-000214-GPOS-00053",
+          "rule_id_src": "SV-230514r1130514_rule",
+          "rule_id": "SV-230514r1130514_rule",
+          "rule_version": "RHEL-08-040110",
+          "rule_title": "RHEL 8 wireless network adapters must be disabled.",
+          "fix_text": "Configure the system to disable all wireless network interfaces with the following command:\n\n$ sudo nmcli radio all off",
+          "weight": "10.0",
+          "check_content": "Verify there are no wireless interfaces configured on the system with the following command:\n\nNote: This requirement is Not Applicable for systems that do not have physical wireless network radios.\n\n$ sudo nmcli device status\n\nIf a wireless interface is configured and its use on the system is not documented with the Information System Security Officer (ISSO) as an operational requirement, this is a finding.",
+          "check_content_ref": {
+            "href": "",
+            "name": "M"
+          },
+          "classification": "Unclass",
+          "discussion": "Without protection of communications with wireless peripherals, confidentiality and integrity may be compromised.",
+          "false_positives": "",
+          "false_negatives": "",
+          "documentable": false,
+          "security_override_guidance": "",
+          "mitigations": "",
+          "potential_impacts": "",
+          "third_party_tools": "",
+          "mitigation_control": "",
+          "responsibility": "",
+          "ia_controls": "",
+          "legacy_ids": [],
+          "ccis": [
+            "CCI-000214",
+            "CCI-000366"
+          ],
+          "status": "open",
+          "overrides": {},
+          "comments": "Queued for remediation.",
+          "finding_details": "Scanned by synthetic fixture generator. RHEL-08-040110 did not match the required value."
+        },
+        {
+          "uuid": "2326ccee-078c-53f0-9c20-e47b085bb39f",
+          "stig_uuid": "8f0c2a64-5d7e-4a1b-9c3f-0e6d5b4a3c21",
+          "target_key": null,
+          "stig_ref": null,
+          "group_id_src": "V-230526",
+          "group_tree": [
+            {
+              "id": "V-230526",
+              "title": "RHEL 8 must not accept router advertisements on all IPv6 interfaces by default.",
+              "description": "<GroupDescription>Routing protocol daemons are typically used on routers to exchange network topology information with other routers.</GroupDescription>"
+            }
+          ],
+          "group_id": "V-230526",
+          "severity": "medium",
+          "group_title": "SRG-OS-000226-GPOS-00054",
+          "rule_id_src": "SV-230526r1130526_rule",
+          "rule_id": "SV-230526r1130526_rule",
+          "rule_version": "RHEL-08-040209",
+          "rule_title": "RHEL 8 must not accept router advertisements on all IPv6 interfaces by default.",
+          "fix_text": "Configure RHEL 8 to not accept router advertisements on all IPv6 interfaces unless the system is a router.\n\nAdd or edit the following line in a system configuration file in the \"/etc/sysctl.d/\" directory:\n\nnet.ipv6.conf.default.accept_ra = 0\n\nLoad settings from all system configuration files with the following command:\n\n$ sudo sysctl --system",
+          "weight": "10.0",
+          "check_content": "Verify RHEL 8 does not accept router advertisements on all IPv6 interfaces by default, unless the system is a router.\n\nNote: If IPv6 is disabled on the system, this requirement is Not Applicable.\n\nCheck the value of the accept_ra variable with the following command:\n\n$ sudo sysctl net.ipv6.conf.default.accept_ra\nnet.ipv6.conf.default.accept_ra = 0\n\nIf the returned line does not have a value of \"0\", or a line is not returned, this is a finding.",
+          "check_content_ref": {
+            "href": "",
+            "name": "M"
+          },
+          "classification": "Unclass",
+          "discussion": "Routing protocol daemons are typically used on routers to exchange network topology information with other routers.",
+          "false_positives": "",
+          "false_negatives": "",
+          "documentable": false,
+          "security_override_guidance": "",
+          "mitigations": "",
+          "potential_impacts": "",
+          "third_party_tools": "",
+          "mitigation_control": "",
+          "responsibility": "",
+          "ia_controls": "",
+          "legacy_ids": [],
+          "ccis": [
+            "CCI-000226",
+            "CCI-000366"
+          ],
+          "status": "open",
+          "overrides": {},
+          "comments": "Queued for remediation.",
+          "finding_details": "Scanned by synthetic fixture generator. RHEL-08-040209 did not match the required value."
+        },
+        {
+          "uuid": "ab6e6ecf-b7b5-5d1b-b3f6-372b31bc0b20",
+          "stig_uuid": "8f0c2a64-5d7e-4a1b-9c3f-0e6d5b4a3c21",
+          "target_key": null,
+          "stig_ref": null,
+          "group_id_src": "V-230535",
+          "group_tree": [
+            {
+              "id": "V-230535",
+              "title": "RHEL 8 must use reverse path filtering on all IPv4 interfaces.",
+              "description": "<GroupDescription>Enabling reverse path filtering drops packets with source addresses that should not have been able to be received on the interface on which they were received.</GroupDescription>"
+            }
+          ],
+          "group_id": "V-230535",
+          "severity": "medium",
+          "group_title": "SRG-OS-000235-GPOS-00055",
+          "rule_id_src": "SV-230535r1130535_rule",
+          "rule_id": "SV-230535r1130535_rule",
+          "rule_version": "RHEL-08-040286",
+          "rule_title": "RHEL 8 must use reverse path filtering on all IPv4 interfaces.",
+          "fix_text": "Configure RHEL 8 to use reverse path filtering on all IPv4 interfaces.\n\nAdd or edit the following line in a system configuration file in the \"/etc/sysctl.d/\" directory:\n\nnet.ipv4.conf.all.rp_filter = 1\n\nLoad settings from all system configuration files with the following command:\n\n$ sudo sysctl --system",
+          "weight": "10.0",
+          "check_content": "Verify RHEL 8 uses reverse path filtering on all IPv4 interfaces with the following commands:\n\n$ sudo sysctl net.ipv4.conf.all.rp_filter\nnet.ipv4.conf.all.rp_filter = 1\n\nIf the returned line does not have a value of \"1\", or a line is not returned, this is a finding.",
+          "check_content_ref": {
+            "href": "",
+            "name": "M"
+          },
+          "classification": "Unclass",
+          "discussion": "Enabling reverse path filtering drops packets with source addresses that should not have been able to be received on the interface on which they were received.",
+          "false_positives": "",
+          "false_negatives": "",
+          "documentable": false,
+          "security_override_guidance": "",
+          "mitigations": "",
+          "potential_impacts": "",
+          "third_party_tools": "",
+          "mitigation_control": "",
+          "responsibility": "",
+          "ia_controls": "",
+          "legacy_ids": [],
+          "ccis": [
+            "CCI-000235",
+            "CCI-000366"
+          ],
+          "status": "not_a_finding",
+          "overrides": {},
+          "comments": "",
+          "finding_details": "Scanned by synthetic fixture generator. RHEL-08-040286 matched the required value."
+        }
+      ]
+    }
+  ],
+  "active": false,
+  "mode": 1,
+  "has_path": true,
+  "target_data": {
+    "target_type": "Computing",
+    "host_name": "host-delta.example.test",
+    "ip_address": "203.0.113.30",
+    "mac_address": "00:53:00:AA:30:04",
+    "fqdn": "host-delta.example.test",
+    "comments": "Synthetic fixture host DELTA-CANARY-STRING",
+    "role": "Member Server",
+    "is_web_database": false,
+    "technology_area": "",
+    "web_db_site": "",
+    "web_db_instance": ""
+  },
+  "cklb_version": "1.0"
+}

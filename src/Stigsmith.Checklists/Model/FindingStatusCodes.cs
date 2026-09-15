@@ -4,7 +4,7 @@ namespace Stigsmith.Checklists.Model;
 /// Status tokens differ per format: .ckl uses "NotAFinding" / "Not_Applicable", .cklb uses
 /// snake_case, XCCDF uses pass/fail/notapplicable. Kept together so a new format adds one method.
 /// </summary>
-public static class StatusCodes
+public static class FindingStatusCodes
 {
     public static FindingStatus FromCkl(string? v) => v?.Trim() switch
     {

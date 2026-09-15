@@ -53,14 +53,18 @@ public sealed record Checklist
         Findings.GroupBy(f => f.Status).ToDictionary(g => g.Key, g => g.Count());
 
     /// <summary>
-    /// Replaces findings by rule id, leaving everything else (including raw passthrough) untouched.
-    /// Used when a review pass or a validated remediation updates statuses and comments.
+    /// Applies review verdicts by rule id. Rule content, and the format-specific passthrough behind
+    /// it, are left exactly as they were read — only the three fields an operator (or a validated
+    /// remediation) actually changes are written. Narrow on purpose: a signature that took whole
+    /// findings would let a caller holding a partially-populated rule overwrite real rule content.
     /// </summary>
-    public Checklist WithFindingUpdates(IReadOnlyDictionary<string, Finding> updatesByRuleId) => this with
+    public Checklist WithReviews(IReadOnlyDictionary<string, FindingReview> reviewsByRuleId) => this with
     {
         Stigs = [.. Stigs.Select(s => s with
         {
-            Findings = [.. s.Findings.Select(f => updatesByRuleId.TryGetValue(f.Rule.RuleId, out var u) ? u with { Raw = f.Raw } : f)],
+            Findings = [.. s.Findings.Select(f => reviewsByRuleId.TryGetValue(f.Rule.RuleId, out var r)
+                ? f with { Status = r.Status, FindingDetails = r.FindingDetails, Comments = r.Comments }
+                : f)],
         })],
     };
 }

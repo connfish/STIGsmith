@@ -1,6 +1,5 @@
 using System.Net;
 using System.Xml.Linq;
-using Stigsmith.Checklists.Ckl;
 using Stigsmith.Checklists.Model;
 
 namespace Stigsmith.Checklists.Xccdf;
@@ -221,7 +220,7 @@ public static class XccdfReader
         return new Finding
         {
             Rule = rule,
-            Status = StatusCodes.FromXccdf(result),
+            Status = FindingStatusCodes.FromXccdf(result),
             FindingDetails = string.Join("\n", new[] { $"SCAP result: {result}" }.Concat(messages)),
             Comments = "",
         };

@@ -133,7 +133,7 @@ public static class CklReader
         return new Finding
         {
             Rule = rule,
-            Status = StatusCodes.FromCkl(vuln.Element("STATUS")?.Value),
+            Status = FindingStatusCodes.FromCkl(vuln.Element("STATUS")?.Value),
             FindingDetails = vuln.Element("FINDING_DETAILS")?.Value ?? "",
             Comments = vuln.Element("COMMENTS")?.Value ?? "",
             SeverityOverride = vuln.Element("SEVERITY_OVERRIDE")?.Value ?? "",
@@ -142,5 +142,3 @@ public static class CklReader
         };
     }
 }
-
-public sealed class ChecklistFormatException(string message) : Exception(message);
