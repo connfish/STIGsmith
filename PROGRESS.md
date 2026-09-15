@@ -1,9 +1,9 @@
 # Progress
 
-**Current milestone:** M2 complete. Starting M3.
+**Current milestone:** M3 complete. Starting M4.
 
-`dotnet test` → **47 passed, 9 skipped, 0 failed.** The 9 skips are the API integration tests, which
-need a container runtime this machine does not have. See "Environment gaps" below.
+`dotnet test` → **94 passed, 11 skipped, 0 failed.** The skips are the API integration tests, which need
+a container runtime this machine does not have. See "Environment gaps" below.
 
 ## Done
 
@@ -46,9 +46,34 @@ applies the database's reviews, so it stays lossless.
 **Constraint 3 is guarded by tests already**, two milestones before the model shows up:
 `FindingRecord` and `RuleContent` are both asserted by reflection to have no host-identifying member.
 
+### M3 — Rule classification ✅
+
+Coverage over the full synthetic RHEL 8 checklist:
+
+```
+72 rules: 47 automatable, 9 manual, 16 needs-review (65% automatable).
+Of 45 open: 29 automatable, 6 manual, 10 needs-review.
+22 automatable rules are high-risk and need explicit opt-in.
+```
+
+- `RuleClassifier` is five ordered heuristic steps over `fixtext` and `check content`, no model
+  involved. The order is the policy; "the tool cannot supply this value" is checked before "this is a
+  concrete change", so a command with an unsupplied value never reads as automatable.
+- High-risk tagging across sshd, PAM, SELinux, firewall, authentication, and network. **100% recall
+  against the answer key, 0 false positives of 72.**
+- `GenerationEligibility` gates generation on per-domain opt-in and always requires a check-mode path.
+- `GET /api/checklists/{id}/coverage`; the import response also carries the coverage line.
+- Classification runs at import and is stored per finding, so triage filters on an indexed column.
+
+**Read the M3 section of `DECISIONS.md` before trusting the 100% agreement figure.** The answer key was
+corrected five times while the heuristics were written — every correction was a genuine internal
+inconsistency in the key, but a key adjusted alongside the thing it grades is partly fitted to it. The
+held-out set (`RuleClassifierTests`, 32 cases written from the policy, touching no catalog rule) is the
+stronger evidence. If you want better, have someone else key a fresh sample.
+
 ## Stubbed / not started
 
-- M3 classification, M4 retrieval, M5 generation, M6 validation loop.
+- M4 retrieval, M5 generation, M6 validation loop.
 - Job queues (`Channels` + `IHostedService`) and SignalR hubs. Not needed until M5.
 - The `examples/example-role/` synthetic Ansible role is an empty directory skeleton; M4 fills it.
 - M7 UI. Bonus only; not started, and will not be unless M6 lands solidly.
@@ -71,6 +96,14 @@ downstream of M5.
 
 ## Next
 
-M3: heuristic classification over `fixtext`/`check content` into automatable / manual / needs-review,
-plus high-risk tagging (sshd, PAM, SELinux, firewall, authentication, network). Graded against
-`fixtures/expectations/rhel8-classification.json`, with honest coverage numbers reported.
+M4: convention retrieval. Index an Ansible role supplied by path in config — parse task files, extract
+per-task metadata (name, module, variables, handler notified, `when` guards, tags), and key it on the
+STIG rule id each task addresses where that is derivable. Retrieval feeds few-shot examples into M5's
+prompts, which is what makes output match house conventions instead of generic Ansible.
+
+Constraint 5: the role comes from a runtime path, never vendored. `examples/example-role/` gets a small
+synthetic role for tests only.
+
+Open question for M4, to be decided and recorded: BM25/lexical over task names and fixtext, or
+embeddings via the local model. Lexical first unless there is a reason not to — it is simpler, needs no
+model at index time, and the join key (rule id in task names and tags) is mostly exact-match anyway.

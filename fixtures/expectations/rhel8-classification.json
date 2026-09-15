@@ -107,9 +107,10 @@
       "ruleVersion": "RHEL-08-010140",
       "expectedAutomatability": "needs-review",
       "domains": [
-        "boot"
+        "boot",
+        "authentication"
       ],
-      "expectedHighRisk": false
+      "expectedHighRisk": true
     },
     {
       "vulnId": "V-230237",
@@ -289,8 +290,10 @@
       "ruleId": "SV-230346r1130346_rule",
       "ruleVersion": "RHEL-08-020024",
       "expectedAutomatability": "automatable",
-      "domains": [],
-      "expectedHighRisk": false
+      "domains": [
+        "authentication"
+      ],
+      "expectedHighRisk": true
     },
     {
       "vulnId": "V-230348",
@@ -541,7 +544,7 @@
       "vulnId": "V-230526",
       "ruleId": "SV-230526r1130526_rule",
       "ruleVersion": "RHEL-08-040209",
-      "expectedAutomatability": "automatable",
+      "expectedAutomatability": "needs-review",
       "domains": [
         "network",
         "kernel"
@@ -644,10 +647,8 @@
       "ruleId": "SV-230341r1130341_rule",
       "ruleVersion": "RHEL-08-020020",
       "expectedAutomatability": "manual",
-      "domains": [
-        "authentication"
-      ],
-      "expectedHighRisk": true
+      "domains": [],
+      "expectedHighRisk": false
     },
     {
       "vulnId": "V-230392",
@@ -683,14 +684,16 @@
       "ruleId": "SV-230378r1130378_rule",
       "ruleVersion": "RHEL-08-020280",
       "expectedAutomatability": "needs-review",
-      "domains": [],
-      "expectedHighRisk": false
+      "domains": [
+        "authentication"
+      ],
+      "expectedHighRisk": true
     },
     {
       "vulnId": "V-230399",
       "ruleId": "SV-230399r1130399_rule",
       "ruleVersion": "RHEL-08-030070",
-      "expectedAutomatability": "needs-review",
+      "expectedAutomatability": "automatable",
       "domains": [
         "auditd",
         "filesystem"

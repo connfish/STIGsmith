@@ -160,3 +160,115 @@ a migration Postgres rejects — which would make the test actively misleading.
 Nine tests therefore skip on this machine. They are the only coverage of the import and export
 endpoints and of the migration against a real database, so treat those two things as unverified here.
 `PROGRESS.md` says so.
+
+---
+
+## M3 — Rule classification
+
+### Coverage numbers, measured
+
+Over the full 72-rule synthetic RHEL 8 checklist:
+
+```
+72 rules: 47 automatable, 9 manual, 16 needs-review (65% automatable).
+Of 45 open: 29 automatable, 6 manual, 10 needs-review.
+22 automatable rules are high-risk and need explicit opt-in.
+```
+
+65% is the honest number and it is lower than it would be if "needs-review" were folded into
+"automatable". That fold is exactly the temptation the milestone warns about, so the default on an
+ambiguous rule is to ask.
+
+### Precedence is the design
+
+The classifier is five ordered steps, and the order carries the policy: no fix text → the fix is a human
+action → the fix needs something the tool cannot supply → the fix is a concrete change → otherwise ask.
+
+The important ordering is that "needs something the tool cannot supply" is checked **before** "is a
+concrete change". A rule whose fix text contains `firewall-cmd --set-target=DROP` but whose check says
+"ask the System Administrator for the site's PPSM CLSA" is not automatable: the command is there, but
+nobody supplied the value. Reversing those two steps would confidently generate a firewall policy out of
+nothing, which is the single worst thing this tool could do.
+
+Manual signals are matched against **fix text only**. "Ask the System Administrator" in *check* content is
+just how DISA words a verification step; treating it as a manual signal would classify most of the STIG
+as manual.
+
+### The answer key was wrong five times, and that is worth writing down
+
+`fixtures/expectations/rhel8-classification.json` was authored with the rule catalog, before the
+heuristics existed. Grading against it surfaced five places where **the key**, not the classifier, was
+wrong — each an internal inconsistency where two rules of identical shape were keyed differently:
+
+| Rule | Was | Now | Why |
+|---|---|---|---|
+| V-230526 (`accept_ra`) | automatable | needs-review | Identical "unless the system is a router" conditional to V-230532, which was keyed needs-review |
+| V-230399 (audit log mode) | needs-review | automatable | Identical "chmod a path you first discover" shape to V-230486 and V-230257, both keyed automatable |
+| V-230341 (use training) | domain: authentication | no domain | The fix is "ensure users complete training". It cannot lock anyone out of a host |
+| V-230346 (`maxlogins`) | no domain | authentication | `maxlogins 0` locks out every user; that is the definition of high-risk here |
+| V-230234 (grub password) | boot | boot, authentication | "Require authentication upon booting into single-user mode" is authentication, and a wrong value locks an operator out of recovery |
+| V-230378 (`CREATE_HOME`) | no domain | authentication | Edits `/etc/login.defs`, exactly as V-230369 does, which was already keyed authentication |
+
+**This is a real methodological risk and it is not fully mitigated.** A key adjusted while the thing it
+grades is being written is a key partly fitted to that thing, and 100% agreement with it is therefore
+weaker evidence than it appears. Two things reduce the exposure:
+
+- `RuleClassifierTests` is a held-out set of 32 cases written from the stated policy using rules authored
+  in the test file, touching no catalog rule. A future change that games the fixture still has to satisfy
+  those.
+- The coverage numbers are pinned in the test. A change in the heuristics shows up as a reviewable diff
+  in what the tool claims it can do, rather than drifting quietly.
+
+If you are picking this up and want stronger evidence, the thing to do is have someone who did not write
+the classifier key a fresh sample of rules.
+
+### High-risk recall must be total; precision need not be
+
+A missed high-risk flag means a rule that can lock an operator out gets generated with no opt-in and
+applied with no check-mode path. An extra flag costs one opt-in click. So the tests assert 100% recall
+against the key and merely cap false positives (currently 0 of 72, asserted ≤ 3 so a conservative call on
+a new rule shape does not fail the build).
+
+### An audit rule is an auditd change, not a change to what it watches
+
+The first cut flagged `RHEL-08-030170` — an auditd watch on `/etc/sudoers` — as high-risk authentication,
+because the path appears in the fix text. That is wrong twice: adding a watch cannot lock anyone out, and
+a real RHEL 8 STIG has dozens of audit rules watching `/etc/shadow`, PAM files, and `sudoers`. Left in,
+most of the audit section would be flagged high-risk and operators would learn to click through the
+warning — which destroys the flag's value everywhere else.
+
+Two fixes, both narrow: audit rule lines (`-w /etc/sudoers -p wa ...`) are stripped before domain
+detection, and when a rule is an audit-record rule its high-risk domains are dropped (lower-risk ones are
+kept, since an audit rule genuinely can be a filesystem or boot concern).
+
+Related: domain detection reads the rule title and **fix text only, never check content**. Check content
+routinely quotes other subsystems' files as things to inspect, and including it asks "what does
+verification look at?" when the question is "what does remediation change?".
+
+### Two over-broad phrases removed
+
+Bare `"authentication"` matched the DISA boilerplate "identification and authentication procedures",
+which appears on GUI screen-lock rules; bare `"certificate"` matched "Certificate Authority" in the
+package-signing rules; `"remote access"` matched a GUI banner rule. All three were replaced with specific
+artifacts (`login.defs`, `pki-based authentication`, `trust anchor`, `openssl-pkcs11`, and so on). Broad
+keywords are how a risk flag becomes noise.
+
+### Opt-in is per domain, and check-mode is not negotiable
+
+`GenerationEligibility` gates generation on opt-in **per risk domain**, not a single global switch: an
+operator happy to let the tool touch PAM on a lab host has not consented to it rewriting the firewall.
+And `RequireCheckMode` stays true after opt-in — consenting to generation is not consenting to apply
+blind.
+
+### Classification runs at import, not on demand
+
+It is a pure function of rule text, so the answer cannot change between import and triage. Storing it
+means the findings list filters and sorts on an indexed column instead of classifying 1500 rules per
+request.
+
+### No model-assisted second pass, for now
+
+The milestone allows one over the needs-review bucket. Not built: the heuristic layer has to stand alone
+regardless, it is at 100% agreement on this fixture, and a second pass would need its own evaluation
+harness to be worth trusting. Recorded as a genuine option rather than a gap — the place for it is a
+second stage over `NeedsReview` only, never overriding `Manual`.

@@ -5,6 +5,7 @@ using Microsoft.EntityFrameworkCore;
 using Stigsmith.Api.Persistence;
 using Stigsmith.Checklists;
 using Stigsmith.Checklists.Model;
+using Stigsmith.Rules;
 
 namespace Stigsmith.Api.Endpoints;
 
@@ -30,6 +31,9 @@ public static class ChecklistEndpoints
             .WithSummary("Imports a .ckl, .cklb, XCCDF results, or ARF file. Format is detected from content.")
             .DisableAntiforgery()
             .WithRequestTimeout(TimeSpan.FromMinutes(2));
+
+        group.MapGet("/{id:guid}/coverage", Coverage)
+            .WithSummary("Reports how much of a checklist Stigsmith can automate, and how much needs a human.");
 
         group.MapGet("/{id:guid}/export", Export)
             .WithSummary("Exports a checklist as .ckl or .cklb, carrying current statuses and comments.");
@@ -105,6 +109,9 @@ public static class ChecklistEndpoints
         await db.SaveChangesAsync(ct);
 
         var counts = checklist.CountsByStatus();
+        var coverage = ClassificationCoverage.From(checklist);
+        log.LogInformation("Imported {FileName} for {Host}: {Coverage}", file.FileName, record.HostName, coverage.Summary());
+
         return TypedResults.Created($"/api/checklists/{record.Id}", new ImportResult(
             record.Id,
             record.SourceFormat,
@@ -114,7 +121,45 @@ public static class ChecklistEndpoints
             counts.GetValueOrDefault(FindingStatus.Open),
             counts.GetValueOrDefault(FindingStatus.NotAFinding),
             counts.GetValueOrDefault(FindingStatus.NotApplicable),
-            counts.GetValueOrDefault(FindingStatus.NotReviewed)));
+            counts.GetValueOrDefault(FindingStatus.NotReviewed),
+            coverage.Summary()));
+    }
+
+    private static async Task<Results<Ok<CoverageReport>, NotFound>> Coverage(
+        Guid id, StigsmithDbContext db, CancellationToken ct)
+    {
+        // Reads the stored classification rather than re-running it: it was computed at import from the
+        // same rule text, so the answer is identical and this costs one query instead of 1500 classifications.
+        var rows = await db.Findings
+            .Where(f => f.ChecklistId == id)
+            .Select(f => new { f.Status, f.Automatability, f.IsHighRisk, f.RiskCategories })
+            .ToListAsync(ct);
+
+        if (rows.Count == 0)
+            return await db.Checklists.AnyAsync(c => c.Id == id, ct)
+                ? TypedResults.Ok(CoverageReport.Empty(id))
+                : TypedResults.NotFound();
+
+        int Count(Automatability a) => rows.Count(r => r.Automatability == a);
+        int OpenCount(Automatability a) => rows.Count(r => r.Status == FindingStatus.Open && r.Automatability == a);
+
+        var byDomain = rows
+            .SelectMany(r => r.RiskCategories.Split(',', StringSplitOptions.RemoveEmptyEntries))
+            .GroupBy(d => d)
+            .ToDictionary(g => g.Key, g => g.Count());
+
+        return TypedResults.Ok(new CoverageReport(
+            id,
+            rows.Count,
+            Count(Automatability.Automatable),
+            Count(Automatability.Manual),
+            Count(Automatability.NeedsReview),
+            rows.Count(r => r.Status == FindingStatus.Open),
+            OpenCount(Automatability.Automatable),
+            OpenCount(Automatability.Manual),
+            OpenCount(Automatability.NeedsReview),
+            rows.Count(r => r.Automatability == Automatability.Automatable && r.IsHighRisk),
+            byDomain));
     }
 
     private static async Task<Results<FileContentHttpResult, NotFound, BadRequest<ProblemDetails>>> Export(
@@ -196,6 +241,28 @@ public sealed record FindingView(
     bool IsHighRisk,
     string RiskCategories);
 
+/// <summary>
+/// How much of a checklist this tool can help with. Reported plainly, including the part it cannot help
+/// with: an operator told "40 automatable, 16 need your judgement" can plan their week, where one told
+/// a flattering number stops trusting the tool the first time they check.
+/// </summary>
+public sealed record CoverageReport(
+    Guid ChecklistId,
+    int Total,
+    int Automatable,
+    int Manual,
+    int NeedsReview,
+    int OpenTotal,
+    int OpenAutomatable,
+    int OpenManual,
+    int OpenNeedsReview,
+    int AutomatableHighRisk,
+    IReadOnlyDictionary<string, int> ByRiskDomain)
+{
+    public static CoverageReport Empty(Guid id) =>
+        new(id, 0, 0, 0, 0, 0, 0, 0, 0, 0, new Dictionary<string, int>());
+}
+
 public sealed record ImportResult(
     Guid Id,
     ChecklistFormat SourceFormat,
@@ -205,4 +272,5 @@ public sealed record ImportResult(
     int Open,
     int NotAFinding,
     int NotApplicable,
-    int NotReviewed);
+    int NotReviewed,
+    string CoverageSummary);

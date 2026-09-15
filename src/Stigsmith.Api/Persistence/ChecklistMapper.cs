@@ -1,4 +1,5 @@
 using Stigsmith.Checklists.Model;
+using Stigsmith.Rules;
 
 namespace Stigsmith.Api.Persistence;
 
@@ -47,8 +48,24 @@ public static class ChecklistMapper
         };
     }
 
-    private static FindingRecord ToRecord(Finding f) => new()
+    /// <summary>
+    /// Classification is run at import rather than on demand. It is a pure function of rule text, so the
+    /// answer cannot change between import and triage, and storing it means the findings list can filter
+    /// and sort on it without re-classifying 1500 rules per request.
+    /// </summary>
+    private static FindingRecord ToRecord(Finding f)
     {
+        var classification = RuleClassifier.Classify(f.Rule);
+        return ToRecord(f, classification);
+    }
+
+    private static FindingRecord ToRecord(Finding f, RuleClassification classification) => new()
+    {
+        Automatability = classification.Automatability,
+        ClassificationReason = classification.Reason,
+        IsHighRisk = classification.IsHighRisk,
+        RiskCategories = classification.DomainTokens,
+
         RuleId = f.Rule.RuleId,
         GroupId = f.Rule.GroupId,
         NumericId = f.Rule.NumericId,

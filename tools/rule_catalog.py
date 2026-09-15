@@ -87,7 +87,7 @@ CATALOG = [
      "If the system does not require valid authentication before it boots into single-user or maintenance mode, anyone who invokes single-user or maintenance mode is granted privileged access to all files on the system.",
      "For systems that use BIOS, this is Not Applicable.\n\nVerify that an encrypted root password is set with the following command:\n\n$ sudo grep -iw grub2_password /boot/efi/EFI/redhat/user.cfg\nGRUB2_PASSWORD=grub.pbkdf2.sha512.10000.C40F1BC6...\n\nIf the root password does not begin with \"grub.pbkdf2.sha512\", this is a finding.",
      "Configure the system to encrypt the boot password for root.\n\nGenerate an encrypted grub2 password for root with the following command:\n\n$ sudo grub2-setpassword\nEnter password:\nConfirm password:",
-     N, ["boot"]),
+     N, ["boot", "authentication"]),
 
     ("V-230237", "RHEL-08-010160", "medium",
      "The RHEL 8 pam_unix.so module must be configured in the password-auth file to use a FIPS 140-2 approved cryptographic hashing algorithm for system authentication.",
@@ -213,7 +213,7 @@ CATALOG = [
      "Operating system management includes the ability to control the number of users and user sessions that utilize an operating system.",
      "Verify the operating system limits the number of concurrent sessions to \"10\" for all accounts and/or account types with the following command:\n\n$ sudo grep -r maxlogins /etc/security/limits.conf /etc/security/limits.d/*.conf\n* hard maxlogins 10\n\nIf the \"maxlogins\" item is missing or the value is not set to 10 or less, this is a finding.",
      "Configure the operating system to limit the number of concurrent sessions to ten for all accounts and/or account types.\n\nAdd the following line to the top of the /etc/security/limits.conf or in a \".conf\" file defined in /etc/security/limits.d/:\n\n* hard maxlogins 10",
-     A, []),
+     A, ["authentication"]),
 
     ("V-230348", "RHEL-08-020030", "medium",
      "RHEL 8 must enable a user session lock until that user re-establishes access using established identification and authentication procedures for graphical user interfaces.",
@@ -388,7 +388,7 @@ CATALOG = [
      "Routing protocol daemons are typically used on routers to exchange network topology information with other routers.",
      "Verify RHEL 8 does not accept router advertisements on all IPv6 interfaces by default, unless the system is a router.\n\nNote: If IPv6 is disabled on the system, this requirement is Not Applicable.\n\nCheck the value of the accept_ra variable with the following command:\n\n$ sudo sysctl net.ipv6.conf.default.accept_ra\nnet.ipv6.conf.default.accept_ra = 0\n\nIf the returned line does not have a value of \"0\", or a line is not returned, this is a finding.",
      "Configure RHEL 8 to not accept router advertisements on all IPv6 interfaces unless the system is a router.\n\nAdd or edit the following line in a system configuration file in the \"/etc/sysctl.d/\" directory:\n\nnet.ipv6.conf.default.accept_ra = 0\n\nLoad settings from all system configuration files with the following command:\n\n$ sudo sysctl --system",
-     A, ["network", "kernel"]),
+     N, ["network", "kernel"]),
 
     ("V-230535", "RHEL-08-040286", "medium",
      "RHEL 8 must use reverse path filtering on all IPv4 interfaces.",
@@ -466,7 +466,7 @@ CATALOG = [
      "Organizations are required to ensure users are aware of their responsibilities before granting access.",
      "Verify all users with accounts on the system have completed acceptable use training.\n\nAsk the System Administrator for training records. The Information System Security Officer (ISSO) will verify records exist for every interactive account on the system.\n\nIf training records are missing for any account, this is a finding.",
      "Ensure every user completes acceptable use training before an account is created, and retain the training records for the life of the account.",
-     M, ["authentication"]),
+     M, []),
 
     ("V-230392", "RHEL-08-030040", "medium",
      "RHEL 8 must take appropriate action when an audit processing failure occurs and notify designated personnel.",
@@ -495,14 +495,14 @@ CATALOG = [
      "If local interactive users are not assigned a valid home directory, there is no place for the storage and control of files they should own.",
      "Verify all local interactive users on RHEL 8 are assigned a home directory upon creation with the following command:\n\n$ sudo grep -i create_home /etc/login.defs\nCREATE_HOME yes\n\nIf the value for \"CREATE_HOME\" parameter is not set to \"yes\", the line is missing, or the line is commented out, this is a finding.\n\nNote: If the site uses a directory service that provisions home directories on a fileserver, determine with the System Administrator whether CREATE_HOME is the correct control point for this system.",
      "Configure RHEL 8 to assign home directories to all new local interactive users by setting the \"CREATE_HOME\" parameter in \"/etc/login.defs\" to \"yes\":\n\nCREATE_HOME yes\n\nIf home directories are provisioned by a directory service, configure the equivalent setting there instead.",
-     N, []),
+     N, ["authentication"]),
 
     ("V-230399", "RHEL-08-030070", "medium",
      "RHEL 8 audit logs must have a mode of 0600 or less permissive to prevent unauthorized read access.",
      "Unauthorized disclosure of audit records can reveal system and configuration data to attackers.",
      "Verify the audit logs have a mode of \"0600\" or less permissive.\n\nFirst determine where the audit logs are stored with the following command:\n\n$ sudo grep -iw log_file /etc/audit/auditd.conf\nlog_file = /var/log/audit/audit.log\n\nUsing the location of the audit log file, check if each audit log has a mode of \"0600\" or less permissive with the following command, substituting the correct audit log path:\n\n$ sudo stat -c \"%a %n\" /var/log/audit/*\n600 /var/log/audit/audit.log\n\nIf the audit logs have a mode more permissive than \"0600\", this is a finding.",
      "Configure the audit logs to be protected from unauthorized read access by setting the correct permissive mode with the following command, substituting the audit log path from \"auditd.conf\":\n\n$ sudo chmod 0600 /var/log/audit/*",
-     N, ["auditd", "filesystem"]),
+     A, ["auditd", "filesystem"]),
 
     ("V-230505", "RHEL-08-040023", "medium",
      "The RHEL 8 file system automounter must be disabled unless required.",

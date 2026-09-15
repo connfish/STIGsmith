@@ -149,6 +149,45 @@ public class ChecklistApiTests(ApiFixture api) : IClassFixture<ApiFixture>
     }
 
     [Fact]
+    public async Task Import_reports_coverage_and_persists_classification()
+    {
+        ApiFixture.SkipIfUnavailable();
+
+        var imported = await api.ImportFixture("ckl", "rhel8-host-alpha.ckl");
+        var result = (await imported.Content.ReadFromJsonAsync<ImportResult>(Ct))!;
+
+        result.CoverageSummary.ShouldContain("47 automatable, 9 manual, 16 needs-review");
+
+        var coverage = await api.Client.GetFromJsonAsync<CoverageReport>(
+            $"/api/checklists/{result.Id}/coverage", Ct);
+
+        coverage.ShouldNotBeNull();
+        coverage.Total.ShouldBe(72);
+        coverage.Automatable.ShouldBe(47);
+        coverage.Manual.ShouldBe(9);
+        coverage.NeedsReview.ShouldBe(16);
+        coverage.AutomatableHighRisk.ShouldBe(22);
+        coverage.ByRiskDomain.ShouldContainKey("sshd");
+
+        // Classification is persisted per finding, not recomputed per request.
+        var detail = await api.Client.GetFromJsonAsync<ChecklistDetail>($"/api/checklists/{result.Id}", Ct);
+        var sshRule = detail!.Findings.Single(f => f.RuleVersion == "RHEL-08-010550");
+        sshRule.Automatability.ShouldBe(Stigsmith.Rules.Automatability.Automatable);
+        sshRule.IsHighRisk.ShouldBeTrue();
+        sshRule.RiskCategories.ShouldContain("sshd");
+    }
+
+    [Fact]
+    public async Task Returns_404_for_coverage_of_an_unknown_checklist()
+    {
+        ApiFixture.SkipIfUnavailable();
+
+        var response = await api.Client.GetAsync($"/api/checklists/{Guid.CreateVersion7()}/coverage", Ct);
+
+        response.StatusCode.ShouldBe(HttpStatusCode.NotFound);
+    }
+
+    [Fact]
     public async Task Returns_404_for_an_unknown_checklist()
     {
         ApiFixture.SkipIfUnavailable();
