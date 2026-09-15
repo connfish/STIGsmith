@@ -90,7 +90,7 @@ public class BatchGenerationTests(ITestOutputHelper output)
         batch.Length.ShouldBeGreaterThanOrEqualTo(20, "the batch must be large enough to be meaningful");
         invalid.ShouldBeEmpty("responses that did not yield valid YAML:\n" + string.Join("\n", invalid));
         tasks.ShouldBeGreaterThan(0);
-        // The scripted provider returns a cannot-automate answer for one response shape in four, so this also
+        // The scripted provider returns a cannot-automate answer for rules whose number is 3 mod 4, so this also
         // confirms that answer is recognised rather than counted as a failure.
         cannotAutomate.ShouldBeGreaterThan(0);
     }

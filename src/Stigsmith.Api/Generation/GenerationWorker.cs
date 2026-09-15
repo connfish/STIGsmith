@@ -29,7 +29,7 @@ namespace Stigsmith.Api.Generation;
 /// </para>
 /// </remarks>
 public sealed class GenerationWorker(
-    GenerationQueue queue,
+    JobQueue<GenerationJob> queue,
     IServiceScopeFactory scopes,
     IRemediationProvider provider,
     ConventionIndexProvider conventions,
@@ -180,7 +180,20 @@ public sealed class GenerationWorker(
             using var scope = scopes.CreateScope();
             var db = scope.ServiceProvider.GetRequiredService<StigsmithDbContext>();
             var record = await db.Generations.FirstOrDefaultAsync(g => g.Id == job.GenerationId, cancellationToken);
-            if (record is null) return;
+            if (record is null)
+            {
+                // The failure came before the prompt was persisted. A row still has to exist, or the generation the
+                // operator was told about is a 404 forever.
+                record = new GenerationRecord
+                {
+                    Id = job.GenerationId,
+                    FindingId = job.FindingId,
+                    Provider = provider.Name,
+                    Model = provider.Model,
+                    TargetOs = job.TargetOs,
+                };
+                db.Generations.Add(record);
+            }
 
             record.Error = error;
             await db.SaveChangesAsync(cancellationToken);

@@ -72,6 +72,8 @@ public static class RemediationPromptAssembler
         - Every task must be idempotent. Running the tasks a second time must report no change.
         - Prefer a real module over `command` or `shell`. Where a command is unavoidable, set `changed_when`
           so the task reports change honestly.
+        - Use only modules that exist in ansible.builtin, ansible.posix or community.general. Never invent a
+          module.
         - Follow the house conventions given below exactly: variable prefix, tag scheme, module spelling,
           and handler names.
         - Notify only handlers listed as existing. Never invent a handler name.

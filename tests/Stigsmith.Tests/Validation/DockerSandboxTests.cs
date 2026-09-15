@@ -17,11 +17,9 @@ namespace Stigsmith.Tests.Validation;
 /// somewhere. It is the single largest caveat in the repository and it is repeated in PROGRESS.md.
 /// </para>
 /// <para>
-/// The first two tests need only a container runtime and use the fallback image, so they verify the sandbox
-/// plumbing — start, write a file, exec, capture both streams, remove the container. The full-loop test additionally
-/// needs the validation image built (<c>docker build -t stigsmith/validation:el8 docker/validation</c>) and skips
-/// with an explanation when it is absent, because without ansible inside the container the loop can only report a
-/// lint failure.
+/// All of them need a container runtime and the validation image (<c>make image</c>), and skip with an explanation
+/// otherwise. The first two verify the sandbox plumbing — start, write a file, exec, capture both streams, remove the
+/// container — and the rest run the whole loop.
 /// </para>
 /// </remarks>
 public class DockerSandboxTests(ITestOutputHelper output)
@@ -33,9 +31,7 @@ public class DockerSandboxTests(ITestOutputHelper output)
 
     private static ValidationOptions Options() => new()
     {
-        // The fallback is a plain image, enough to prove the sandbox plumbing works.
         Image = "stigsmith/validation:el8",
-        FallbackImage = "almalinux:8",
         PerRuleTimeout = TimeSpan.FromMinutes(5),
     };
 
@@ -47,7 +43,7 @@ public class DockerSandboxTests(ITestOutputHelper output)
     {
         SkipWithoutDocker();
         using var sandbox = Sandbox();
-        Assert.SkipUnless(await sandbox.IsAvailableAsync(Ct), "Docker is installed but the daemon is not reachable.");
+        Assert.SkipUnless(await sandbox.IsAvailableAsync(Ct), "Docker is not reachable or the validation image is not built (make image).");
 
         string containerId;
         await using (var session = await sandbox.StartAsync(Ct))
@@ -76,7 +72,7 @@ public class DockerSandboxTests(ITestOutputHelper output)
     {
         SkipWithoutDocker();
         using var sandbox = Sandbox();
-        Assert.SkipUnless(await sandbox.IsAvailableAsync(Ct), "Docker is installed but the daemon is not reachable.");
+        Assert.SkipUnless(await sandbox.IsAvailableAsync(Ct), "Docker is not reachable or the validation image is not built (make image).");
 
         await using var session = await sandbox.StartAsync(Ct);
 
@@ -101,7 +97,7 @@ public class DockerSandboxTests(ITestOutputHelper output)
         SkipWithoutDocker();
         var options = Options();
         using var sandbox = Sandbox(options);
-        Assert.SkipUnless(await sandbox.IsAvailableAsync(Ct), "Docker is installed but the daemon is not reachable.");
+        Assert.SkipUnless(await sandbox.IsAvailableAsync(Ct), "Docker is not reachable or the validation image is not built (make image).");
 
         await using (var probe = await sandbox.StartAsync(Ct))
         {
@@ -157,6 +153,59 @@ public class DockerSandboxTests(ITestOutputHelper output)
     }
 
     /// <summary>
+    /// The strongest evidence class, end to end: the DISA id is resolved to the SCAP Security Guide rule inside the
+    /// container and <c>oscap</c> produces the verdict. SSG marks most host-configuration rules not applicable inside a
+    /// container, so the rule here is a package-removal one, which it does judge. The image has nothing to remove, so
+    /// this proves the oscap path carries the verdict rather than the fail-to-pass flip; the scripted-sandbox test
+    /// covers the flip.
+    /// </summary>
+    [Fact]
+    public async Task Verifies_through_a_real_scap_scan_when_the_datastream_knows_the_rule()
+    {
+        SkipWithoutDocker();
+        var options = Options();
+        using var sandbox = Sandbox(options);
+        Assert.SkipUnless(await sandbox.IsAvailableAsync(Ct), "Docker is not reachable or the validation image is not built (make image).");
+
+        var rule = new RuleContent
+        {
+            RuleId = "SV-230561r1130561_rule",
+            GroupId = "V-230561",
+            RuleVersion = "RHEL-08-040390",
+            Title = "RHEL 8 must not have the tuned package installed if not required for operational support.",
+            Severity = Severity.Medium,
+            FixText = "Remove the tuned package:\n\n$ sudo yum remove tuned",
+            CheckContent = "Check that the package is not installed:\n\n$ sudo yum list installed tuned\n",
+        };
+
+        var validator = new RemediationValidator(
+            sandbox, new ComplianceVerifier(options), options, NullLogger<RemediationValidator>.Instance);
+
+        var attempts = await validator.ValidateAsync(
+            new ValidationRequest
+            {
+                Rule = rule,
+                TasksYaml = """
+                    - name: "RHEL-08-040390 | PATCH | Remove tuned"
+                      ansible.builtin.dnf:
+                        name: tuned
+                        state: absent
+                    """,
+            },
+            cancellationToken: Ct);
+
+        var evidence = attempts[^1];
+        output.WriteLine(evidence.Summary);
+        foreach (var stage in evidence.Stages)
+            output.WriteLine($"  {stage.Stage,-14} passed={stage.Passed} exit={stage.ExitCode} {stage.Command[..Math.Min(60, stage.Command.Length)]}");
+
+        evidence.Outcome.ShouldBe(ValidationOutcome.Passed, evidence.Summary);
+        evidence.VerifiedBy.ShouldBe(ComplianceVerifierKind.Oscap);
+        evidence.ScanStatusAfter.ShouldBe("pass");
+        evidence.Stage(ValidationStage.Rescan)!.Command.ShouldContain("content_rule_package_tuned_removed");
+    }
+
+    /// <summary>
     /// Non-idempotent remediation, caught in a real container. A `command` task with no `changed_when` reports a change
     /// every run, which is the most common way generated Ansible fails this stage.
     /// </summary>
@@ -166,7 +215,7 @@ public class DockerSandboxTests(ITestOutputHelper output)
         SkipWithoutDocker();
         var options = Options();
         using var sandbox = Sandbox(options);
-        Assert.SkipUnless(await sandbox.IsAvailableAsync(Ct), "Docker is installed but the daemon is not reachable.");
+        Assert.SkipUnless(await sandbox.IsAvailableAsync(Ct), "Docker is not reachable or the validation image is not built (make image).");
 
         await using (var probe = await sandbox.StartAsync(Ct))
         {
@@ -191,15 +240,20 @@ public class DockerSandboxTests(ITestOutputHelper output)
             new ValidationRequest
             {
                 Rule = rule,
-                // No changed_when, so it reports a change on every run.
+                // `changed_when: true` keeps ansible-lint satisfied (a bare command fails its no-changed-when rule
+                // before anything runs) and is exactly the shape of a task that reports a change on every run.
                 TasksYaml = """
                     - name: "TEST-08-000101 | PATCH | Marker file"
                       ansible.builtin.command: touch /etc/stigsmith-marker
+                      changed_when: true
                     """,
             },
             cancellationToken: Ct);
 
         output.WriteLine(attempts[^1].Summary);
         attempts[^1].Outcome.ShouldNotBe(ValidationOutcome.Passed);
+        // For the right reason: it got through lint, syntax and apply, and only the second apply gave it away.
+        attempts[^1].FailedStage.ShouldBe(ValidationStage.Idempotency);
+        attempts[^1].IdempotencyChangedCount.ShouldBe(1);
     }
 }

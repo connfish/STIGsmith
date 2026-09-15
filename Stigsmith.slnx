@@ -1,11 +1,9 @@
 <Solution>
   <Folder Name="/src/">
     <Project Path="src/Stigsmith.Api/Stigsmith.Api.csproj" />
-    <Project Path="src/Stigsmith.AppHost/Stigsmith.AppHost.csproj" />
     <Project Path="src/Stigsmith.Checklists/Stigsmith.Checklists.csproj" />
     <Project Path="src/Stigsmith.Generation/Stigsmith.Generation.csproj" />
     <Project Path="src/Stigsmith.Rules/Stigsmith.Rules.csproj" />
-    <Project Path="src/Stigsmith.ServiceDefaults/Stigsmith.ServiceDefaults.csproj" />
     <Project Path="src/Stigsmith.Validation/Stigsmith.Validation.csproj" />
   </Folder>
   <Folder Name="/tests/">

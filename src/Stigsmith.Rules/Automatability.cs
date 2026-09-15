@@ -1,3 +1,5 @@
+using System.Text.Json.Serialization;
+
 namespace Stigsmith.Rules;
 
 /// <summary>
@@ -6,6 +8,7 @@ namespace Stigsmith.Rules;
 /// <see cref="Manual"/> (no automation is possible or appropriate) and <see cref="NeedsReview"/>
 /// (automation might be possible but a human has to decide).
 /// </summary>
+[JsonConverter(typeof(JsonStringEnumConverter))]
 public enum Automatability
 {
     Unclassified = 0,

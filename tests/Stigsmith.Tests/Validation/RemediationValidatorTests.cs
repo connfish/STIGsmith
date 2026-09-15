@@ -62,6 +62,8 @@ public class RemediationValidatorTests
         evidence.Outcome.ShouldBe(ValidationOutcome.Passed);
         evidence.FailedStage.ShouldBeNull();
         evidence.RepairAttempt.ShouldBe(0);
+        // The image's lint config only applies when named explicitly.
+        evidence.Stage(ValidationStage.Lint)!.Command.ShouldContain("ansible-lint --nocolor -c /etc/ansible-lint.yml");
 
         // The stages an ISSO reads, in order.
         evidence.Stage(ValidationStage.Lint)!.Passed.ShouldBeTrue();
@@ -173,9 +175,100 @@ public class RemediationValidatorTests
 
         var attempts = await Validator(sandbox).ValidateAsync(Request(highRisk: true), cancellationToken: Ct);
 
-        attempts[^1].FailedStage.ShouldBe(ValidationStage.Apply);
+        attempts[^1].FailedStage.ShouldBe(ValidationStage.CheckMode);
         attempts[^1].Summary.ShouldContain("--check");
+        // The dry run is its own stage, so the evidence never confuses it with the real apply.
+        attempts[^1].Stage(ValidationStage.Apply).ShouldBeNull();
         sandbox.Commands.ShouldContain(c => c.Contains("--check"));
+    }
+
+    /// <summary>
+    /// Where the datastream knows the rule, the verdict comes from a real SCAP scan of the SSG rule the DISA id maps
+    /// to, and the evidence says so — that is the strongest evidence this tool can produce, and it must never be
+    /// quietly replaced by the check-content shell test.
+    /// </summary>
+    [Fact]
+    public async Task A_rule_the_datastream_knows_is_verified_by_a_real_scap_scan()
+    {
+        var sandbox = new ScriptedSandbox { OscapKnowsTheRule = true };
+
+        var attempts = await Validator(sandbox).ValidateAsync(Request(), cancellationToken: Ct);
+
+        var evidence = attempts.ShouldHaveSingleItem();
+        evidence.Outcome.ShouldBe(ValidationOutcome.Passed);
+        evidence.VerifiedBy.ShouldBe(ComplianceVerifierKind.Oscap);
+        evidence.ScanStatusBefore.ShouldBe("fail");
+        evidence.ScanStatusAfter.ShouldBe("pass");
+        sandbox.Commands.ShouldContain(c => c.StartsWith("xmllint --xpath", StringComparison.Ordinal) && c.Contains("RHEL-08-010550"));
+        sandbox.Commands.ShouldContain(c => c.StartsWith("oscap xccdf eval --profile xccdf_org.ssgproject.content_profile_stig --rule xccdf_org.ssgproject.content_rule_scripted_rule", StringComparison.Ordinal));
+        evidence.Stage(ValidationStage.Rescan)!.Command.ShouldStartWith("oscap xccdf eval");
+    }
+
+    /// <summary>
+    /// The false pass a real run nearly produced: ansible died before its recap on the second apply, which parsed as
+    /// "0 changed". A second apply that ran nothing is unproven idempotency, and the summary has to say why it stopped.
+    /// </summary>
+    [Fact]
+    public async Task A_second_apply_that_dies_before_its_recap_is_not_idempotent()
+    {
+        var sandbox = new ScriptedSandbox { SecondApplyCrashes = true };
+
+        var attempts = await Validator(sandbox, new ValidationOptions { MaxRepairAttempts = 0 })
+            .ValidateAsync(Request(), cancellationToken: Ct);
+
+        attempts[^1].Outcome.ShouldBe(ValidationOutcome.NeedsHumanReview);
+        attempts[^1].FailedStage.ShouldBe(ValidationStage.Idempotency);
+        attempts[^1].Summary.ShouldContain("did not run the tasks");
+        attempts[^1].Summary.ShouldContain("requested handler");
+    }
+
+    /// <summary>
+    /// Found on a real model's first run: a task written to the conventions referenced the role's path variable, the
+    /// placeholder file set it to `true`, and ansible reported "Destination True does not exist". The role's own
+    /// variable files go in first and the placeholders never shadow them; the role's handlers are stubbed so
+    /// `notify` resolves.
+    /// </summary>
+    [Fact]
+    public async Task The_roles_own_variables_and_handlers_are_supplied_to_the_play()
+    {
+        var sandbox = new ScriptedSandbox();
+        var request = Request() with
+        {
+            ReferencedVariables = ["stigsmith_rhel8_rule_230296", "stigsmith_rhel8_unknown_thing"],
+            RoleVarsFiles = ["---\nstigsmith_rhel8_sshd_config_path: /etc/ssh/sshd_config\n"],
+            HandlerNames = ["restart sshd", "reload \"quoted\""],
+        };
+
+        var attempts = await Validator(sandbox).ValidateAsync(request, cancellationToken: Ct);
+
+        attempts[^1].Outcome.ShouldBe(ValidationOutcome.Passed);
+        sandbox.Files["/tmp/stigsmith/rolevars-0.yml"].ShouldContain("stigsmith_rhel8_sshd_config_path: /etc/ssh/sshd_config");
+        sandbox.Files["/tmp/stigsmith/vars.yml"].ShouldBe("---\nstigsmith_rhel8_rule_230296: true\nstigsmith_rhel8_unknown_thing: true\n");
+        sandbox.Commands.ShouldContain(c => c.Contains("-e @rolevars-0.yml -e @vars.yml playbook.yml"));
+        var playbook = sandbox.Files["/tmp/stigsmith/playbook.yml"];
+        playbook.ShouldContain("  handlers:\n    - name: \"restart sshd\"\n      ansible.builtin.debug:");
+        playbook.ShouldContain("- name: \"reload \\\"quoted\\\"\"");
+    }
+
+    /// <summary>
+    /// A remediation that hangs is a finding about the remediation. The loop has to say so in the evidence, name the
+    /// stage, and give the container back, rather than let an exception out of the worker with nothing recorded.
+    /// </summary>
+    [Fact]
+    public async Task A_hanging_apply_times_out_into_evidence_rather_than_an_exception()
+    {
+        var sandbox = new ScriptedSandbox { ApplyHangs = true };
+        var options = new ValidationOptions { PerRuleTimeout = TimeSpan.FromMilliseconds(200), MaxRepairAttempts = 0 };
+
+        var attempts = await Validator(sandbox, options).ValidateAsync(Request(), cancellationToken: Ct);
+
+        var evidence = attempts.ShouldHaveSingleItem();
+        evidence.Outcome.ShouldBe(ValidationOutcome.NeedsHumanReview);
+        evidence.FailedStage.ShouldBe(ValidationStage.Apply);
+        evidence.Summary.ShouldContain("did not finish");
+        evidence.Stage(ValidationStage.Apply)!.Passed.ShouldBeFalse();
+        evidence.Stage(ValidationStage.Baseline)!.Passed.ShouldBeTrue();
+        sandbox.SessionsDisposed.ShouldBe(sandbox.SessionsStarted);
     }
 
     [Fact]

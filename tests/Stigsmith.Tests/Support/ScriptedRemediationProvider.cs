@@ -7,9 +7,12 @@ namespace Stigsmith.Tests.Support;
 /// </summary>
 /// <remarks>
 /// <para>
-/// This exists to test the pipeline, not the model. It cycles through the response <em>shapes</em> real models
+/// This exists to test the pipeline, not the model. It produces the four response <em>shapes</em> real models
 /// actually produce — bare YAML, a fenced block, YAML wrapped in prose, and a "cannot automate" answer — so the
-/// queue, worker, extractor, persistence, and streaming path are all driven by realistic input.
+/// queue, worker, extractor, persistence, and streaming path are all driven by realistic input. Which shape a rule
+/// gets is a function of the rule (its STIG version number modulo four: 0 bare, 1 fenced, 2 prose, 3 cannot
+/// automate), never of call order, so a test that names a rule knows what it will get regardless of what ran
+/// before it against the same fixture.
 /// </para>
 /// <para>
 /// It says nothing about whether a real model produces good Ansible. That is only answerable by running one, and
@@ -51,8 +54,8 @@ public sealed class ScriptedRemediationProvider : IRemediationProvider
     }
 
     /// <summary>
-    /// Derives a plausible task from the rule in the prompt, then packages it in one of the four shapes. Cycling
-    /// on the call index rather than at random keeps the tests deterministic.
+    /// Derives a plausible task from the rule in the prompt, then packages it in one of the four shapes, chosen by
+    /// the rule's own number so the choice is stable across runs and test orderings.
     /// </summary>
     private static string ResponseFor(RemediationPrompt prompt, int call)
     {
@@ -78,7 +81,8 @@ public sealed class ScriptedRemediationProvider : IRemediationProvider
                 - V-{vuln}
             """;
 
-        return (call % 4) switch
+        var shape = int.TryParse(version[(version.LastIndexOf('-') + 1)..], out var number) ? number % 4 : call % 4;
+        return shape switch
         {
             0 => tasks,
             1 => $"```yaml\n{tasks}\n```",

@@ -1,5 +1,8 @@
+using System.Text.Json.Serialization;
+
 namespace Stigsmith.Validation;
 
+[JsonConverter(typeof(JsonStringEnumConverter))]
 public enum ValidationOutcome
 {
     Pending = 0,
@@ -18,6 +21,7 @@ public enum ValidationOutcome
 }
 
 /// <summary>Stages of the validation loop, in the order they run.</summary>
+[JsonConverter(typeof(JsonStringEnumConverter))]
 public enum ValidationStage
 {
     Lint = 0,
@@ -25,4 +29,10 @@ public enum ValidationStage
     Apply = 2,
     Rescan = 3,
     Idempotency = 4,
+
+    /// <summary>The verifier run before anything is applied, so the re-scan has a baseline to be compared with.</summary>
+    Baseline = 5,
+
+    /// <summary>The <c>--check</c> dry run a high-risk rule gets before it is applied.</summary>
+    CheckMode = 6,
 }

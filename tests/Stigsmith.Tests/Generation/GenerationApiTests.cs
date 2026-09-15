@@ -95,12 +95,13 @@ public class GenerationApiTests(ApiFixture api, ITestOutputHelper output) : ICla
 
         var result = (await (await api.Client.PostAsJsonAsync(
             $"/api/checklists/{checklistId}/generate",
-            new GenerateRequest(RuleVersions: ["RHEL-08-010550", "RHEL-08-040100"], OptInRiskDomains: ["sshd"]), Ct))
+            // 010550 is sshd; 040286 (rp_filter) is network. Both are open in the alpha fixture.
+            new GenerateRequest(RuleVersions: ["RHEL-08-010550", "RHEL-08-040286"], OptInRiskDomains: ["sshd"]), Ct))
             .Content.ReadFromJsonAsync<QueueResult>(Ct))!;
 
         result.QueuedItems.Select(q => q.RuleVersion).ShouldBe(["RHEL-08-010550"]);
-        result.SkippedItems.Single().RuleVersion.ShouldBe("RHEL-08-040100");
-        result.SkippedItems.Single().Reason.ShouldContain("firewall");
+        result.SkippedItems.Single().RuleVersion.ShouldBe("RHEL-08-040286");
+        result.SkippedItems.Single().Reason.ShouldContain("network");
     }
 
     [Fact]
@@ -160,7 +161,8 @@ public class GenerationApiTests(ApiFixture api, ITestOutputHelper output) : ICla
 
         var queued = (await (await api.Client.PostAsJsonAsync(
             $"/api/checklists/{checklistId}/generate",
-            new GenerateRequest(RuleVersions: ["RHEL-08-010171"]), Ct))
+            // A low-risk automatable rule, so it queues without an opt-in.
+            new GenerateRequest(RuleVersions: ["RHEL-08-040000"]), Ct))
             .Content.ReadFromJsonAsync<QueueResult>(Ct))!;
 
         var item = queued.QueuedItems.Single();

@@ -1,10 +1,8 @@
 using System.Net.Http.Headers;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Testing;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
-using Stigsmith.Api.Persistence;
 using Stigsmith.Generation.Providers;
 using Stigsmith.Validation;
 using Testcontainers.PostgreSql;
@@ -19,7 +17,7 @@ namespace Stigsmith.Tests.Support;
 /// <remarks>
 /// Requires a container runtime. Suites using this call <see cref="SkipIfUnavailable"/> first, so
 /// <c>dotnet test</c> still passes on a clean clone with no Docker (see DECISIONS.md). CI runs them in
-/// the job that sets STIGSMITH_ENABLE_CONTAINER_TESTS=1.
+/// the container job.
 /// </remarks>
 public sealed class ApiFixture : IAsyncLifetime
 {
@@ -73,8 +71,6 @@ public sealed class ApiFixture : IAsyncLifetime
 
         Client = _factory.CreateClient();
 
-        using var scope = _factory.Services.CreateScope();
-        await scope.ServiceProvider.GetRequiredService<StigsmithDbContext>().Database.MigrateAsync();
     }
 
     public async ValueTask DisposeAsync()

@@ -55,9 +55,8 @@ and makes no outbound network calls.
 ## Stack
 
 .NET 10 / C# 14, ASP.NET Core Minimal APIs, PostgreSQL 17 (Npgsql + EF Core 10),
-`System.Threading.Channels` + `IHostedService` job queues, SignalR for streaming, Docker.DotNet for
-the validation sandbox, .NET Aspire for local orchestration, xUnit v3 + Shouldly + NSubstitute +
-Testcontainers for tests.
+`System.Threading.Channels` + `IHostedService` job queues, SignalR for streaming, Docker.DotNet.Enhanced for
+the validation sandbox, xUnit v3 + Shouldly + NSubstitute + Testcontainers for tests.
 
 ## The validation loop
 
@@ -77,38 +76,51 @@ Every run stores the whole evidence bundle: lint output, apply output, before/af
 playbook as applied, and **which verifier produced the verdict** — a real `oscap` scan or DISA's own check command run as
 a shell test. Those are not worth the same, so the report says which.
 
-Two things worth knowing about the numbers:
+The scan is `oscap` against the SCAP Security Guide datastream in the validation image. SSG names its rules its own
+way and carries the DISA id only as a reference, so the loop resolves the DISA id to the SSG rule inside the container
+and evaluates just that rule under SSG's STIG profile. Where SSG has no rule, or reports the rule not applicable, the
+loop falls back to running the read-only command from the rule's own check content.
+
+Three things worth knowing about the numbers:
 
 - **A container is not a host.** Remediation that sets a kernel parameter, enables a systemd unit, or rewrites the
   bootloader cannot apply in an unprivileged container. The loop reports that as a failed apply rather than a pass,
   which is correct, but it means the sandbox validates file, package, and config-content rules well and kernel, boot,
-  and service rules poorly.
+  and service rules poorly. The image preinstalls the packages whose configuration files the RHEL 8 STIG edits
+  (sshd, audit, rsyslog, firewalld, chrony, sudo, pwquality, aide) so those edits can apply and be re-checked, but
+  their services do not run. SSG makes the same call: it marks most host-configuration rules not applicable inside a
+  container, so oscap-backed passes in this sandbox are mostly package-removal and file-permission rules.
+- **The check-content fallback reads the check the way an assessor does.** It runs the first read-only command in
+  the check and requires the compliant output the check shows to appear in the real output, so a commented default
+  line does not count. Where the check shows no output and says the result would be the finding ("if the package is
+  installed, this is a finding"), any output fails. Only when it has neither does a zero exit pass, and the evidence
+  says which reading produced the verdict. It is still weaker than a SCAP scan; weigh it accordingly.
 - **A rule that cannot be verified does not pass.** Applying cleanly proves the YAML ran, not that the finding is fixed.
 
 ## Running it
 
+You need the .NET 10 SDK and a Docker daemon. Docker Desktop works; so does the headless route on a Mac
+(`brew install colima docker docker-compose && colima start`, then register the compose plugin as brew's caveat
+says). Ollama can run natively (`brew install ollama && ollama pull qwen2.5-coder:7b`) or in Docker with
+`make ollama`; either way the API expects it on `localhost:11434`.
+
 ```bash
-# Build the validation image once. Nothing validates until this exists, and it is built rather than pulled at run
-# time because target environments are air-gapped.
-docker build -t stigsmith/validation:el8 docker/validation
-
-# Aspire: API + Postgres + Ollama
-dotnet run --project src/Stigsmith.AppHost
-ollama pull qwen2.5-coder:7b
-
-# or, without the Aspire CLI / on an air-gapped host
-docker compose up
-
-# tests
-dotnet test
+make run     # Postgres in Docker, the API on the host, browser opens http://localhost:5045/scalar
+make test    # dotnet test: suites that need Docker or Ollama detect their absence and skip
+make image   # once: the container the validation loop applies remediation in
+make up      # the whole stack in Docker instead, at http://localhost:8080/scalar
 ```
 
-Point `Stigsmith:Generation:ConventionRole:Path` at your own Ansible role to get your own conventions. Nothing about it
-is committed here (constraint 5); `examples/example-role/` is a small synthetic role for the tests.
+`python3 tools/live_run.py` drives the whole loop over the fixture checklist against the running API and prints the
+validation report. It is how the numbers in `PROGRESS.md` were produced.
 
-`dotnet test` passes on a clean clone with no Docker, no Ollama, and no Ansible installed: suites
-that need those probe for them and skip. Set `STIGSMITH_ENABLE_CONTAINER_TESTS=1` on a machine that
-has a container runtime to run them for real.
+Nothing validates until `stigsmith/validation:el8` exists. It is built rather than pulled because target environments
+are air-gapped: build it where you have a mirror and move the image. The database schema is applied when the API
+starts, so there is no migration step.
+
+Point `Stigsmith:Generation:ConventionRole:Path` at your own Ansible role to get your own conventions. Nothing about it
+is committed here (constraint 5); `examples/example-role/` is a small synthetic role for the tests, and the
+Development profile points at it.
 
 ## Where things are
 

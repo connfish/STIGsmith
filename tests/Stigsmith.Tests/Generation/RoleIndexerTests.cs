@@ -24,6 +24,19 @@ public class RoleIndexerTests
     }
 
     [Fact]
+    public void Carries_the_roles_variable_files_and_handler_names()
+    {
+        var index = Index();
+
+        var defaults = index.VarsFiles.ShouldHaveSingleItem();
+        defaults.RelativePath.ShouldBe(Path.Combine("defaults", "main.yml"));
+        defaults.Names.ShouldContain("stigsmith_rhel8_sshd_config_path");
+        defaults.Names.ShouldContain("stigsmith_rhel8_rule_230296");
+        defaults.Content.ShouldContain("stigsmith_rhel8_sshd_config_path: /etc/ssh/sshd_config");
+        index.HandlerNames.ShouldBe(["rebuild grub config", "reload sysctl", "restart auditd", "restart sshd", "update dconf"]);
+    }
+
+    [Fact]
     public void Extracts_per_task_metadata()
     {
         var task = Index().Tasks.Single(t => t.StigVersionIds.Contains("RHEL-08-010550"));

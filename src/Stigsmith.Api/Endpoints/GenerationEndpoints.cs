@@ -47,7 +47,7 @@ public static class GenerationEndpoints
         Guid id,
         GenerateRequest? request,
         StigsmithDbContext db,
-        GenerationQueue queue,
+        JobQueue<GenerationJob> queue,
         IRemediationProvider provider,
         IOptions<GenerationOptions> options,
         ILoggerFactory loggers,
@@ -142,7 +142,7 @@ public static class GenerationEndpoints
             .ToListAsync(ct);
 
     private static async Task<Ok<ProviderStatus>> Status(
-        IRemediationProvider provider, GenerationQueue queue, CancellationToken ct) =>
+        IRemediationProvider provider, JobQueue<GenerationJob> queue, CancellationToken ct) =>
         TypedResults.Ok(new ProviderStatus(
             provider.Name, provider.Model, await provider.IsAvailableAsync(ct), queue.Depth));
 

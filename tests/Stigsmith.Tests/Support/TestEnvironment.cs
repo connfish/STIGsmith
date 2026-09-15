@@ -1,14 +1,16 @@
+using Docker.DotNet;
+
 namespace Stigsmith.Tests.Support;
 
 /// <summary>
 /// Capability probes for the external tools the later milestones drive. Tests that need Docker,
 /// Ollama, or an Ansible toolchain call <c>Assert.Skip.When(...)</c> on these rather than failing:
 /// M1's acceptance criterion is that <c>dotnet test</c> passes from a clean clone, and a clean clone
-/// has none of them. CI sets STIGSMITH_ENABLE_CONTAINER_TESTS=1 on a runner that does.
+/// has none of them. CI's container job runs on a runner that does.
 /// </summary>
 public static class TestEnvironment
 {
-    private static readonly Lazy<bool> DockerAvailable = new(() => ProbeSocket());
+    private static readonly Lazy<bool> DockerAvailable = new(ProbeDocker);
     private static readonly Lazy<bool> OllamaAvailable = new(() => ProbeHttp(OllamaBaseUrl + "/api/tags"));
     private static readonly Lazy<bool> AnsibleAvailable = new(() => OnPath("ansible-playbook") && OnPath("ansible-lint"));
 
@@ -44,14 +46,25 @@ public static class TestEnvironment
         return paths.Any(p => !string.IsNullOrWhiteSpace(p) && File.Exists(Path.Combine(p, exe)));
     }
 
-    private static bool ProbeSocket()
+    /// <summary>
+    /// Asks the daemon rather than looking for a socket path or a CLI on PATH: a docker binary with no daemon behind
+    /// it is exactly the machine where the suites must skip, and the socket lives in a different place under Docker
+    /// Desktop, colima and rootless Docker. The client resolves DOCKER_HOST and the active docker context itself.
+    /// </summary>
+    private static bool ProbeDocker()
     {
-        var host = Environment.GetEnvironmentVariable("DOCKER_HOST");
-        if (host is { Length: > 0 } && host.StartsWith("unix://", StringComparison.Ordinal))
-            return File.Exists(host["unix://".Length..]);
-        return File.Exists("/var/run/docker.sock")
-            || File.Exists(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), ".docker/run/docker.sock"))
-            || OnPath("docker");
+        try
+        {
+            using var client = new DockerClientBuilder().Build();
+            using var timeout = new CancellationTokenSource(TimeSpan.FromSeconds(5));
+            client.System.PingAsync(timeout.Token).GetAwaiter().GetResult();
+            return true;
+        }
+        catch
+        {
+            // Whatever kept the daemon from answering, the suites that need one skip.
+            return false;
+        }
     }
 
     private static bool ProbeHttp(string url)

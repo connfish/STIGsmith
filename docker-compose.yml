@@ -1,6 +1,5 @@
-# Fallback for environments without the Aspire CLI (and for air-gapped hosts, where `aspire run`
-# pulling images on demand is not an option). `dotnet run --project src/Stigsmith.AppHost` is the
-# normal path; this file exists so it is not the only one.
+# The whole stack in containers: `make up`. For day-to-day work run the API on the host instead
+# (`make run`), which starts only postgres here and leaves Ollama to whatever you have on :11434.
 services:
   postgres:
     image: postgres:17-alpine
@@ -12,8 +11,8 @@ services:
     volumes: ["stigsmith-pgdata:/var/lib/postgresql/data"]
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U postgres -d stigsmith"]
-      interval: 5s
-      retries: 10
+      interval: 2s
+      retries: 30
 
   ollama:
     image: ollama/ollama:latest

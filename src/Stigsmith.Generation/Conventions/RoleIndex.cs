@@ -16,6 +16,14 @@ public enum MatchKind
 public sealed record RetrievedTask(RoleTask Task, double Score, MatchKind Kind, string Reason);
 
 /// <summary>
+/// One of the role's own variable files, verbatim. The validation sandbox hands these to ansible-playbook as they
+/// are, so the values generated tasks reference (<c>{{ stigsmith_rhel8_sshd_config_path }}</c>) are the operator's
+/// real ones rather than placeholders. <see cref="Names"/> is the file's top-level keys, so the placeholder file can
+/// leave those out.
+/// </summary>
+public sealed record RoleVarsFile(string RelativePath, string Content, IReadOnlySet<string> Names);
+
+/// <summary>
 /// An indexed role: its tasks, its inferred conventions, and lexical retrieval over them.
 /// </summary>
 /// <remarks>
@@ -52,6 +60,17 @@ public sealed partial class RoleIndex
     public IReadOnlyList<RoleTask> Tasks { get; init; } = [];
     public IReadOnlyList<string> SkippedFiles { get; init; } = [];
     public RoleConventions Conventions { get; init; } = RoleConventions.None;
+
+    /// <summary><c>defaults/</c> then <c>vars/</c>, in Ansible's precedence order.</summary>
+    public IReadOnlyList<RoleVarsFile> VarsFiles { get; init; } = [];
+
+    /// <summary>Every handler the role defines or notifies, so the sandbox can stub them by name.</summary>
+    public IReadOnlyList<string> HandlerNames => [.. Tasks
+        .Where(t => t.SourceFile.StartsWith("handlers", StringComparison.Ordinal))
+        .Select(t => t.Name)
+        .Concat(Conventions.HandlerNames)
+        .Distinct(StringComparer.Ordinal)
+        .Order(StringComparer.Ordinal)];
 
     /// <summary>Why the index is empty, when it is. Surfaced to the operator rather than failing silently.</summary>
     public string? UnavailableReason { get; init; }

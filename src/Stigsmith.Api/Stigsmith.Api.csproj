@@ -4,7 +4,6 @@
     <ProjectReference Include="..\Stigsmith.Rules\Stigsmith.Rules.csproj" />
     <ProjectReference Include="..\Stigsmith.Generation\Stigsmith.Generation.csproj" />
     <ProjectReference Include="..\Stigsmith.Validation\Stigsmith.Validation.csproj" />
-    <ProjectReference Include="..\Stigsmith.ServiceDefaults\Stigsmith.ServiceDefaults.csproj" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="Microsoft.AspNetCore.OpenApi" />

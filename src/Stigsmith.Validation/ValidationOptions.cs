@@ -13,13 +13,10 @@ public sealed class ValidationOptions
     public string Image { get; set; } = "stigsmith/validation:el8";
 
     /// <summary>
-    /// Fallback image, used when <see cref="Image"/> is not present locally. A bare AlmaLinux 8 has neither ansible
-    /// nor oscap, so the loop will report the lint stage as unavailable rather than pretend — which is the honest
-    /// behaviour, and better than refusing to start at all.
+    /// The SCAP Security Guide STIG profile. SSG content ships in the el8 repositories; DISA's own benchmark, which
+    /// names its profiles <c>xccdf_mil.disa.stig_profile_…</c>, does not, and target environments cannot fetch it.
     /// </summary>
-    public string FallbackImage { get; set; } = "almalinux:8";
-
-    public string ScapProfile { get; set; } = "xccdf_mil.disa.stig_profile_MAC-1_Classified";
+    public string ScapProfile { get; set; } = "xccdf_org.ssgproject.content_profile_stig";
 
     public string ScapDatastreamPath { get; set; } = "/usr/share/xml/scap/ssg/content/ssg-almalinux8-ds.xml";
 
@@ -44,6 +41,12 @@ public sealed class ValidationOptions
 
     /// <summary>Path inside the container. Under /tmp because the container is destroyed either way.</summary>
     public string WorkDirectory { get; set; } = "/tmp/stigsmith";
+
+    /// <summary>
+    /// The ansible-lint configuration inside the image, passed with <c>-c</c>. ansible-lint reads no environment
+    /// variable for this, so the image's config was silently ignored until the first live run tripped a rule it lists.
+    /// </summary>
+    public string AnsibleLintConfig { get; set; } = "/etc/ansible-lint.yml";
 
     /// <summary>
     /// Whether to run the container privileged. Off by default.

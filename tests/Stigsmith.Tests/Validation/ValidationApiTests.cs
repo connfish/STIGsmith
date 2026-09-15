@@ -85,10 +85,9 @@ public class ValidationApiTests(ApiFixture api, ITestOutputHelper output) : ICla
         ApiFixture.SkipIfUnavailable();
         api.Sandbox.Reset();
 
-        // The scripted model returns a cannot-automate answer for one response shape in four, so generating for four
-        // rules reliably produces one with no YAML.
+        // The scripted model's shape follows the rule number: 010171 is 3 mod 4, so it is the cannot-automate answer.
         var (_, generations) = await GenerateFor(
-            "RHEL-08-040000", "RHEL-08-010171", "RHEL-08-010561", "RHEL-08-040001");
+            "RHEL-08-040000", "RHEL-08-010171", "RHEL-08-010561", "RHEL-08-010550");
 
         var withoutYaml = new List<Guid>();
         foreach (var item in generations)
@@ -178,9 +177,10 @@ public class ValidationApiTests(ApiFixture api, ITestOutputHelper output) : ICla
         ApiFixture.SkipIfUnavailable();
         api.Sandbox.Reset();
 
+        // All open in the alpha fixture; 010171 comes back cannot-automate and must be skipped, not failed.
         var (checklistId, _) = await GenerateFor(
             "RHEL-08-040000", "RHEL-08-010171", "RHEL-08-010550", "RHEL-08-020300",
-            "RHEL-08-040100", "RHEL-08-010561", "RHEL-08-030170", "RHEL-08-040001");
+            "RHEL-08-040180", "RHEL-08-010561", "RHEL-08-030170", "RHEL-08-030010");
 
         var queued = (await (await api.Client.PostAsJsonAsync(
             $"/api/checklists/{checklistId}/validate", new { }, Ct))

@@ -12,8 +12,8 @@ The development machine has the .NET 10 SDK and nothing else from the runtime de
 
 **Decided:** write every integration against the real tool, and have the tests that need an absent
 tool probe for it and skip (`TestEnvironment.HasDocker` / `HasOllama` / `HasAnsible`). CI runs the
-suite twice: once on a bare runner, and once with `STIGSMITH_ENABLE_CONTAINER_TESTS=1` where Docker
-is present.
+suite twice: once on a bare runner, and once on a runner that has Docker and the
+validation image.
 
 **Why:** M1's acceptance criterion is `dotnet test` passing from a clean clone, which rules out
 hard-failing on a missing container runtime. Skipping is also honest in a way that mocking is not —
@@ -36,8 +36,7 @@ large mechanical commit later and, in practice, a `NoWarn` list that never shrin
 
 Versions live in `Directory.Packages.props`. Eight projects sharing EF Core and OpenTelemetry
 versions drift otherwise, and drift across a solution that talks to a database is the kind of bug
-that shows up only at runtime. One exception: `Aspire.Hosting.AppHost` is implicit to the Aspire SDK
-and cannot be centrally pinned (`NU1009`), so it is not listed.
+that shows up only at runtime.
 
 ### xUnit v3 on Microsoft.Testing.Platform, via `global.json`
 
@@ -595,3 +594,268 @@ that job has gone green, treat the Docker path as unrun code.** This is the larg
   fast. The image is built once from a committed Dockerfile and the loop reports its absence.
 - **Letting the fallback image substitute silently.** It has neither ansible-lint nor oscap, so stages would fail for
   reasons that look like bad generated YAML. It logs a warning naming the build command.
+
+---
+
+## Refinement — one way to run it
+
+### Aspire removed
+
+`Stigsmith.AppHost` and `Stigsmith.ServiceDefaults` are gone. The kickoff spec listed Aspire and it was built, but it
+was never run: the machine had no Docker, so the only path ever exercised was `docker compose`. That left two
+orchestration paths, one unverified, plus 127 lines of template (OpenTelemetry, service discovery, resilience) that
+nothing here uses.
+
+One of those template defaults was a bug waiting for a real model. `AddStandardResilienceHandler()` was applied to
+every `HttpClient`, including the Ollama one, and its default total-request timeout is 30 seconds. A cold 7B model
+takes longer than that to load, so the first real generation would have been cut off by the resilience pipeline no
+matter what `OllamaOptions.Timeout` said.
+
+**Now:** `docker-compose.yml` is the one orchestration path and a `Makefile` names the everyday commands. `make run`
+starts Postgres in Docker and the API on the host, which is what you want while debugging; `make up` is the whole
+stack in containers. `/health` is the framework's own health check.
+
+**Rejected:** keeping AppHost as an optional path. Two ways to start the same three processes is one more than
+anyone maintains.
+
+### Migrations run on boot
+
+`Program.cs` calls `Database.Migrate()` before serving. Previously nothing did: `docker compose up` produced an API
+with no tables, and the only thing that ever applied the schema was the test fixture. This is a single-instance
+local tool, so the usual objection (replicas racing to migrate) does not apply.
+
+### No fallback validation image
+
+`ValidationOptions.FallbackImage` is gone. The sandbox never pulls, so when the validation image was missing the
+fallback either failed too (no `almalinux:8` present either) or started a container with no ansible in it and
+reported a lint failure that said nothing about the generated YAML. `IsAvailableAsync` now means "daemon reachable
+and image present", and the validation endpoints' existing "build it with..." error fires instead. `make image`
+builds it.
+
+### Smaller things
+
+- `GenerationQueue` and `ValidationQueue` were the same 30 lines twice. They are `JobQueue<T>`.
+- The validation report pulled `VerifiedBy` and `Summary` out of the evidence JSON by string search, which breaks on
+  the first summary containing a double quote. It deserializes the evidence now; a round-trip test pins that.
+- `STIGSMITH_ENABLE_CONTAINER_TESTS` was documented and set in CI but never read. The tests probe for Docker
+  directly. The references are gone.
+- Unused package references in three projects, the unreferenced Aspire and OpenTelemetry pins in
+  `Directory.Packages.props`, a committed `__pycache__`, and the `tests/` tree being copied into the API image build
+  are all removed. `.dockerignore` keeps `bin/`, `obj/` and the fixtures out of the build context.
+- The kickoff prompt is now `docs/spec.md`, minus the parts that were instructions to an agent rather than a
+  specification.
+
+---
+
+## Running the Docker path for the first time
+
+The machine this was built on had no container runtime, so `DockerValidationSandbox` and the Postgres-backed API
+suites had never executed. With a headless daemon (colima) they did, and nearly everything they found was in the
+code rather than the tests.
+
+### Docker.DotNet.Enhanced replaces Docker.DotNet
+
+Testcontainers 4.15 depends on `Docker.DotNet.Enhanced` 4.3, a fork whose assembly is still called
+`Docker.DotNet`. With the Validation project on upstream `Docker.DotNet` 3.125, the test process loaded the fork's
+assembly and every sandbox test died with a `TypeLoadException` before reaching a container. So the sandbox tests
+could never have run in CI either. The Validation project now uses the fork (a `DockerClientBuilder` instead of
+`DockerClientConfiguration`, a few renamed parameter types), and there is one assembly. The builder also resolves
+`DOCKER_HOST` and the active docker context, so colima, Podman and rootless Docker need no configuration.
+
+### The test probe asks the daemon
+
+`TestEnvironment.HasDocker` used to mean "a docker binary is on PATH or a socket file exists at one of two paths",
+which is true on a machine with the CLI installed and no daemon running — exactly where the suites must skip. It now
+pings the daemon through the same client the code uses.
+
+### Check-content commands are allow-listed, not deny-listed
+
+`ComplianceVerifier` used to enumerate mutating verbs and run anything else from a rule's check content through
+`/bin/sh -lc`. Check content arrives inside an uploaded checklist, and a verifier that can be made to mutate the
+container will then re-scan its own change and report a pass — the one bug this loop must never have. The deny-list
+missed `python3 -c`, `dd`, `ln`, `find -delete`, and any `;` after a harmless command.
+
+**Now:** every command in the pipeline must be a known read-only binary, or a dual-use binary in a read-only
+invocation (`systemctl is-enabled`, `sysctl` without `-w`, `find -exec ls`, `semanage … -l`, and so on), and nothing
+may chain, background, substitute, or redirect other than `2>/dev/null` and `2>&1`. What that refuses is reported as
+"cannot verify". The list is expected to grow as real check content turns up read-only commands it lacks; a rejected
+command is visible in the evidence as an unverified rule, never as a pass.
+
+### oscap actually runs now
+
+The SCAP datastream in the validation image is SCAP Security Guide content. Its rules are named
+`xccdf_org.ssgproject.content_rule_…` and carry the DISA id only as a `reference` element, and its STIG profile is
+`xccdf_org.ssgproject.content_profile_stig`. The verifier was asking for `xccdf_mil.disa.stig_rule_<id>` under a
+`xccdf_mil.disa.stig_profile_…` profile, neither of which exists there, so no rule ever matched and every
+verification silently fell back to the check-content shell test — PROGRESS.md's uncertainty 5, confirmed.
+
+**Now:** the DISA id is resolved to the SSG rule id with an XPath query (`xmllint`) inside the container, then that
+rule is evaluated under the SSG STIG profile. Measured: a single-rule eval takes under two seconds.
+
+**What a container can and cannot prove with it:** SSG tags most host-configuration rules, including every
+`package_*_installed` rule, with its `machine` platform, and reports them `notapplicable` inside a container. That
+result now falls through to check content like `notchecked` does. What oscap does judge in a container is
+package-removal and file-permission rules. The report's `VerifiedByOscap` count is therefore honest and small; a VM
+sandbox is what would raise it.
+
+### A timeout is evidence, and a crashed job leaves a row
+
+The per-rule timeout used to escape `RemediationValidator` as an `OperationCanceledException`, which the worker
+logged and dropped: the run was a 404 forever and the finding was absent from the report as if never queued. The
+validator now records the timeout as a failed stage naming where it hung, and both workers write a
+needs-human-review row from their catch-all so nothing an operator queued can vanish.
+
+### The baseline scan and the dry run are their own stages
+
+Both were recorded under `Rescan` and `Apply` respectively, so `Stage(Apply)` on a high-risk rule returned the
+`--check` output and the persisted `ApplyOutput` column held the dry run, not the apply. They are `Baseline` and
+`CheckMode` now.
+
+### The scripted model is deterministic per rule
+
+`ScriptedRemediationProvider` cycled response shapes on a call counter shared by every test in a fixture, so which
+rule got the cannot-automate answer depended on test order. Four API tests were order-dependent and failed the first
+time they ran. The shape is now the rule's own number modulo four, which is stable and lets a test pick a rule knowing
+what it will get. Three of those tests also named rules that are not open or not eligible in the fixture, which no
+one could have known without running them.
+
+### Smaller things the first run found
+
+- Configuration binding appends array values to a property's default, so `TaskDirectories` from `appsettings.json`
+  doubled the defaults and every role task was indexed twice. The redundant setting is gone and the indexer
+  de-duplicates.
+- The "newest generation per finding" query in `POST /api/checklists/{id}/validate` applied `Include` after a
+  `GroupBy` projection, which EF Core refuses at runtime with a 500. It is a projection plus `DistinctBy` now.
+- `ExtractCheckCommand` refused `find … -exec ls -l {} \;`, which is how DISA lists offending files; `-exec` is
+  allowed when the executed command is itself read-only.
+- An Ollama stream that ends without a `done` frame is an error, not a short answer; a server with no models is not
+  "available"; an unreadable role file is skipped like an unparseable one; a container created but not started is
+  removed rather than leaked.
+
+---
+
+## What a real model and a real container found
+
+Two live runs over the synthetic RHEL 8 checklist: `qwen2.5-coder:7b` through Ollama, the validation image under a
+headless Docker daemon, every eligible open rule. The first run validated 29 rules and passed 9. Most of the 20
+failures were the harness, not the model, and each one below was fixed and then pinned by a test.
+
+### The role's variable files go into the sandbox
+
+The placeholder vars file set every referenced variable to `true`, including `stigsmith_rhel8_sshd_config_path`, so a
+task that followed the house convention failed with "Destination True does not exist". The role's `defaults/` and
+`vars/` files now go into the container verbatim and are passed to ansible-playbook before the placeholder file, so
+the role's real values win and the placeholder only fills names the role does not define — plus the per-rule toggle,
+forced on. Not parsed and re-emitted: ansible-playbook is the only reader that gets every YAML subtlety right.
+
+### Handlers are stubbed by name
+
+The prompt tells the model to notify only handlers the role defines, the model did, and the synthesized play defined
+none, so every task with a `notify` died before its recap. The play now carries a `debug` stub for each handler the
+role defines or notifies. What a handler does on a host is not what the sandbox proves; the change to the file is.
+
+### ansible-lint never read its config
+
+The image set `ANSIBLE_LINT_CONFIG`, which ansible-lint does not read, so the skip list — `name[casing]`, and now
+`yaml[line-length]`, which a real model tripped with a 164-character task name — was silently ignored. The loop passes
+`-c` with the path from `ValidationOptions.AnsibleLintConfig`.
+
+### The oscap verdict was there all along
+
+`oscap` writes `Result\r\tpass`, a carriage return before the tab. The parser normalised the carriage return to a
+line break, which put the verdict on a line with no label, so even after the rule-id mapping was fixed every scan read
+as "no verdict" and fell back to check content. Carriage returns are dropped now, and the unit test uses the real bytes.
+
+### A second apply that ran nothing is not idempotent
+
+`PlayRecap.Idempotent` was `Clean && Changed == 0`, and a run that died before printing a recap parsed as zero of
+everything — so an apply that crashed on the second pass would have passed the idempotency stage. It now also requires
+`Ok > 0`, and the summaries say "did not run the tasks" with ansible's last line rather than "every task was skipped".
+
+### What the check-content fallback gets wrong, on purpose left alone
+
+For "must not have the telnet-server package installed" the check is `yum list installed telnet-server` and the rule
+passes when that command *fails*. The fallback treats exit zero as pass, so it reads negative checks backwards.
+Inferring polarity from DISA prose ("if the package is installed, this is a finding") would be a second heuristic
+stacked on the first. oscap judges package-removal rules inside a container, and now does, so the case that matters
+most is covered by the stronger verifier; the evidence records which one ran, and the README says how to weigh a
+check-content pass.
+
+### An empty vars document is not a mapping
+
+`-e @vars.yml` on a file containing only `---` makes ansible-playbook print its usage and exit, which reported as a
+syntax failure for every rule with no referenced variables. The file is `--- {}` when empty. The real-container
+non-idempotency test had been "passing" on that syntax failure; it now asserts the failure is at the idempotency stage.
+
+### The allow-list parses shell words, after a review found a bypass
+
+The first allow-list classified the raw text of each argument, quotes included. `iptables -L '-F'` therefore passed
+the "no `-F`" check while the shell handed `iptables` a bare `-F`. The tokenizer now produces the words the binary
+will actually receive — single quotes literal, double quotes literal apart from backslash escapes, backslash escapes
+the next character — and refuses anything else outright: every `$`, backtick, `(`, `)`, `<`, `>`, `&`, `;`, and an
+unbalanced quote. What it accepts, it has parsed the way `sh` will. The bypass cases are in the unit tests.
+
+### The validation image carries the files the STIG edits
+
+`openssh-server`, `audit`, `rsyslog`, `firewalld`, `chrony`, `sudo`, `libpwquality`, `aide`, `policycoreutils`,
+`authselect`, `dconf`, `tmux`, plus generated host keys so `sshd -t` works. Their services do not run in a container
+and the loop does not pretend they do, but without the files every sshd rule failed with "Destination
+/etc/ssh/sshd_config does not exist" before its YAML was judged. `yaml[line-length]` is waived in the lint config for
+the same reason naming rules were: a 164-character task name is not what the loop exists to prove.
+
+---
+
+## The check-content verifier reads the check, not the exit code
+
+The first live run passed twelve rules "pass to pass": the rule's `grep` matched the commented default line in a stock
+config file and exited zero, before anything had been applied. And "if the telnet-server package is installed, this is
+a finding" was read backwards, because that check passes exactly when its command fails.
+
+DISA check content has a stable shape: a prompted command, the compliant output under it, a blank line, and one or
+more "this is a finding" sentences. `ComplianceVerifier.ExtractCheck` reads that shape into a `CheckSpec` with one of
+three readings, and `Judge` applies it:
+
+- **Shown output.** Every shown line must appear in the real output, compared case- and whitespace-insensitively,
+  ignoring commented lines and the `path:` prefix grep adds for several files. The strongest reading and the common one.
+- **Negative.** No shown output, and the finding sentence says the result is the finding (`is installed`, `is found`,
+  `any output`, without a `not`, `no`, `missing`, `unless`). Any output fails.
+- **Exit code.** Neither of the above. A zero exit passes, except for `find`, which exits zero whether or not it found
+  anything. The weakest reading, and the evidence says so.
+
+Shown output that is an example rather than a requirement — a package listing with a version, a password hash, a
+mount line, a permissions listing, a truncated value — is dropped rather than matched literally, which pushes those
+rules to the sentence reading. That errs toward "fail" or "unknown", never toward a pass the output does not support.
+An unrunnable command (exit 126 or 127) and a `grep` error (exit 2 with no output) are "unknown", not "fail".
+
+The scripted sandbox now answers each fixture rule's check the way the check itself says a compliant host would, so
+the loop's tests run against the same reading. The reason for every verdict is in the evidence:
+`fail (the output does not contain 'PermitRootLogin no')`.
+
+**Rejected:** inferring the required value from the finding sentence ("if set to anything other than 1"). That is a
+third heuristic stacked on the second; the shown output already carries the value in nearly every rule.
+
+---
+
+## Prompt rules are measured, not assumed
+
+Three of the eleven human-review cases on the final harness were the model's own mistakes: `changed_when` nested
+inside the `command` module (twice), an invented `ansible.builtin.postconf` module, and a regex of `^*`. Each got a
+bullet in the system prompt and the whole loop was re-run.
+
+**Measured (`qwen2.5-coder:7b`, temperature 0):** the module-existence rule worked — the postfix rule came back as
+`lineinfile` on `main.cf` and failed later for an honest reason. The keyword-placement rule was ignored: both
+`command` tasks still nested `changed_when`. And a rule that had produced a correct `file` task before now produced
+`command: chmod` with a nested `changed_when`. The two bullets that mentioned `command` together with `changed_when`
+appear to have primed the model toward exactly the shape they warned against, which is a known failure of negative
+instructions with small models. The regex bullet changed nothing.
+
+**Kept:** the one rule that measured well. **Dropped:** the two that did not, one of which cost a pass. The 7B model's
+error classes are documented in PROGRESS.md; the honest fix for them is a stronger model or a corrective example in
+the few-shot block, and either is a measurement away with `tools/live_run.py`.
+
+### Enums are strings on the wire
+
+`outcome: 3` and `verifiedBy: 2` were what the API returned. Every enum that reaches a response carries
+`[JsonConverter(typeof(JsonStringEnumConverter))]`, which also makes the test clients deserialise them without
+per-call options. The evidence JSON already used strings.
+

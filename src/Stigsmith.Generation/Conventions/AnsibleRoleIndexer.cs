@@ -77,6 +77,7 @@ public sealed partial class AnsibleRoleIndexer(ILogger<AnsibleRoleIndexer>? logg
             return RoleIndex.Empty($"The configured convention role path does not exist: {root}");
 
         var files = options.TaskDirectories
+            .Distinct(StringComparer.Ordinal)
             .Select(d => Path.Combine(root, d))
             .Where(Directory.Exists)
             .SelectMany(d => Directory.EnumerateFiles(d, "*.y*ml", SearchOption.AllDirectories))
@@ -99,7 +100,7 @@ public sealed partial class AnsibleRoleIndexer(ILogger<AnsibleRoleIndexer>? logg
             {
                 tasks.AddRange(ParseFile(File.ReadAllText(file), relative));
             }
-            catch (YamlException ex)
+            catch (Exception ex) when (ex is YamlException or IOException or UnauthorizedAccessException)
             {
                 // Best-effort: one unparseable file must not cost the operator the whole index.
                 skipped.Add($"{relative}: {ex.Message}");
@@ -119,7 +120,46 @@ public sealed partial class AnsibleRoleIndexer(ILogger<AnsibleRoleIndexer>? logg
             Tasks = tasks,
             SkippedFiles = skipped,
             Conventions = RoleConventions.Infer(tasks),
+            VarsFiles = ReadVarsFiles(root, skipped),
         };
+    }
+
+    /// <summary>
+    /// The role's variable files, verbatim, with their top-level keys. Not parsed into values: ansible-playbook reads
+    /// them itself in the sandbox, which is the only reader that gets every YAML subtlety right.
+    /// </summary>
+    private List<RoleVarsFile> ReadVarsFiles(string root, List<string> skipped)
+    {
+        var files = new List<RoleVarsFile>();
+        foreach (var directory in new[] { "defaults", "vars" })
+        {
+            var path = Path.Combine(root, directory);
+            if (!Directory.Exists(path)) continue;
+            foreach (var file in Directory.EnumerateFiles(path, "*.y*ml", SearchOption.AllDirectories).Order(StringComparer.Ordinal))
+            {
+                var relative = Path.GetRelativePath(root, file);
+                try
+                {
+                    var content = File.ReadAllText(file);
+                    var stream = new YamlStream();
+                    stream.Load(new StringReader(content));
+                    var names = stream.Documents
+                        .Select(d => d.RootNode)
+                        .OfType<YamlMappingNode>()
+                        .SelectMany(m => m.Children.Keys.OfType<YamlScalarNode>())
+                        .Select(k => k.Value ?? "")
+                        .Where(k => k.Length > 0)
+                        .ToHashSet(StringComparer.Ordinal);
+                    files.Add(new RoleVarsFile(relative, content, names));
+                }
+                catch (Exception ex) when (ex is YamlException or IOException or UnauthorizedAccessException)
+                {
+                    skipped.Add($"{relative}: {ex.Message}");
+                    logger?.LogWarning(ex, "Skipped unreadable variable file {File} while indexing role conventions.", relative);
+                }
+            }
+        }
+        return files;
     }
 
     /// <summary>Parses one task file's worth of YAML. Public so a single file can be indexed or inspected.</summary>

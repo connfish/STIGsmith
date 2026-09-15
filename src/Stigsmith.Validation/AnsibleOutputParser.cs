@@ -7,8 +7,15 @@ public sealed record PlayRecap(int Ok, int Changed, int Unreachable, int Failed,
 {
     public bool Clean => Failed == 0 && Unreachable == 0;
 
-    /// <summary>The idempotency requirement: a second apply must change nothing.</summary>
-    public bool Idempotent => Clean && Changed == 0;
+    /// <summary>
+    /// The idempotency requirement: a second apply must run the tasks and change nothing. A run that ran nothing —
+    /// no recap at all because ansible-playbook died first, or every task skipped — proves nothing and is not
+    /// idempotent; without the <c>Ok</c> check an apply that crashed before its recap would have counted as a pass.
+    /// </summary>
+    public bool Idempotent => Clean && Changed == 0 && Ok > 0;
+
+    /// <summary>True when the tasks never ran: no recap was printed, or nothing in it was ok.</summary>
+    public bool RanNothing => Ok == 0 && Failed == 0 && Unreachable == 0;
 
     public static PlayRecap None => new(0, 0, 0, 0, 0, 0, 0);
 }

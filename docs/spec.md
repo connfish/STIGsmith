@@ -1,9 +1,7 @@
-# STIGSMITH — Claude Code Kickoff Prompt
+# STIGSMITH — specification
 
-> Paste everything below the line into Claude Code. Run `/init` first if the repo is empty.
-> Consider starting in plan mode (`shift+tab`) so you can approve the approach before it writes code.
-
----
+The build spec this repository was started from. The constraints and milestones are binding. The stack
+section is as decided at kickoff; later changes to it are recorded in `DECISIONS.md`.
 
 ## Project
 
@@ -201,23 +199,3 @@ keyboard-driven interface and focus must be obvious at all times. WCAG AA contra
 first. Screenshot it and check it against the "do not use" list above before building any
 components. If any part of what you've built would look the same on a project about something
 entirely different, that part is wrong — fix it and note the change in `DECISIONS.md`.
-
-## How to work
-
-- **Do not ask me for permission mid-run.** Make reasonable decisions, record them in
-  `DECISIONS.md` with reasoning and rejected alternatives, and keep going.
-- Maintain `PROGRESS.md`: current milestone, what's done, what's stubbed, what's blocked, what
-  you'd do next. Assume I will read it and take over cold.
-- Write tests as you go. The parsers need golden-file tests; the prompt assembly needs the
-  hygiene test; the validation loop needs a deliberately-failing case.
-- Where you're unsure about a format detail or a spec interpretation, say so in a code comment
-  and in `DECISIONS.md`. Flagged uncertainty is far more useful to me than confident guessing —
-  especially around `.cklb`, which is less well documented than `.ckl`.
-- If a milestone is bigger than expected, finish it properly and stop. A working M4 beats a
-  half-built M6.
-
-## Stop and hand off when
-
-M6 is complete and committed, or you hit something that genuinely needs my input. Write a handoff
-summary in `PROGRESS.md`: what works, what's stubbed, coverage numbers from M3, what you'd attack
-next, and anything you're uncertain about.

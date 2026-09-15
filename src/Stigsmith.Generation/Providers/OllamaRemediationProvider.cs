@@ -47,7 +47,7 @@ public sealed class OllamaRemediationProvider(
 
             // Reachable but without the configured model is a distinct, actionable failure: the operator needs
             // to run `ollama pull`, not debug their network.
-            if (installed.Length > 0 && !installed.Any(m => ModelMatches(m, options.Value.Model)))
+            if (!installed.Any(m => ModelMatches(m, options.Value.Model)))
             {
                 logger.LogWarning(
                     "Ollama at {BaseUrl} is reachable but model {Model} is not installed. Installed: {Installed}. "
@@ -143,6 +143,11 @@ public sealed class OllamaRemediationProvider(
 
             if (text.Length > 0) yield return new GenerationChunk(text);
         }
+
+        // Ollama always closes a stream with a done frame. Getting here means the connection dropped mid-generation,
+        // and a truncated answer must not be recorded as a complete one.
+        throw new RemediationProviderException(
+            "The Ollama stream ended before the model reported it was done; the response is incomplete.");
     }
 
     private static string Truncate(string s, int max) => s.Length <= max ? s : s[..max] + "...";

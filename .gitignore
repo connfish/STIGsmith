@@ -7,3 +7,4 @@ artifacts/
 .DS_Store
 TestResults/
 node_modules/
+__pycache__/

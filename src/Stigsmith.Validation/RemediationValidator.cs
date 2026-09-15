@@ -1,4 +1,5 @@
 using System.Diagnostics;
+using System.Text;
 using Microsoft.Extensions.Logging;
 using Stigsmith.Checklists.Model;
 
@@ -20,6 +21,20 @@ public sealed record ValidationRequest
 
     /// <summary>True for a high-risk rule: the loop additionally proves the tasks survive <c>--check</c>.</summary>
     public bool RequireCheckMode { get; init; }
+
+    /// <summary>
+    /// The operator's role variable files, verbatim. Supplied to ansible-playbook before the placeholder file so the
+    /// role's real values win: a task written to the house conventions references <c>{{ stigsmith_rhel8_sshd_config_path }}</c>,
+    /// and a placeholder of <c>true</c> there produced "Destination True does not exist" on a real model's first run.
+    /// </summary>
+    public IReadOnlyList<string> RoleVarsFiles { get; init; } = [];
+
+    /// <summary>
+    /// Handlers the role defines. Stubbed in the validation play so a task that notifies one — which the prompt
+    /// tells the model to do — is not rejected for following the convention. What the handler does on a real host
+    /// (restart sshd, reload sysctl) is not what the loop verifies; the change to the file is.
+    /// </summary>
+    public IReadOnlyList<string> HandlerNames { get; init; } = [];
 }
 
 /// <summary>Asks the model to fix its own output, given the error. Injected so the loop does not depend on the generation stack.</summary>
@@ -123,7 +138,7 @@ public sealed class RemediationValidator(
     private async Task<ValidationEvidence> RunOnceAsync(
         ValidationRequest request, int attempt, CancellationToken cancellationToken)
     {
-        var playbook = PlaybookBuilder.Build(request.TasksYaml, request.Rule.RuleVersion);
+        var playbook = PlaybookBuilder.Build(request.TasksYaml, request.Rule.RuleVersion, request.HandlerNames);
         var stages = new List<StageEvidence>();
         var startedAt = DateTimeOffset.UtcNow;
 
@@ -162,91 +177,128 @@ public sealed class RemediationValidator(
         using var timeout = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
         timeout.CancelAfter(options.PerRuleTimeout);
         var ct = timeout.Token;
+        var running = ValidationStage.Lint;
 
-        await using var session = await sandbox.StartAsync(ct);
-        var work = options.WorkDirectory;
-
-        await session.WriteFileAsync($"{work}/playbook.yml", playbook, ct);
-        await session.WriteFileAsync(
-            $"{work}/vars.yml",
-            PlaybookBuilder.BuildVarsFile(request.ReferencedVariables),
-            ct);
-
-        var runPlaybook = $"cd {work} && ansible-playbook -i localhost, -c local -e @vars.yml playbook.yml";
-
-        // --- 1. Lint ---
-        var lint = await Timed(ValidationStage.Lint, stages,
-            $"cd {work} && ansible-lint --nocolor playbook.yml", session, ct,
-            passed: AnsibleOutputParser.LintPassed);
-        if (!lint.Passed)
-            return Result(ValidationOutcome.Failed, ValidationStage.Lint,
-                "ansible-lint rejected the generated playbook.");
-
-        // --- 1b. Syntax check ---
-        var syntax = await Timed(ValidationStage.SyntaxCheck, stages,
-            $"{runPlaybook} --syntax-check", session, ct);
-        if (!syntax.Passed)
-            return Result(ValidationOutcome.Failed, ValidationStage.SyntaxCheck,
-                "ansible-playbook --syntax-check rejected the generated playbook.");
-
-        // --- 2. Status before, so the re-scan afterwards means something ---
-        var before = await verifier.VerifyAsync(session, request.Rule, ct);
-        stages.Add(new StageEvidence(
-            ValidationStage.Rescan, Passed: true, before.Command, before.Output.ExitCode,
-            $"before remediation: {before.Status}\n{before.Output.Combined}", TimeSpan.Zero));
-
-        // --- 2b. Check mode, for high-risk rules, before touching anything ---
-        if (request.RequireCheckMode)
+        try
         {
-            var checkMode = await Timed(ValidationStage.Apply, stages, $"{runPlaybook} --check", session, ct,
-                passed: r => AnsibleOutputParser.ParseRecap(r.Combined).Clean && r.Succeeded);
-            if (!checkMode.Passed)
+            await using var session = await sandbox.StartAsync(ct);
+            var work = options.WorkDirectory;
+
+            await session.WriteFileAsync($"{work}/playbook.yml", playbook, ct);
+            await session.WriteFileAsync(
+                $"{work}/vars.yml",
+                PlaybookBuilder.BuildVarsFile(request.ReferencedVariables),
+                ct);
+
+            // The role's own files first, the placeholder file last, so a real value is never replaced by `true`.
+            var extraVars = new StringBuilder();
+            for (var i = 0; i < request.RoleVarsFiles.Count; i++)
+            {
+                await session.WriteFileAsync($"{work}/rolevars-{i}.yml", request.RoleVarsFiles[i], ct);
+                extraVars.Append($"-e @rolevars-{i}.yml ");
+            }
+
+            var runPlaybook = $"cd {work} && ansible-playbook -i localhost, -c local {extraVars}-e @vars.yml playbook.yml";
+
+            // --- 1. Lint ---
+            var lint = await Timed(ValidationStage.Lint, stages,
+                $"cd {work} && ansible-lint --nocolor -c {options.AnsibleLintConfig} playbook.yml", session, ct,
+                passed: AnsibleOutputParser.LintPassed);
+            if (!lint.Passed)
+                return Result(ValidationOutcome.Failed, ValidationStage.Lint,
+                    "ansible-lint rejected the generated playbook.");
+
+            // --- 1b. Syntax check ---
+            running = ValidationStage.SyntaxCheck;
+            var syntax = await Timed(ValidationStage.SyntaxCheck, stages,
+                $"{runPlaybook} --syntax-check", session, ct);
+            if (!syntax.Passed)
+                return Result(ValidationOutcome.Failed, ValidationStage.SyntaxCheck,
+                    "ansible-playbook --syntax-check rejected the generated playbook.");
+
+            // --- 2. Baseline, so the re-scan afterwards means something ---
+            running = ValidationStage.Baseline;
+            var before = await verifier.VerifyAsync(session, request.Rule, ct);
+            stages.Add(new StageEvidence(
+                ValidationStage.Baseline, before.Kind != ComplianceVerifierKind.None, before.Command, before.Output.ExitCode,
+                $"before remediation: {before.Describe}\n{before.Output.Combined}", TimeSpan.Zero));
+
+            // --- 2b. Check mode, for high-risk rules, before touching anything ---
+            if (request.RequireCheckMode)
+            {
+                running = ValidationStage.CheckMode;
+                var checkMode = await Timed(ValidationStage.CheckMode, stages, $"{runPlaybook} --check", session, ct,
+                    passed: r => AnsibleOutputParser.ParseRecap(r.Combined).Clean && r.Succeeded);
+                if (!checkMode.Passed)
+                    return Result(ValidationOutcome.Failed, ValidationStage.CheckMode,
+                        "This is a high-risk rule and the playbook failed under --check, so an operator could not "
+                        + "dry-run it safely.",
+                        before: before.Status, verifiedBy: before.Kind);
+            }
+
+            // --- 3. Apply ---
+            running = ValidationStage.Apply;
+            var apply = await Timed(ValidationStage.Apply, stages, runPlaybook, session, ct,
+                passed: r => AnsibleOutputParser.AppliedSomething(AnsibleOutputParser.ParseRecap(r.Combined)));
+            var applyRecap = AnsibleOutputParser.ParseRecap(apply.Output);
+            if (!apply.Passed)
                 return Result(ValidationOutcome.Failed, ValidationStage.Apply,
-                    "This is a high-risk rule and the playbook failed under --check, so an operator could not "
-                    + "dry-run it safely.",
+                    applyRecap.RanNothing
+                        ? (applyRecap == PlayRecap.None
+                            ? $"ansible-playbook exited {apply.ExitCode} before running any task: {LastLine(apply.Output)}"
+                            : "The playbook ran but applied nothing — every task was skipped, so the finding is untouched.")
+                        : $"The playbook failed to apply ({applyRecap.Failed} failed task(s)).",
                     before: before.Status, verifiedBy: before.Kind);
+
+            // --- 4. Re-scan and confirm the finding flipped ---
+            running = ValidationStage.Rescan;
+            var after = await verifier.VerifyAsync(session, request.Rule, ct);
+            stages.Add(new StageEvidence(
+                ValidationStage.Rescan, after.Passed, after.Command, after.Output.ExitCode,
+                $"after remediation: {after.Describe}\n{after.Output.Combined}", TimeSpan.Zero));
+
+            if (!after.Passed)
+                return Result(ValidationOutcome.Failed, ValidationStage.Rescan,
+                    after.Kind == ComplianceVerifierKind.None || after.Status == "unknown"
+                        ? $"The playbook applied cleanly, but the finding could not be verified ({after.Reason}), so "
+                          + "nothing here proves the rule now passes."
+                        : $"The playbook applied cleanly but the rule still reports '{after.Status}' after remediation: "
+                          + $"{after.Reason}.",
+                    before: before.Status, after: after.Status, verifiedBy: after.Kind);
+
+            // --- 5. Idempotency: apply again, expect zero changes ---
+            running = ValidationStage.Idempotency;
+            var second = await Timed(ValidationStage.Idempotency, stages, runPlaybook, session, ct,
+                passed: r => AnsibleOutputParser.ParseRecap(r.Combined).Idempotent);
+            var secondRecap = AnsibleOutputParser.ParseRecap(second.Output);
+            if (!second.Passed)
+                return Result(ValidationOutcome.Failed, ValidationStage.Idempotency,
+                    secondRecap.RanNothing
+                        ? $"The second apply did not run the tasks (exit {second.ExitCode}), so idempotency is unproven: {LastLine(second.Output)}"
+                        : $"The playbook is not idempotent: a second apply reported {secondRecap.Changed} changed task(s).",
+                    before: before.Status, after: after.Status, verifiedBy: after.Kind,
+                    changed: secondRecap.Changed);
+
+            return Result(ValidationOutcome.Passed, null,
+                $"Linted clean, applied {applyRecap.Changed} changed task(s), the rule flipped from "
+                + $"'{before.Status}' to '{after.Status}' ({after.Kind}), and a second apply changed nothing.",
+                before: before.Status, after: after.Status, verifiedBy: after.Kind, changed: secondRecap.Changed);
         }
-
-        // --- 3. Apply ---
-        var apply = await Timed(ValidationStage.Apply, stages, runPlaybook, session, ct,
-            passed: r => AnsibleOutputParser.AppliedSomething(AnsibleOutputParser.ParseRecap(r.Combined)));
-        var applyRecap = AnsibleOutputParser.ParseRecap(apply.Output);
-        if (!apply.Passed)
-            return Result(ValidationOutcome.Failed, ValidationStage.Apply,
-                applyRecap.Clean
-                    ? "The playbook ran but applied nothing — every task was skipped, so the finding is untouched."
-                    : $"The playbook failed to apply ({applyRecap.Failed} failed task(s)).",
-                before: before.Status, verifiedBy: before.Kind);
-
-        // --- 4. Re-scan and confirm the finding flipped ---
-        var after = await verifier.VerifyAsync(session, request.Rule, ct);
-        stages.Add(new StageEvidence(
-            ValidationStage.Rescan, after.Passed, after.Command, after.Output.ExitCode,
-            $"after remediation: {after.Status}\n{after.Output.Combined}", TimeSpan.Zero));
-
-        if (!after.Passed)
-            return Result(ValidationOutcome.Failed, ValidationStage.Rescan,
-                after.Kind == ComplianceVerifierKind.None
-                    ? "The playbook applied cleanly, but the finding could not be verified, so nothing here proves "
-                      + "the rule now passes."
-                    : $"The playbook applied cleanly but the rule still reports '{after.Status}' after remediation.",
-                before: before.Status, after: after.Status, verifiedBy: after.Kind);
-
-        // --- 5. Idempotency: apply again, expect zero changes ---
-        var second = await Timed(ValidationStage.Idempotency, stages, runPlaybook, session, ct,
-            passed: r => AnsibleOutputParser.ParseRecap(r.Combined).Idempotent);
-        var secondRecap = AnsibleOutputParser.ParseRecap(second.Output);
-        if (!second.Passed)
-            return Result(ValidationOutcome.Failed, ValidationStage.Idempotency,
-                $"The playbook is not idempotent: a second apply reported {secondRecap.Changed} changed task(s).",
-                before: before.Status, after: after.Status, verifiedBy: after.Kind,
-                changed: secondRecap.Changed);
-
-        return Result(ValidationOutcome.Passed, null,
-            $"Linted clean, applied {applyRecap.Changed} changed task(s), the rule flipped from "
-            + $"'{before.Status}' to '{after.Status}' ({after.Kind}), and a second apply changed nothing.",
-            before: before.Status, after: after.Status, verifiedBy: after.Kind, changed: secondRecap.Changed);
+        catch (OperationCanceledException) when (timeout.IsCancellationRequested && !cancellationToken.IsCancellationRequested)
+        {
+            // The per-rule limit expired mid-stage. A remediation that hangs is a finding about the remediation, so it
+            // is recorded as a failed stage that names where it hung, not thrown out of the worker with nothing kept.
+            stages.Add(new StageEvidence(running, Passed: false, Command: "", ExitCode: -1,
+                Output: $"Timed out after {options.PerRuleTimeout}.", Duration: options.PerRuleTimeout));
+            return Result(ValidationOutcome.Failed, running,
+                $"The {running} stage did not finish within {options.PerRuleTimeout}; the remediation or its "
+                + "verification hangs.");
+        }
     }
+
+    /// <summary>The last non-empty line of tool output, which is where ansible puts the reason it stopped.</summary>
+    private static string LastLine(string output) =>
+        output.Split('\n', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries).LastOrDefault() ?? "";
 
     private static async Task<StageEvidence> Timed(
         ValidationStage stage,

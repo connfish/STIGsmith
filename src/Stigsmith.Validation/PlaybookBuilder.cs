@@ -17,7 +17,7 @@ public static class PlaybookBuilder
     /// Builds a playbook targeting the container itself. <c>hosts: localhost</c> with a local connection: the
     /// sandbox <em>is</em> the target, so there is no inventory and no host to name.
     /// </summary>
-    public static string Build(string tasksYaml, string? ruleVersion = null)
+    public static string Build(string tasksYaml, string? ruleVersion = null, IReadOnlyList<string>? handlerNames = null)
     {
         var body = new StringBuilder();
         body.AppendLine("---");
@@ -33,6 +33,19 @@ public static class PlaybookBuilder
         body.Append(Indent(tasksYaml, "    "));
         if (!tasksYaml.EndsWith('\n')) body.AppendLine();
 
+        // The role's handlers, stubbed by name, so `notify` resolves. A restart or reload is not what the sandbox
+        // proves; the stub says so in its output rather than pretending.
+        if (handlerNames is { Count: > 0 })
+        {
+            body.AppendLine("  handlers:");
+            foreach (var name in handlerNames)
+            {
+                body.AppendLine($"    - name: \"{name.Replace("\\", "\\\\").Replace("\"", "\\\"")}\"");
+                body.AppendLine("      ansible.builtin.debug:");
+                body.AppendLine("        msg: Handler stubbed in the Stigsmith validation sandbox.");
+            }
+        }
+
         return body.ToString();
     }
 
@@ -47,9 +60,14 @@ public static class PlaybookBuilder
     /// </remarks>
     public static string BuildVarsFile(IEnumerable<string> variableNames, IDictionary<string, string>? known = null)
     {
+        var names = variableNames.Distinct(StringComparer.Ordinal).Order(StringComparer.Ordinal).ToArray();
+        // An empty document is not a mapping, and `-e @vars.yml` on one makes ansible-playbook print its usage and
+        // exit before reading the playbook — which looked like a syntax failure of every rule with no variables.
+        if (names.Length == 0) return "--- {}\n";
+
         var body = new StringBuilder();
         body.AppendLine("---");
-        foreach (var name in variableNames.Distinct(StringComparer.Ordinal).Order(StringComparer.Ordinal))
+        foreach (var name in names)
         {
             if (known is not null && known.TryGetValue(name, out var value))
                 body.AppendLine($"{name}: {value}");

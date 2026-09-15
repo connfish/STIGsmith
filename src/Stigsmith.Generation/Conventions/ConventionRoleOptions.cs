@@ -21,6 +21,8 @@ public sealed class ConventionRoleOptions
     /// <summary>
     /// Subdirectories of the role that hold tasks. Roles vary; <c>tasks</c> and <c>handlers</c> cover
     /// the common layout, and a role that puts tasks elsewhere adds it here rather than needing code.
+    /// Configuration binding appends to this default rather than replacing it, and the indexer ignores
+    /// duplicates and directories that do not exist, so listing a default again is harmless.
     /// </summary>
     public string[] TaskDirectories { get; set; } = ["tasks", "handlers"];
 

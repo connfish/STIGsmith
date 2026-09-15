@@ -1,3 +1,4 @@
+using Stigsmith.Checklists;
 using Stigsmith.Validation;
 
 namespace Stigsmith.Tests.Support;
@@ -22,6 +23,18 @@ public sealed class ScriptedSandbox : IValidationSandbox
     /// <summary>Tasks YAML containing this marker behaves as broken remediation.</summary>
     public const string BrokenMarker = "STIGSMITH_BROKEN";
 
+    /// <summary>
+    /// What a compliant host answers to each fixture rule's check, read from the check content itself, so the
+    /// scripted world agrees with the verifier about what "pass" looks like: the shown output after remediation, a
+    /// commented default line before it (which exits zero and must not count), and nothing at all for a check whose
+    /// result would be the finding.
+    /// </summary>
+    private static readonly Lazy<Dictionary<string, CheckSpec>> FixtureChecks = new(() =>
+        ChecklistIo.ReadFile(TestEnvironment.FixturePath("ckl", "rhel8-host-alpha.ckl")).Findings
+            .Select(f => (f.Rule.RuleVersion, Spec: ComplianceVerifier.ExtractCheck(f.Rule.CheckContent)))
+            .Where(p => p.Spec is not null && p.RuleVersion.Length > 0)
+            .ToDictionary(p => p.RuleVersion, p => p.Spec!, StringComparer.OrdinalIgnoreCase));
+
     public string Image => "scripted/validation:test";
 
     public bool Available { get; set; } = true;
@@ -34,6 +47,12 @@ public sealed class ScriptedSandbox : IValidationSandbox
 
     /// <summary>The apply reports a failed task.</summary>
     public bool ApplyFails { get; set; }
+
+    /// <summary>The apply never returns, so only the per-rule timeout can end it.</summary>
+    public bool ApplyHangs { get; set; }
+
+    /// <summary>The second apply dies before printing a recap, as ansible does for a missing handler.</summary>
+    public bool SecondApplyCrashes { get; set; }
 
     /// <summary>The apply succeeds but every task is skipped, so nothing is remediated.</summary>
     public bool ApplyChangesNothing { get; set; }
@@ -50,7 +69,13 @@ public sealed class ScriptedSandbox : IValidationSandbox
     /// <summary>Set when the check content command should be treated as unrunnable, as for a policy rule.</summary>
     public bool NoVerifierAvailable { get; set; }
 
+    /// <summary>oscap and a datastream that knows the rule are present, so verification is a real SCAP scan.</summary>
+    public bool OscapKnowsTheRule { get; set; }
+
     public List<string> Commands { get; } = [];
+
+    /// <summary>Every file written into the container, by path, so a test can check what the play was given.</summary>
+    public Dictionary<string, string> Files { get; } = [];
 
     public int SessionsStarted { get; private set; }
 
@@ -66,12 +91,16 @@ public sealed class ScriptedSandbox : IValidationSandbox
         LintFails = false;
         SyntaxFails = false;
         ApplyFails = false;
+        ApplyHangs = false;
+        SecondApplyCrashes = false;
         ApplyChangesNothing = false;
         RescanNeverPasses = false;
         NotIdempotent = false;
         CheckModeFails = false;
         NoVerifierAvailable = false;
+        OscapKnowsTheRule = false;
         Commands.Clear();
+        Files.Clear();
     }
 
     public Task<bool> IsAvailableAsync(CancellationToken cancellationToken = default) => Task.FromResult(Available);
@@ -86,12 +115,18 @@ public sealed class ScriptedSandbox : IValidationSandbox
     {
         private bool _applied;
         private string _tasks = "";
+        private string? _ruleVersion;
 
         public string ContainerId => "scripted-container";
 
         public Task WriteFileAsync(string path, string content, CancellationToken cancellationToken = default)
         {
-            if (path.EndsWith("playbook.yml", StringComparison.Ordinal)) _tasks = content;
+            owner.Files[path] = content;
+            if (path.EndsWith("playbook.yml", StringComparison.Ordinal))
+            {
+                _tasks = content;
+                _ruleVersion = content.Split('\n').FirstOrDefault(l => l.StartsWith("# Rule: ", StringComparison.Ordinal))?["# Rule: ".Length..].Trim();
+            }
             return Task.CompletedTask;
         }
 
@@ -116,7 +151,13 @@ public sealed class ScriptedSandbox : IValidationSandbox
             // The verifier's probe for oscap. Reporting it absent sends the loop down the check-content path, which is
             // what a machine without the SCAP datastream would really do.
             if (command.Contains("command -v oscap", StringComparison.Ordinal))
-                return Ok("");
+                return Ok(owner.OscapKnowsTheRule ? "ready" : "");
+
+            // The DISA id to SSG rule id lookup, then the scan itself, in the shapes the real tools produce.
+            if (command.StartsWith("xmllint --xpath", StringComparison.Ordinal))
+                return Ok("xccdf_org.ssgproject.content_rule_scripted_rule\n");
+            if (command.StartsWith("oscap xccdf eval", StringComparison.Ordinal))
+                return Ok($"Title\tScripted rule\nRule\txccdf_org.ssgproject.content_rule_scripted_rule\nResult\t{(_applied ? "pass" : "fail")}\n");
 
             // Matched on ansible-playbook as well as the flag: a verification command can legitimately carry
             // --check of its own (fips-mode-setup --check), and routing that here would have the fake report a
@@ -129,6 +170,9 @@ public sealed class ScriptedSandbox : IValidationSandbox
 
             if (command.Contains("ansible-playbook", StringComparison.Ordinal))
             {
+                if (owner.ApplyHangs)
+                    return Hang(cancellationToken);
+
                 if (owner.ApplyFails)
                     return Fail(2, Recap(ok: 0, changed: 0, failed: 1));
 
@@ -137,6 +181,8 @@ public sealed class ScriptedSandbox : IValidationSandbox
                     return Ok(Recap(ok: 0, changed: 0, failed: 0, skipped: 1));
 
                 var firstApply = !_applied;
+                if (!firstApply && owner.SecondApplyCrashes)
+                    return Fail(4, "ERROR! The requested handler 'restart sshd' was not found in either the main handlers list nor in the listening handlers list");
                 _applied = true;
                 var changed = firstApply || owner.NotIdempotent ? 1 : 0;
                 return Ok(Recap(ok: 1, changed: changed, failed: 0));
@@ -144,9 +190,16 @@ public sealed class ScriptedSandbox : IValidationSandbox
 
             // Anything else is the verifier running DISA's check command.
             if (owner.NoVerifierAvailable) return Fail(127, "sh: command not found");
-            return _applied && !owner.RescanNeverPasses
-                ? Ok("PermitRootLogin no")
-                : Fail(1, "");
+            var compliant = _applied && !owner.RescanNeverPasses;
+            if (_ruleVersion is not null && FixtureChecks.Value.TryGetValue(_ruleVersion, out var check))
+                return check.Polarity switch
+                {
+                    // Before remediation the stock file has the setting commented out: exit zero, no compliance.
+                    CheckPolarity.ExpectedOutput => Ok(compliant ? string.Join('\n', check.ExpectedLines) : "# " + check.ExpectedLines[0]),
+                    CheckPolarity.Negative => Ok(compliant ? "" : "telnet-server.x86_64  0.17-76.el8  @baseos"),
+                    _ => compliant ? Ok("compliant") : Fail(1, ""),
+                };
+            return compliant ? Ok("PermitRootLogin no") : Fail(1, "");
         }
 
         public ValueTask DisposeAsync()
@@ -156,6 +209,12 @@ public sealed class ScriptedSandbox : IValidationSandbox
         }
 
         private static Task<ExecResult> Ok(string stdout) => Task.FromResult(new ExecResult(0, stdout, ""));
+
+        private static async Task<ExecResult> Hang(CancellationToken cancellationToken)
+        {
+            await Task.Delay(Timeout.InfiniteTimeSpan, cancellationToken);
+            throw new InvalidOperationException("unreachable");
+        }
 
         private static Task<ExecResult> Fail(int code, string output) =>
             Task.FromResult(new ExecResult(code, output, ""));

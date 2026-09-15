@@ -27,9 +27,9 @@ namespace Stigsmith.Validation.Docker;
 public sealed class DockerValidationSandbox : IValidationSandbox, IDisposable
 {
     private readonly IDockerClient _client;
+    private readonly IDisposable? _ownedClient;
     private readonly ValidationOptions _options;
     private readonly ILogger<DockerValidationSandbox>? _logger;
-    private readonly bool _ownsClient;
 
     public DockerValidationSandbox(
         ValidationOptions options,
@@ -38,8 +38,17 @@ public sealed class DockerValidationSandbox : IValidationSandbox, IDisposable
     {
         _options = options;
         _logger = logger;
-        _ownsClient = client is null;
-        _client = client ?? new DockerClientConfiguration().CreateClient();
+        if (client is not null)
+        {
+            _client = client;
+            return;
+        }
+
+        // The builder reads DOCKER_HOST and the active docker context, so Docker Desktop, colima, Podman and a
+        // rootless daemon all work without any Stigsmith-specific configuration.
+        var owned = new DockerClientBuilder().Build();
+        _client = owned;
+        _ownedClient = owned;
     }
 
     public string Image => _options.Image;
@@ -49,10 +58,18 @@ public sealed class DockerValidationSandbox : IValidationSandbox, IDisposable
         try
         {
             await _client.System.PingAsync(cancellationToken);
+            // Never pulled: target environments are air-gapped, and an operator who has not built the image
+            // needs to be told so, not handed a container with no ansible in it.
+            await _client.Images.InspectImageAsync(_options.Image, cancellationToken);
             return true;
         }
-        catch (Exception ex) when (ex is DockerApiException or HttpRequestException or TimeoutException
-                                      or IOException or TaskCanceledException)
+        catch (DockerImageNotFoundException)
+        {
+            _logger?.LogWarning("Validation image {Image} is not present. Build it with: make image", _options.Image);
+            return false;
+        }
+        catch (Exception ex) when (ex is DockerApiException or DockerConfigurationException or HttpRequestException
+                                      or TimeoutException or IOException or TaskCanceledException)
         {
             _logger?.LogWarning(ex, "No Docker daemon is reachable, so validation cannot run.");
             return false;
@@ -61,12 +78,10 @@ public sealed class DockerValidationSandbox : IValidationSandbox, IDisposable
 
     public async Task<IValidationSession> StartAsync(CancellationToken cancellationToken = default)
     {
-        var image = await ResolveImageAsync(cancellationToken);
-
         var created = await _client.Containers.CreateContainerAsync(
             new CreateContainerParameters
             {
-                Image = image,
+                Image = _options.Image,
                 // Keep the container alive so each stage can be exec'd into it. `sleep infinity` rather than a shell,
                 // so nothing is waiting on stdin.
                 Cmd = ["sleep", "infinity"],
@@ -86,49 +101,38 @@ public sealed class DockerValidationSandbox : IValidationSandbox, IDisposable
             },
             cancellationToken);
 
-        await _client.Containers.StartContainerAsync(created.ID, new ContainerStartParameters(), cancellationToken);
-        _logger?.LogDebug("Started validation container {ContainerId} from {Image}.", created.ID[..12], image);
+        try
+        {
+            await _client.Containers.StartContainerAsync(created.ID, new ContainerStartParameters(), cancellationToken);
+        }
+        catch
+        {
+            // Created but never handed to a session, so nothing else would ever remove it.
+            await RemoveAsync(_client, created.ID, _logger);
+            throw;
+        }
 
+        _logger?.LogDebug("Started validation container {ContainerId} from {Image}.", created.ID[..12], _options.Image);
         return new DockerSession(_client, created.ID, _logger);
     }
 
-    /// <summary>
-    /// Returns the configured image if it is present locally, otherwise the fallback.
-    /// </summary>
-    /// <remarks>
-    /// Deliberately does not pull. Target environments are air-gapped, so a pull would hang rather than fail fast, and
-    /// an operator who has not built the validation image needs to be told that — not to have the tool quietly
-    /// substitute a bare image whose missing ansible would present as a lint failure.
-    /// </remarks>
-    private async Task<string> ResolveImageAsync(CancellationToken cancellationToken)
-    {
-        if (await ImageExistsAsync(_options.Image, cancellationToken)) return _options.Image;
+    public void Dispose() => _ownedClient?.Dispose();
 
-        _logger?.LogWarning(
-            "Validation image {Image} is not present locally. Falling back to {Fallback}, which has neither "
-            + "ansible-lint nor oscap installed, so stages depending on them will report as failed. Build the image "
-            + "from docker/validation/Dockerfile to get real validation.",
-            _options.Image, _options.FallbackImage);
-
-        return _options.FallbackImage;
-    }
-
-    private async Task<bool> ImageExistsAsync(string image, CancellationToken cancellationToken)
+    private static async Task RemoveAsync(IDockerClient client, string containerId, ILogger? logger)
     {
         try
         {
-            await _client.Images.InspectImageAsync(image, cancellationToken);
-            return true;
+            await client.Containers.RemoveContainerAsync(
+                containerId,
+                new ContainerRemoveParameters { Force = true, RemoveVolumes = true },
+                CancellationToken.None);
         }
-        catch (DockerImageNotFoundException)
+        catch (Exception ex) when (ex is DockerApiException or HttpRequestException or IOException)
         {
-            return false;
+            // Already tearing down. A container that cannot be removed is worth a log, not an exception that masks
+            // whatever the validation actually concluded.
+            logger?.LogWarning(ex, "Could not remove validation container {ContainerId}.", containerId);
         }
-    }
-
-    public void Dispose()
-    {
-        if (_ownsClient) _client.Dispose();
     }
 
     private sealed class DockerSession(IDockerClient client, string containerId, ILogger? logger) : IValidationSession
@@ -159,14 +163,14 @@ public sealed class DockerValidationSandbox : IValidationSandbox, IDisposable
 
             await client.Containers.ExtractArchiveToContainerAsync(
                 containerId,
-                new ContainerPathStatParameters { Path = directory, AllowOverwriteDirWithFile = true },
+                new CopyToContainerParameters { Path = directory, AllowOverwriteDirWithFile = true },
                 tar,
                 cancellationToken);
         }
 
         public async Task<ExecResult> ExecAsync(string command, CancellationToken cancellationToken = default)
         {
-            var exec = await client.Exec.ExecCreateContainerAsync(
+            var exec = await client.Exec.CreateContainerExecAsync(
                 containerId,
                 new ContainerExecCreateParameters
                 {
@@ -175,34 +179,20 @@ public sealed class DockerValidationSandbox : IValidationSandbox, IDisposable
                     Cmd = ["/bin/sh", "-lc", command],
                     AttachStdout = true,
                     AttachStderr = true,
-                    Tty = false,
+                    TTY = false,
                 },
                 cancellationToken);
 
-            using var stream = await client.Exec.StartAndAttachContainerExecAsync(exec.ID, tty: false, cancellationToken);
+            using var stream = await client.Exec.StartContainerExecAsync(
+                exec.ID, new ContainerExecStartParameters { Detach = false, TTY = false }, cancellationToken);
             var (stdout, stderr) = await stream.ReadOutputToEndAsync(cancellationToken);
 
             var inspected = await client.Exec.InspectContainerExecAsync(exec.ID, cancellationToken);
             logger?.LogTrace("exec [{ExitCode}] {Command}", inspected.ExitCode, command);
 
-            return new ExecResult((int)inspected.ExitCode, stdout ?? "", stderr ?? "");
+            return new ExecResult((int)(inspected.ExitCode ?? -1), stdout ?? "", stderr ?? "");
         }
 
-        public async ValueTask DisposeAsync()
-        {
-            try
-            {
-                await client.Containers.RemoveContainerAsync(
-                    containerId,
-                    new ContainerRemoveParameters { Force = true, RemoveVolumes = true },
-                    CancellationToken.None);
-            }
-            catch (Exception ex) when (ex is DockerApiException or HttpRequestException or IOException)
-            {
-                // Already tearing down. A container that cannot be removed is worth a log, not an exception that masks
-                // whatever the validation actually concluded.
-                logger?.LogWarning(ex, "Could not remove validation container {ContainerId}.", containerId);
-            }
-        }
+        public ValueTask DisposeAsync() => new(RemoveAsync(client, containerId, logger));
     }
 }

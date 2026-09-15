@@ -79,8 +79,22 @@ public sealed record ValidationEvidence
     public StageEvidence? Stage(ValidationStage stage) => Stages.FirstOrDefault(s => s.Stage == stage);
 
     public string ToJson() => JsonSerializer.Serialize(this, EvidenceJson.Options);
+
+    /// <summary>Null for a row whose evidence cannot be read, so one bad row degrades the report instead of failing it.</summary>
+    public static ValidationEvidence? FromJson(string json)
+    {
+        try
+        {
+            return JsonSerializer.Deserialize<ValidationEvidence>(json, EvidenceJson.Options);
+        }
+        catch (JsonException)
+        {
+            return null;
+        }
+    }
 }
 
+[JsonConverter(typeof(JsonStringEnumConverter))]
 public enum ComplianceVerifierKind
 {
     /// <summary>Not verified at all.</summary>

@@ -152,6 +152,34 @@ public class OllamaProviderTests
     }
 
     [Fact]
+    public async Task Reports_unavailable_when_no_model_is_installed_at_all()
+    {
+        var (provider, _) = Build(new StubHttpMessageHandler((request, _) =>
+            new HttpResponseMessage(HttpStatusCode.OK)
+            {
+                Content = new StringContent("""{"models":[]}"""),
+                RequestMessage = request,
+            }));
+
+        (await provider.IsAvailableAsync(Ct)).ShouldBeFalse();
+    }
+
+    /// <summary>A stream that stops without a done frame is a dropped connection, not a short answer.</summary>
+    [Fact]
+    public async Task A_stream_that_ends_without_a_done_frame_is_an_error()
+    {
+        var (provider, _) = Build(StubHttpMessageHandler.Streaming(
+            """{"message":{"content":"- name: partial"},"done":false}"""));
+
+        var error = await Should.ThrowAsync<RemediationProviderException>(async () =>
+        {
+            await foreach (var _ in provider.StreamAsync(Prompt, new GenerationParameters(), Ct)) { }
+        });
+
+        error.Message.ShouldContain("incomplete");
+    }
+
+    [Fact]
     public void Identifies_itself_for_the_audit_record()
     {
         var (provider, _) = Build(StubHttpMessageHandler.Streaming(), model: "codellama:13b");

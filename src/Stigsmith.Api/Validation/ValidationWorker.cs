@@ -27,7 +27,7 @@ namespace Stigsmith.Api.Validation;
 /// </para>
 /// </remarks>
 public sealed class ValidationWorker(
-    ValidationQueue queue,
+    JobQueue<ValidationJob> queue,
     IServiceScopeFactory scopes,
     IValidationSandbox sandbox,
     IRemediationProvider provider,
@@ -53,8 +53,10 @@ public sealed class ValidationWorker(
             }
             catch (Exception ex)
             {
-                // One rule's validation blowing up must not drain-stop the queue.
+                // One rule's validation blowing up must not drain-stop the queue, and it must not vanish either: a run
+                // with no row looks like it was never queued.
                 logger.LogError(ex, "Validation run {ValidationRunId} failed unexpectedly.", job.ValidationRunId);
+                await RecordFailureAsync(job, ex.Message, stoppingToken);
             }
         }
     }
@@ -102,6 +104,8 @@ public sealed class ValidationWorker(
             // skip as undefined and get misreported as "applied nothing".
             ReferencedVariables = [.. ReferencedVariables(index, rule)],
             RequireCheckMode = classification.IsHighRisk,
+            RoleVarsFiles = [.. index.VarsFiles.Select(f => f.Content)],
+            HandlerNames = index.HandlerNames,
         };
 
         var promptRequest = new RemediationRequest
@@ -155,6 +159,31 @@ public sealed class ValidationWorker(
             cancellationToken);
     }
 
+    private async Task RecordFailureAsync(ValidationJob job, string error, CancellationToken cancellationToken)
+    {
+        try
+        {
+            using var scope = scopes.CreateScope();
+            var db = scope.ServiceProvider.GetRequiredService<StigsmithDbContext>();
+            if (await db.ValidationRuns.AnyAsync(r => r.Id == job.ValidationRunId, cancellationToken)) return;
+
+            var evidence = new ValidationEvidence
+            {
+                Outcome = ValidationOutcome.NeedsHumanReview,
+                ContainerImage = sandbox.Image,
+                Summary = $"Validation did not complete: {error}",
+                CompletedAt = DateTimeOffset.UtcNow,
+            };
+            db.ValidationRuns.Add(ToRecord(job.ValidationRunId, job.GenerationId, evidence));
+            await db.SaveChangesAsync(cancellationToken);
+        }
+        catch (Exception ex)
+        {
+            // Already in the failure path; log and move on rather than losing the rest of the queue.
+            logger.LogError(ex, "Could not record the failure of validation run {ValidationRunId}.", job.ValidationRunId);
+        }
+    }
+
     private async Task<string?> RepairAsync(
         RemediationRequest promptRequest, RepairRequest repair, CancellationToken cancellationToken)
     {
@@ -181,13 +210,15 @@ public sealed class ValidationWorker(
     }
 
     /// <summary>
-    /// Variables the generated tasks are likely to reference: the role's own, plus this rule's per-rule toggle derived
-    /// from the role's template.
+    /// Variables the generated tasks may reference and the role's own files do not define, plus this rule's per-rule
+    /// toggle derived from the role's template. The toggle is included even when the role defines it, because the
+    /// placeholder file is applied last and the sandbox must run the task whatever the operator's default says.
     /// </summary>
     private static IEnumerable<string> ReferencedVariables(RoleIndex index, Stigsmith.Checklists.Model.RuleContent rule)
     {
+        var defined = index.VarsFiles.SelectMany(f => f.Names).ToHashSet(StringComparer.Ordinal);
         foreach (var name in index.Tasks.SelectMany(t => t.Variables).Distinct(StringComparer.Ordinal))
-            yield return name;
+            if (!defined.Contains(name)) yield return name;
 
         if (index.Conventions.RuleToggleTemplate is { Length: > 0 } template && rule.NumericId is { Length: > 0 })
             yield return template.Replace("<vuln number>", rule.NumericId, StringComparison.Ordinal);

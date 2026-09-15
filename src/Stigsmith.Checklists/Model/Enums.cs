@@ -1,6 +1,9 @@
+using System.Text.Json.Serialization;
+
 namespace Stigsmith.Checklists.Model;
 
 /// <summary>DISA severity. CAT I = High, CAT II = Medium, CAT III = Low.</summary>
+[JsonConverter(typeof(JsonStringEnumConverter))]
 public enum Severity
 {
     Unknown = 0,
@@ -10,6 +13,7 @@ public enum Severity
 }
 
 /// <summary>Review status of a single rule against a single host.</summary>
+[JsonConverter(typeof(JsonStringEnumConverter))]
 public enum FindingStatus
 {
     NotReviewed = 0,
@@ -18,6 +22,7 @@ public enum FindingStatus
     NotApplicable = 3,
 }
 
+[JsonConverter(typeof(JsonStringEnumConverter))]
 public enum ChecklistFormat
 {
     Unknown = 0,

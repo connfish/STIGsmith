@@ -39,7 +39,7 @@ public static class ValidationEndpoints
     }
 
     private static async Task<Results<Ok<ValidationQueueResult>, NotFound, BadRequest<ProblemDetails>>> QueueOne(
-        Guid id, StigsmithDbContext db, ValidationQueue queue, IValidationSandbox sandbox, CancellationToken ct)
+        Guid id, StigsmithDbContext db, JobQueue<ValidationJob> queue, IValidationSandbox sandbox, CancellationToken ct)
     {
         var generation = await db.Generations
             .Include(g => g.Finding)
@@ -75,27 +75,36 @@ public static class ValidationEndpoints
     /// validate" is a different problem from "validation failed".
     /// </remarks>
     private static async Task<Results<Ok<ValidationQueueResult>, NotFound, BadRequest<ProblemDetails>>> QueueChecklist(
-        Guid id, StigsmithDbContext db, ValidationQueue queue, IValidationSandbox sandbox, CancellationToken ct)
+        Guid id, StigsmithDbContext db, JobQueue<ValidationJob> queue, IValidationSandbox sandbox, CancellationToken ct)
     {
         if (!await db.Checklists.AnyAsync(c => c.Id == id, ct)) return TypedResults.NotFound();
         if (!await sandbox.IsAvailableAsync(ct)) return NoRuntime(sandbox);
 
-        var latest = await db.Generations
-            .Where(g => g.Finding!.ChecklistId == id)
-            .GroupBy(g => g.FindingId)
-            .Select(g => g.OrderByDescending(x => x.CreatedAt).First())
-            .Include(g => g.Finding)
-            .ToListAsync(ct);
+        // Newest generation per finding. Projected to the few columns needed and grouped in memory: a "latest per
+        // group" query with the finding joined in is not something EF Core translates, and a checklist has at most
+        // a few thousand generations.
+        var latest = (await db.Generations
+                .Where(g => g.Finding!.ChecklistId == id)
+                .OrderByDescending(g => g.CreatedAt)
+                .Select(g => new
+                {
+                    g.Id, g.FindingId, g.Error,
+                    HasYaml = g.Yaml.Length > 0,
+                    g.Finding!.RuleVersion,
+                    g.Finding.NumericId,
+                })
+                .ToListAsync(ct))
+            .DistinctBy(g => g.FindingId)
+            .OrderBy(g => g.NumericId, StringComparer.Ordinal);
 
         var queued = new List<QueuedValidation>();
         var skipped = new List<SkippedValidation>();
 
-        foreach (var generation in latest.OrderBy(g => g.Finding!.NumericId, StringComparer.Ordinal))
+        foreach (var generation in latest)
         {
-            var ruleVersion = generation.Finding!.RuleVersion;
-            if (generation.Yaml.Length == 0)
+            if (!generation.HasYaml)
             {
-                skipped.Add(new SkippedValidation(generation.Id, ruleVersion,
+                skipped.Add(new SkippedValidation(generation.Id, generation.RuleVersion,
                     generation.Error is { Length: > 0 } error
                         ? $"No usable YAML: {error}"
                         : "No usable YAML; the model reported it could not automate this rule."));
@@ -104,7 +113,7 @@ public static class ValidationEndpoints
 
             var runId = Guid.CreateVersion7();
             await queue.EnqueueAsync(new ValidationJob(runId, id, generation.Id), ct);
-            queued.Add(new QueuedValidation(runId, generation.Id, ruleVersion));
+            queued.Add(new QueuedValidation(runId, generation.Id, generation.RuleVersion));
         }
 
         return TypedResults.Ok(new ValidationQueueResult(
@@ -135,17 +144,21 @@ public static class ValidationEndpoints
                 Attempts = g.Count(),
                 Run = g.OrderByDescending(r => r.RepairAttempt).ThenByDescending(r => r.StartedAt).First(),
             })
-            .Select(x => new ValidationReportRow(
-                x.Run.Generation!.Finding!.RuleId,
-                x.Run.Generation.Finding.RuleVersion,
-                x.Run.Outcome,
-                Enum.TryParse<ValidationStage>(x.Run.FailedStage, out var stage) ? stage : null,
-                x.Attempts,
-                x.Run.ScanStatusBefore,
-                x.Run.ScanStatusAfter,
-                VerifierFrom(x.Run.EvidenceJson),
-                x.Run.IdempotencyChangedCount,
-                SummaryFrom(x.Run.EvidenceJson)))
+            .Select(x =>
+            {
+                var evidence = ValidationEvidence.FromJson(x.Run.EvidenceJson);
+                return new ValidationReportRow(
+                    x.Run.Generation!.Finding!.RuleId,
+                    x.Run.Generation.Finding.RuleVersion,
+                    x.Run.Outcome,
+                    Enum.TryParse<ValidationStage>(x.Run.FailedStage, out var stage) ? stage : null,
+                    x.Attempts,
+                    x.Run.ScanStatusBefore,
+                    x.Run.ScanStatusAfter,
+                    evidence?.VerifiedBy ?? ComplianceVerifierKind.None,
+                    x.Run.IdempotencyChangedCount,
+                    evidence?.Summary ?? "");
+            })
             .OrderBy(r => r.RuleVersion, StringComparer.Ordinal)
             .ToList();
 
@@ -177,7 +190,7 @@ public static class ValidationEndpoints
             .Select(ToDetail)];
 
     private static async Task<Ok<SandboxStatus>> Status(
-        IValidationSandbox sandbox, ValidationQueue queue, CancellationToken ct) =>
+        IValidationSandbox sandbox, JobQueue<ValidationJob> queue, CancellationToken ct) =>
         TypedResults.Ok(new SandboxStatus(
             sandbox.Image, await sandbox.IsAvailableAsync(ct), queue.Depth));
 
@@ -210,24 +223,6 @@ public static class ValidationEndpoints
                    + "docker build -t stigsmith/validation:el8 docker/validation",
             Status = StatusCodes.Status400BadRequest,
         });
-
-    private static ComplianceVerifierKind VerifierFrom(string evidenceJson)
-    {
-        foreach (var kind in Enum.GetValues<ComplianceVerifierKind>())
-            if (evidenceJson.Contains($"\"VerifiedBy\": \"{kind}\"", StringComparison.Ordinal))
-                return kind;
-        return ComplianceVerifierKind.None;
-    }
-
-    private static string SummaryFrom(string evidenceJson)
-    {
-        const string key = "\"Summary\": \"";
-        var start = evidenceJson.IndexOf(key, StringComparison.Ordinal);
-        if (start < 0) return "";
-        start += key.Length;
-        var end = evidenceJson.IndexOf('"', start);
-        return end < 0 ? "" : evidenceJson[start..end];
-    }
 }
 
 public sealed record ValidationQueueResult(
