@@ -1,9 +1,9 @@
 # Progress
 
-**Current milestone:** M4 complete. Starting M5.
+**Current milestone:** M5 complete. Starting M6 — the stop point.
 
-`dotnet test` → **120 passed, 15 skipped, 0 failed.** The skips are the API integration tests, which need
-a container runtime this machine does not have. See "Environment gaps" below.
+`dotnet test` → **154 passed, 25 skipped, 0 failed.** The skips are the API integration tests (no container
+runtime here) and one live-Ollama test. See "Environment gaps" below.
 
 ## Done
 
@@ -92,9 +92,34 @@ auditd): for a rule the role does not implement, the top neighbour must come fro
 2–3 do drift on a 21-task role — that is lexical retrieval's known weakness and it is documented rather
 than tuned away.
 
+### M5 — Generation ✅
+
+- `IRemediationProvider` with `OllamaRemediationProvider` as the default, not a fallback (constraint 4).
+  Streams NDJSON off `/api/chat`; `IsAvailableAsync` distinguishes "unreachable" from "model not installed",
+  because those need different actions from the operator.
+- `RemediationPromptAssembler` builds the prompt from rule content + retrieved examples + house conventions +
+  target OS. The system prompt keeps the model in translation mode and offers `# cannot-automate:` as a
+  first-class answer.
+- `AnsibleYamlExtractor` pulls YAML out of bare, fenced, and prose-wrapped responses, and **reports** invalid
+  YAML rather than repairing it — that message is what M6 feeds back on the repair attempt.
+- `GenerationQueue` (bounded `Channel`) + `GenerationWorker` (`BackgroundService`), one job at a time.
+  `GenerationHub` streams `generationStarted` / `generationChunk` / `generationCompleted` / `generationFailed`
+  to clients subscribed per checklist.
+- Every generation persists the **full prompt, model, parameters, prompt hash, and retrieved example
+  references** before the model is called.
+- API: `POST /api/checklists/{id}/generate` (with per-domain opt-in), `GET /api/generations/{id}`,
+  `GET /api/generations/status`, `GET /api/findings/{id}/generations`, hub at `/hubs/generation`.
+
+**Constraint 3, measured:** 424 prompts assembled from every finding in every fixture; 48 host values searched
+for in each; zero found. Plus canary assertions, `FindingDetails`/`Comments` absence, and a reflection check
+that `RemediationRequest` cannot reach host metadata.
+
+**Batch result:** 29 automatable open findings → 22 produced valid task YAML, 7 correctly reported
+cannot-automate, 0 invalid. Against a **scripted** provider — see below.
+
 ## Stubbed / not started
 
-- M5 generation, M6 validation loop.
+- M6 validation loop.
 - Job queues (`Channels` + `IHostedService`) and SignalR hubs. Not needed until M5.
 - The `examples/example-role/` synthetic Ansible role is an empty directory skeleton; M4 fills it.
 - M7 UI. Bonus only; not started, and will not be unless M6 lands solidly.
@@ -107,8 +132,10 @@ This machine has **no Docker, no Ollama, no `ansible-lint`, no `oscap`**. Conseq
   PostgreSQL. Those are the 9 skipped tests. The parsing and export logic underneath them is fully
   covered by tests that do run (`ChecklistMapperTests` exercises the same export path without a
   database), so the risk is in the HTTP and EF wiring, not the format handling.
-- **M5** will cover Ollama prompt and parameter assembly against a fake HTTP handler; the live call
-  will skip without a reachable Ollama.
+- **M5's model call is unverified against a real model.** The provider class itself is tested through a stub
+  HTTP handler (request body, NDJSON parsing, mid-stream errors, availability), and the pipeline is tested
+  with `ScriptedRemediationProvider`, which cycles the four response shapes real models produce. Nothing here
+  says whether a real model writes good Ansible. `Generates_against_a_live_ollama` skips without Ollama.
 - **M6**'s container path will be written against Docker.DotNet but cannot be executed here at all.
   Treat it as unrun code until someone runs it with Docker present.
 

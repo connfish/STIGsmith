@@ -367,3 +367,103 @@ metadata reachable at that point even by accident.
 A convention role is a git checkout an operator will pull. `POST /api/conventions/reindex` is explicit
 rather than automatic — a file watcher re-indexing mid-generation would change the examples underneath a
 running job for no benefit.
+
+---
+
+## M5 — Generation
+
+### The prompt's job is to keep the model in translation mode
+
+Left to itself, a model asked to "harden SSH" writes a dozen tasks it thinks are good ideas. Asked to express
+one specific documented fix, it writes that fix. So the system prompt says "translation task, not a design
+task" and then says it again concretely: do exactly what the fix text says, do not add related hardening, do
+not fix adjacent settings, do not reorder or improve the fix.
+
+The check content goes in too, framed as "this is the procedure that will be re-run after your tasks are
+applied". That is not context for its own sake — it is the acceptance criterion the model is writing against,
+and it is what M6 actually re-runs.
+
+### An explicit escape hatch: `# cannot-automate:`
+
+A model that cannot express a fix idempotently is told to say so in one line rather than produce something
+plausible. This matters more than it looks: the failure mode of a tool like this is confident nonsense that
+lints clean, and the only defence is making "I cannot" a first-class answer.
+
+`AnsibleYamlExtractor` treats it as a distinct outcome, not an error. The generation record carries no `Error`
+for it, and M6 will not spend a repair attempt on it.
+
+### Constraint 3 is enforced by the type, and verified by a sweep
+
+`RemediationRequest` takes a `RuleContent`. There is no hostname, address, MAC, FQDN, or target comment in
+scope to pass, so a leak is not something discipline prevents — it is something that does not typecheck.
+
+`PromptHygieneTests` is the other half, and it is the half that survives a future refactor:
+
+- **424 prompts** assembled from every finding in every fixture, with a real convention role attached.
+- **48 host values** from those checklists searched for in every one. Zero found.
+- A separate canary assertion on the `*-CANARY-STRING` values the fixtures carry in their host comments,
+  which appear nowhere else in the repository.
+- `FindingDetails` and `Comments` asserted absent. They are scan output that quotes the live system, and they
+  are the most tempting extra context available.
+- A reflection assertion that nothing reachable from `RemediationRequest` is a `HostMetadata`, `Checklist`, or
+  `Finding`.
+
+**One boundary stated honestly:** the few-shot examples are tasks from the operator's own Ansible role. If
+that role hardcodes an inventory hostname, that text does reach the model. It is the operator's own source
+code, pointed at Stigsmith deliberately, and it is not scan data — constraint 3 is about the host identifiers
+and finding detail that arrive with a checklist and are frequently CUI. Papering over the distinction would be
+worse than naming it.
+
+### Temperature 0, fixed seed
+
+This is translation. Two runs over the same rule should produce the same Ansible, and an operator comparing
+this month's output with last month's should be seeing a real difference rather than sampling noise. The
+parameters are persisted per generation, so a future change to them is visible in the audit trail rather than
+silently altering results.
+
+### The generation row is written before the model is called
+
+Prompt, model, and parameters are persisted first. If the call then fails, the prompt that failed is still on
+record — which is the point of persisting it. `GET /api/generations/{id}` returns the whole thing, so "what
+exactly did the model see?" is answerable in production and not only in a test.
+
+### One job at a time
+
+The default provider is a local model that serves one request at a time anyway. Concurrency in the worker
+would queue requests inside Ollama instead of in the channel, and make streamed output from several rules
+interleave incomprehensibly for anyone watching. The channel is bounded at 2000 with `FullMode.Wait`:
+unbounded would let one request pile up tens of thousands of jobs in memory, and dropping would silently skip
+rules the operator believes are queued.
+
+### Skip reasons are the interesting part of the queue response
+
+An operator who asks for 45 open findings and gets 29 queued needs to see that 6 were policy rules, 10 need
+their judgement, and the rest are high-risk pending opt-in — with the domains to opt into named. Without that,
+the tool looks like it dropped their work.
+
+### Tolerant extraction, no repair
+
+The prompt asks for bare YAML and models mostly comply. `AnsibleYamlExtractor` handles the rest: a fence, a
+leading sentence, a trailing "let me know if you need anything else". Discarding an otherwise correct
+generation over a formatting habit would just mean re-running the model for the same content in different
+packaging.
+
+It does **not** repair broken YAML. Invalid is invalid, with a message — and that message is what M6 feeds
+back on the repair attempt. Silently fixing up output would hide exactly the signal the loop needs.
+
+A playbook (`hosts:` / `tasks:`) is rejected rather than unwrapped. Accepting one would put a `hosts` line into
+the operator's role, which is both wrong and a constraint 3 hazard.
+
+### What is actually verified, and what is not
+
+**Verified here:** prompt assembly over all 424 fixture prompts; hygiene; the Ollama provider's request body,
+NDJSON stream parsing, error handling, and availability probe, driven through the real class with a stub
+handler; extraction across bare, fenced, prose-wrapped, malformed, playbook-shaped, and cannot-automate
+responses; the full queue → worker → extract → persist path with 29 automatable rules.
+
+**Not verified here:** a real model's output. `ScriptedRemediationProvider` cycles the four response shapes
+real models produce, which tests the pipeline and says nothing about whether a real model writes good
+Ansible. `Generates_against_a_live_ollama` skips without a reachable Ollama, and this machine has none.
+
+**Rejected:** asserting anything about generated Ansible quality against the scripted provider. That would be
+testing the fake, and it would read like evidence the tool works when it is not.

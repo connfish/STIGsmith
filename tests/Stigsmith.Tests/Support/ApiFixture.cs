@@ -3,7 +3,9 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 using Stigsmith.Api.Persistence;
+using Stigsmith.Generation.Providers;
 using Testcontainers.PostgreSql;
 
 namespace Stigsmith.Tests.Support;
@@ -25,6 +27,9 @@ public sealed class ApiFixture : IAsyncLifetime
 
     public HttpClient Client { get; private set; } = null!;
 
+    /// <summary>The scripted model behind the API, for inspecting the prompts it was sent.</summary>
+    public ScriptedRemediationProvider Provider { get; } = new();
+
     public static void SkipIfUnavailable() =>
         Assert.SkipUnless(TestEnvironment.HasDocker,
             "No container runtime available; this suite needs PostgreSQL in a container.");
@@ -44,6 +49,16 @@ public sealed class ApiFixture : IAsyncLifetime
             builder.UseSetting("ConnectionStrings:stigsmithdb", connection);
             builder.UseSetting("Stigsmith:Generation:ConventionRole:Path", TestEnvironment.ExampleRolePath);
             builder.UseEnvironment("Development");
+
+            // Swap the model for a scripted one. The generation API tests are about the queue, the worker, the
+            // persisted prompt and the extractor -- none of which need a real model, and all of which would
+            // otherwise be untestable anywhere without Ollama installed.
+            builder.ConfigureServices(services =>
+            {
+                services.RemoveAll<IRemediationProvider>();
+                services.AddSingleton<ScriptedRemediationProvider>(Provider);
+                services.AddSingleton<IRemediationProvider>(sp => sp.GetRequiredService<ScriptedRemediationProvider>());
+            });
         });
 
         Client = _factory.CreateClient();
